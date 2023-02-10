@@ -5,19 +5,36 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Run Module",
+            "name": "E4E Duplicator",
             "type": "python",
             "request": "launch",
-            "module": "examplePackage.exampleModule",
-            "justMyCode": true
+            "module": "e4e_data_management.duplicator",
+            "justMyCode": true,
+            "args": []
         },
         {
-            "name": "Python: Run File",
+            "name": "E4E Data Wrangler",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/examplePackage/exampleModule.py",
-            "console": "integratedTerminal",
-            "justMyCode": true
+            "module": "e4e_data_management.data_wrangler",
+            "justMyCode": true,
+            "args": []
+        },
+        {
+            "name": "E4E Storage Tool",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e_data_management.storage",
+            "justMyCode": true,
+            "args": []
+        },
+        {
+            "name": "E4E Archiver",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e_data_management.archive",
+            "justMyCode": true,
+            "args": []
         }
     ]
 }
