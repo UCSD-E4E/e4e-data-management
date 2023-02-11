@@ -7,13 +7,13 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from e4e_data_management.manifest import Manifest
+from e4e_data_management.metadata import Metadata
 
 
 def test_manifest_serialization():
     """Testing manifest serialization
     """
-    manifest = Manifest(
+    manifest = Metadata(
         timestamp=dt.datetime.now().astimezone(),
         device='test',
         country='USA',
@@ -33,7 +33,7 @@ def test_manifest_serialization():
         root = Path(tmpdir)
         manifest.write(directory=root)
 
-        new_manifest = Manifest.load(directory=root)
+        new_manifest = Metadata.load(directory=root)
 
     assert manifest == new_manifest
     assert new_manifest.timestamp.tzinfo is not None
@@ -41,7 +41,7 @@ def test_manifest_serialization():
 def test_no_tzinfo():
     """Testing manifest serialization with no timezone
     """
-    manifest = Manifest(
+    manifest = Metadata(
         timestamp=dt.datetime.now(),
         device='test',
         country='USA',
