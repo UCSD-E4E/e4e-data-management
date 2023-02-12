@@ -53,4 +53,14 @@ def validate_folder(run: Path):
         output = subprocess.check_output(['sha256sum', file.as_posix()])
         cksum = output.decode().splitlines()[0].split()[0]
         assert cksum == manifest[manifest_key]['sha256sum']
+
+def test_self_validate(single_validated_expedition: Path):
+    """Tests self consistency
+
+    Args:
+        single_validated_expedition (Path): Validated Expedition
+    """
+    dataset = Dataset(single_validated_expedition)
+    manifest = dataset.get_manifest()
+    assert dataset.validate(manifest=manifest)
     
