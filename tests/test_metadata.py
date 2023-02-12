@@ -41,23 +41,20 @@ def test_manifest_serialization():
 def test_no_tzinfo():
     """Testing manifest serialization with no timezone
     """
-    manifest = Metadata(
-        timestamp=dt.datetime.now(),
-        device='test',
-        country='USA',
-        region='California',
-        site='San Diego',
-        mission='test_manifest_serialization',
-        properties={
-            'seed': 123,
-            'random_float': 3.14,
-            'random_bool': True,
-            'random_string': 'asdf',
-            'random_null': None
-        },
-        notes='Random Note'
-    )
-    with TemporaryDirectory() as tmpdir:
-        root = Path(tmpdir)
-        with pytest.raises(Exception):
-            manifest.write(directory=root)
+    with pytest.raises(Exception):
+        manifest = Metadata(
+            timestamp=dt.datetime.now(),
+            device='test',
+            country='USA',
+            region='California',
+            site='San Diego',
+            mission='test_manifest_serialization',
+            properties={
+                'seed': 123,
+                'random_float': 3.14,
+                'random_bool': True,
+                'random_string': 'asdf',
+                'random_null': None
+            },
+            notes='Random Note'
+        )
