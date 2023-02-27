@@ -17,7 +17,7 @@ def main():
         'init_dataset': init_dataset,
         'init_mission': init_mission,
         'config': None,
-        'select': None,
+        'activate': None,
         'add': None,
         'commit': None,
         'duplicate': None,
