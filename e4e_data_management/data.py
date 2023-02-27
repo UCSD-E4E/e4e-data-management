@@ -1,10 +1,22 @@
-'''Validation logic
+'''Data classes
 '''
+import datetime as dt
 import json
+from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
-from typing import Dict, Union, Generator
+from typing import Dict, Generator, Union
 
+
+@dataclass
+class Site:
+    country: str
+    region: str
+    site: str
+
+class Mission:
+    def __init__(self, path: Path) -> None:
+        pass
 
 class Dataset:
     """Dataset
@@ -98,3 +110,6 @@ class Dataset:
             if not file.is_file():
                 continue
             yield file
+
+    def add_mission(self) -> None:
+        pass

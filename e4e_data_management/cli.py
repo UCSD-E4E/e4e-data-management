@@ -4,11 +4,22 @@ import sys
 from typing import Callable, Dict, List
 
 from e4e_data_management.initialization import init_dataset, init_mission
-
+from e4e_data_management.core import DataManager
 
 def print_help():
     """Prints the top level help
     """
+
+def status(args: List[str]) -> None:
+    """Prints the current status
+
+    Args:
+        args (List[str]): Arguments
+    """
+    if len(args) != 0:
+        print_help()
+        return
+    print(DataManager().status())
 
 def main():
     """Main function
@@ -16,6 +27,7 @@ def main():
     command_map: Dict[str, Callable[[List[str]], None]] = {
         'init_dataset': init_dataset,
         'init_mission': init_mission,
+        'status': status,
         'config': None,
         'activate': None,
         'add': None,
