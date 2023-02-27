@@ -28,8 +28,9 @@ Each of these also has a corresponding command line version:
 `e4edm config parameter value`
 `e4edm select dataset day mission`
 `e4edm add files`
+`e4edm commit`
 `e4edm duplicate paths`
 `e4edm validate`
-`e4edm commit destination`
+`e4edm push destination`
 `e4edm zip`
 `e4edm unzip`

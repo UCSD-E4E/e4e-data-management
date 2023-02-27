@@ -20,9 +20,10 @@ def main():
         'config': None,
         'select': None,
         'add': None,
+        'commit': None,
         'duplicate': None,
         'validate': None,
-        'commit': None,
+        'push': None,
         'zip': None,
         'unzip': None
     }
