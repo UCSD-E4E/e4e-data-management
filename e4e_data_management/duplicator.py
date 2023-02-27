@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 from typing import Iterable, List
 
-from e4e_data_management.validator import Dataset
+from e4e_data_management.data import Dataset
 
 
 class Duplicator:

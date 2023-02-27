@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from e4e_data_management.validator import Dataset
+from e4e_data_management.data import Dataset
 
 N_LINES = 1024
 N_DAYS = 3

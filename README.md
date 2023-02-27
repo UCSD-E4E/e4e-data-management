@@ -26,6 +26,7 @@ Each of these also has a corresponding command line version:
 `e4edm init_dataset --date date --project project --location location [--path path]`
 `e4edm init_mission --timestamp timestamp --device device --country country --region region --site site --mission mission [--notes notes]`
 `e4edm config parameter value`
+`e4edm status`
 `e4edm activate dataset [day mission]`
 `e4edm add files`
 `e4edm commit`

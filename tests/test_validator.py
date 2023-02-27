@@ -4,7 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from e4e_data_management.validator import Dataset
+from e4e_data_management.data import Dataset
 
 
 def test_create_manifests():

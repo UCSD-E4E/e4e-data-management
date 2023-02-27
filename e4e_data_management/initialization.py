@@ -3,9 +3,7 @@ import datetime as dt
 from pathlib import Path
 from typing import List
 
-from e4e_data_management.config import AppConfiguration
-from e4e_data_management.validator import Dataset
-
+from e4e_data_management.core import DataManager
 
 def init_dataset(args: List[str]) -> None:
     """initialize_dataset command line interface
@@ -13,6 +11,7 @@ def init_dataset(args: List[str]) -> None:
     Args:
         args (List[str]): Command Line Arguments
     """
+    app = DataManager()
     parser = argparse.ArgumentParser(
         prog='e4edm init_dataset'
     )
@@ -36,27 +35,12 @@ def init_dataset(args: List[str]) -> None:
     project: str = args.project
     location: str = args.location
     directory: Path = args.path
-    initialize_dataset(date, project, location, directory)
-
-def initialize_dataset(date: dt.date, project: str, location: str, directory: Path):
-    """Initializes a new dataset
-
-    Args:
-        date (dt.date): Date of expedition
-        project (str): Expedition's project
-        location (str): Expedition common name
-        directory (Path): Path to create dataset in
-    """
-    dataset_path = directory.joinpath(
-        f'{date.year}.{date.month}.{project}.{location}')
-    dataset_path.mkdir(parents=True, exist_ok=True)
-
-    config = AppConfiguration.get_instance()
-    config.current_dataset = dataset_path
-    config.save()
-
-    dataset = Dataset(dataset_path)
-    dataset.generate_manifest()
+    app.initialize_dataset(
+        date=date,
+        project=project,
+        location=location,
+        directory=directory
+    )
 
 def init_mission(args: List[str]) -> None:
     """`init_mission` command line interface
@@ -79,3 +63,16 @@ def init_mission(args: List[str]) -> None:
                         help='Mission country',
                         required=False,
                         default=None)
+    parser.add_argument('--region', '-r',
+                        help='Mission region',
+                        required=False,
+                        default=None)
+    parser.add_argument('--site', '-s',
+                        help='Mission site',
+                        required=True)
+    parser.add_argument('--name', '-n',
+                        help='Mission name',
+                        required=True)
+    parser.add_argument('--message', '-m',
+                        help='Mission notes')
+    args = parser.parse_args(args=args)

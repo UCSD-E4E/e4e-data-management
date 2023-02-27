@@ -5,7 +5,7 @@ import os
 import re
 from pathlib import Path
 
-from e4e_data_management.validator import Dataset
+from e4e_data_management.data import Dataset
 
 
 class StorageTool:
