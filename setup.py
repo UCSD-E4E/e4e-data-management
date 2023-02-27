@@ -19,7 +19,7 @@ setup(
             'E4EDataWranglerCli = e4e_data_management.data_wrangler:cli',
             'E4ECommitterCli = e4e_data_management.storage:cli',
             'E4EArchiverCli = e4e_data_management.archive:cli',
-            'e4edm = e4e_data_management.core:main'
+            'e4edm = e4e_data_management.cli:main'
         ]
     },
     packages=find_packages(),

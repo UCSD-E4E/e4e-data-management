@@ -1,10 +1,9 @@
 '''E4E Data Management Core
 '''
-import argparse
 import sys
 from typing import Callable, Dict, List
 
-from e4e_data_management.initialization import init_dataset
+from e4e_data_management.initialization import init_dataset, init_mission
 
 
 def print_help():
@@ -16,7 +15,7 @@ def main():
     """
     command_map: Dict[str, Callable[[List[str]], None]] = {
         'init_dataset': init_dataset,
-        'init_mission': None,
+        'init_mission': init_mission,
         'config': None,
         'select': None,
         'add': None,
