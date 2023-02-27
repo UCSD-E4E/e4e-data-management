@@ -22,3 +22,14 @@ Each of these also has a corresponding command line version:
 4. Select the new virtual environment for the workspace
 5. Create a new Python terminal
 6. Run `python -m pip install -e .[dev]`
+
+`e4edm init_dataset --date date --project project --location location [--path path]`
+`e4edm init_mission --timestamp timestamp --device device --country country --region region --site site --mission mission [--notes notes]`
+`e4edm config parameter value`
+`e4edm select dataset day mission`
+`e4edm add files`
+`e4edm duplicate paths`
+`e4edm validate`
+`e4edm commit destination`
+`e4edm zip`
+`e4edm unzip`
