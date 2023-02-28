@@ -1,0 +1,51 @@
+'''Tests creating a dataset
+'''
+import datetime as dt
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from e4e_data_management.core import DataManager
+
+
+def test_init_dataset():
+    """Tests creating the dataset
+    """
+    with TemporaryDirectory() as temp_folder:
+        root_dir = Path(temp_folder)
+        app = DataManager(app_config_dir=root_dir)
+        date = dt.date.today()
+        project = 'TEST'
+        location = 'San Diego'
+        app.initialize_dataset(
+            date=date,
+            project=project,
+            location=location,
+            directory=root_dir
+        )
+
+        dataset_dir = root_dir.joinpath(f'{date.year:04d}.{date.month:02d}.{project}.{location}')
+        assert dataset_dir.is_dir()
+        assert dataset_dir.joinpath('manifest.json').is_file()
+
+def test_init_existing():
+    """Tests that running init on an existing dataset will do nothing
+    """
+    with TemporaryDirectory() as temp_folder:
+        root_dir = Path(temp_folder)
+        app = DataManager(app_config_dir=root_dir)
+        date = dt.date.today()
+        project = 'TEST'
+        location = 'San Diego'
+        app.initialize_dataset(
+            date=date,
+            project=project,
+            location=location,
+            directory=root_dir
+        )
+
+        app.initialize_dataset(
+            date=date,
+            project=project,
+            location=location,
+            directory=root_dir
+        )
