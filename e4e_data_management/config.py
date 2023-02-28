@@ -105,3 +105,22 @@ class AppConfiguration:
             config_file.parent.mkdir(parents=True, exist_ok=True)
         with open(config_file, 'wb') as handle:
             pickle.dump(self, handle)
+
+    def add_dataset(self, name: str, path: Path, *, no_check: bool = False) -> None:
+        """Convenience function to add a dataset
+
+        Args:
+            name (str): Dataset Name
+            path (Path): Path to dataset
+            no_check (bool, optional): Bypasses the existence check. Defaults to False.
+
+        Raises:
+            RuntimeError: If that named dataset already exists
+        """
+        if not no_check and name in self.datasets:
+            raise RuntimeError('Dataset with that name already exists!')
+        self.current_dataset_name = name
+        self.current_dataset = path
+        self.datasets[name] = path
+
+        self.save()

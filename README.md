@@ -35,6 +35,8 @@ Each of these also has a corresponding command line version:
 `e4edm push destination`
 `e4edm zip`
 `e4edm unzip`
+`e4edm list`
+`e4edm prune`
 
 # Developer Notes
 The final dataset folder should have the following internal structure:

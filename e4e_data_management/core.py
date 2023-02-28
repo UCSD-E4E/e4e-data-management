@@ -42,9 +42,10 @@ class DataManager:
         dataset_path = directory.joinpath(dataset_name)
         dataset_path.mkdir(parents=True, exist_ok=True)
 
-        self.appconfig.current_dataset = dataset_path.absolute()
-        self.appconfig.current_dataset_name = dataset_name
-        self.appconfig.save()
+        self.appconfig.add_dataset(
+            name=dataset_name,
+            path=dataset_path.absolute()
+        )
 
         self.active_dataset = Dataset(dataset_path.absolute())
         self.active_dataset.generate_manifest()
@@ -168,3 +169,21 @@ class DataManager:
             input_file (Path): Archived dataset
             output_path (Path): New root
         """
+
+    def list_datasets(self) -> List[str]:
+        """Lists the known datasets
+
+        Returns:
+            List[str]: List of dataset names
+        """
+        return list(self.appconfig.datasets.keys())
+
+    def prune(self) -> None:
+        """Prunes missing datasets
+        """
+        items_to_remove: List[str] = []
+        for name, path in self.appconfig.datasets.items():
+            if not path.is_dir():
+                items_to_remove.append(name)
+        for remove in items_to_remove:
+            self.appconfig.datasets.pop(remove)

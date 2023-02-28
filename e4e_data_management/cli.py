@@ -21,6 +21,29 @@ def status(args: List[str]) -> None:
         return
     print(DataManager().status())
 
+def list_datasets(args: List[str]) -> None:
+    """Lists the known datasets
+
+    Args:
+        args (List[str]): Arguments
+    """
+    if len(args) != 0:
+        print_help()
+        return
+    for dataset in DataManager().list_datasets():
+        print(dataset)
+
+def prune_datasets(args: List[str]):
+    """Prunes missing datasets
+
+    Args:
+        args (List[str]): Arguments
+    """
+    if len(args) != 0:
+        print_help()
+        return
+    DataManager().prune()
+
 def main():
     """Main function
     """
@@ -28,6 +51,7 @@ def main():
         'init_dataset': init_dataset,
         'init_mission': init_mission,
         'status': status,
+        'list': list_datasets,
         'config': None,
         'activate': None,
         'add': None,
@@ -36,7 +60,8 @@ def main():
         'validate': None,
         'push': None,
         'zip': None,
-        'unzip': None
+        'unzip': None,
+        'prune': prune_datasets,
     }
     args = sys.argv
     if args[1] not in command_map:
