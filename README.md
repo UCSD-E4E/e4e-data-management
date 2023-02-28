@@ -35,3 +35,23 @@ Each of these also has a corresponding command line version:
 `e4edm push destination`
 `e4edm zip`
 `e4edm unzip`
+
+# Developer Notes
+The final dataset folder should have the following internal structure:
+```
+[YYYY].[MM].[PROJ].[GEN_LOCATION]/
+    ED-00/
+        [Data as defined by the project]
+        metadata.json
+    ED-01/
+        [Data as defined by the project]
+        metadata.json
+    ...
+    .e4edm.pkl
+    readme.md/.docx
+    manifest.json
+```
+
+`.e4edm.pkl` is a E4E Data Management Tool file - this is not part of the dataset, but should not be removed.  This is to retain state for the E4E Data Management tool.
+
+`manifest.json` shall contain the following information
