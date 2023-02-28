@@ -1,5 +1,6 @@
 '''Test validators
 '''
+import sys
 import json
 import subprocess
 from pathlib import Path
@@ -50,8 +51,20 @@ def validate_folder(run: Path):
         manifest_key = file.relative_to(run).as_posix()
         assert manifest_key in manifest
 
-        output = subprocess.check_output(['sha256sum', file.as_posix()])
-        cksum = output.decode().splitlines()[0].split()[0]
+        if sys.platform == 'linux':
+            output = subprocess.check_output(['sha256sum', file.as_posix()])
+            cksum = output.decode().splitlines()[0].split()[0]
+        elif sys.platform == 'win32':
+            # Note: certUtil actually throws an error on empty string!  So we need to bypass...
+            if file.lstat().st_size != 0:
+                output = subprocess.check_output(
+                    ['certUtil', '-hashfile', file.absolute().as_posix(), 'SHA256'])
+                cksum = output.decode().splitlines()[1].strip()
+            else:
+                cksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        else:
+            raise NotImplementedError
+
         assert cksum == manifest[manifest_key]['sha256sum']
 
 def test_self_validate(single_validated_expedition: Path):
