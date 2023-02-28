@@ -39,8 +39,6 @@ class ExpeditionConfiguration:
         config_dir = path
 
         config_file = config_dir.joinpath('.e4edm.pkl')
-        if not config_file.exists():
-            config_file.parent.mkdir(parents=True, exist_ok=True)
         with open(config_file, 'rb') as handle:
             return pickle.load(handle)
 
