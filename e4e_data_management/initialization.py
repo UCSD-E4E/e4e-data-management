@@ -19,13 +19,13 @@ def init_dataset(args: List[str]) -> None:
                         help='Date of expedition (YY.MM)',
                         required=True,
                         type=dt.date.fromisoformat)
-    parser.add_argument('--project', '-P',
+    parser.add_argument('--project', '-p',
                         help='Project',
                         required=True)
     parser.add_argument('--location', '-l',
                         help='Expedition location (common name)',
                         required=True)
-    parser.add_argument('--path', '-p',
+    parser.add_argument('--path',
                         default=Path('.'),
                         type=Path,
                         help='Dataset location, defaults to current directory')
