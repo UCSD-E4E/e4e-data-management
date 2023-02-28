@@ -67,7 +67,7 @@ class AppConfiguration:
 
     __app_config_instance = None
     @classmethod
-    def get_instance(cls) -> AppConfiguration:
+    def get_instance(cls, config_dir: Optional[Path] = None) -> AppConfiguration:
         """Retrieves the singleton Configuration instance
 
         Returns:
@@ -75,15 +75,16 @@ class AppConfiguration:
         """
         # global __app_config_instance # pylint: disable=invalid-name,global-statement
         if cls.__app_config_instance is None:
-            cls.__app_config_instance = cls.__load()
+            cls.__app_config_instance = cls.__load(config_dir=config_dir)
         return cls.__app_config_instance
 
     @classmethod
-    def __load(cls) -> AppConfiguration:
-        config_dir = Path(appdirs.user_config_dir(
-            appname='E4EDataManagement',
-            appauthor='Engineers for Exploration'
-        ))
+    def __load(cls, *, config_dir: Optional[Path] = None) -> AppConfiguration:
+        if config_dir is None:
+            config_dir = Path(appdirs.user_config_dir(
+                appname='E4EDataManagement',
+                appauthor='Engineers for Exploration'
+            ))
 
         config_file = config_dir.joinpath('config.pkl')
         if not config_file.exists():

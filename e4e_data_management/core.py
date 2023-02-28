@@ -11,9 +11,9 @@ from e4e_data_management.data import Dataset
 
 
 class DataManager:
-    def __init__(self):
+    def __init__(self, *, app_config_dir: Optional[Path] = None):
         self.__log = logging.getLogger('DataManager')
-        self.appconfig = AppConfiguration.get_instance()
+        self.appconfig = AppConfiguration.get_instance(config_dir=app_config_dir)
         self.active_dataset: Optional[Dataset] = None
         self.dataset_config: Optional[ExpeditionConfiguration] = None
         if self.appconfig.current_dataset:
