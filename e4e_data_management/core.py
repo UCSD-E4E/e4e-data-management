@@ -27,6 +27,7 @@ class DataManager:
                 self.appconfig.current_dataset = None
                 self.appconfig.current_dataset_name = None
                 self.appconfig.current_mission = None
+                self.appconfig.save()
 
 
     def initialize_dataset(self, date: dt.date, project: str, location: str, directory: Path):
