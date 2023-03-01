@@ -75,9 +75,12 @@ class AppConfiguration:
             Configuration: Configuration singleton
         """
         # global __app_config_instance # pylint: disable=invalid-name,global-statement
-        if cls.__app_config_instance is None:
-            cls.__app_config_instance = cls.__load(config_dir=config_dir)
-        if cls.__app_config_instance.config_path != config_dir:
+        try:
+            if cls.__app_config_instance is None:
+                cls.__app_config_instance = cls.__load(config_dir=config_dir)
+            if cls.__app_config_instance.config_path != config_dir:
+                cls.__app_config_instance = cls.__load(config_dir=config_dir)
+        except Exception: # pylint: disable=broad-except
             cls.__app_config_instance = cls.__load(config_dir=config_dir)
         return cls.__app_config_instance
 
