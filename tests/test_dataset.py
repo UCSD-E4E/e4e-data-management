@@ -4,6 +4,8 @@ import datetime as dt
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import pytest
+
 from e4e_data_management.core import DataManager
 
 
@@ -43,9 +45,10 @@ def test_init_existing():
             directory=root_dir
         )
 
-        app.initialize_dataset(
-            date=date,
-            project=project,
-            location=location,
-            directory=root_dir
-        )
+        with pytest.raises(RuntimeError):
+            app.initialize_dataset(
+                date=date,
+                project=project,
+                location=location,
+                directory=root_dir
+            )
