@@ -30,8 +30,12 @@ def list_datasets(args: List[str]) -> None:
     if len(args) != 0:
         print_help()
         return
-    for dataset in DataManager().list_datasets():
-        print(dataset)
+    datasets = DataManager().list_datasets()
+    if len(datasets) == 0:
+        print('No datasets found')
+    else:
+        for dataset in datasets:
+            print(dataset)
 
 def prune_datasets(args: List[str]):
     """Prunes missing datasets
