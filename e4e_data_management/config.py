@@ -81,7 +81,7 @@ class AppConfiguration:
             if cls.__app_config_instance.config_path != config_dir:
                 cls.__app_config_instance = cls.__load(config_dir=config_dir)
         except Exception: # pylint: disable=broad-except
-            cls.__app_config_instance = cls.__load(config_dir=config_dir)
+            cls.__app_config_instance = cls.__load()
         return cls.__app_config_instance
 
     @classmethod
