@@ -60,6 +60,7 @@ class AppConfiguration:
     Returns:
         Configuration: Application configuration
     """
+    config_path: Path
     current_dataset_name: Optional[str] = None
     current_dataset: Optional[Path] = None
     current_mission: Optional[Path] = None
@@ -76,6 +77,8 @@ class AppConfiguration:
         # global __app_config_instance # pylint: disable=invalid-name,global-statement
         if cls.__app_config_instance is None:
             cls.__app_config_instance = cls.__load(config_dir=config_dir)
+        if cls.__app_config_instance.config_path != config_dir:
+            cls.__app_config_instance = cls.__load(config_dir=config_dir)
         return cls.__app_config_instance
 
     @classmethod
@@ -88,19 +91,14 @@ class AppConfiguration:
 
         config_file = config_dir.joinpath('config.pkl')
         if not config_file.exists():
-            return AppConfiguration()
+            return AppConfiguration(config_path=config_dir)
         with open(config_file, 'rb') as handle:
             return pickle.load(handle)
 
     def save(self) -> None:
         """Saves the configuration to disk
         """
-        config_dir = Path(appdirs.user_config_dir(
-            appname='E4EDataManagement',
-            appauthor='Engineers for Exploration'
-        ))
-
-        config_file = config_dir.joinpath('config.pkl')
+        config_file = self.config_path.joinpath('config.pkl')
         if not config_file.exists():
             config_file.parent.mkdir(parents=True, exist_ok=True)
         with open(config_file, 'wb') as handle:
