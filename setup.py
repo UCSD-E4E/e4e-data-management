@@ -11,14 +11,6 @@ setup(
     author_email='e4e@eng.ucsd.edu',
     entry_points={
         'console_scripts': [
-            'E4EDuplicator = e4e_data_management.duplicator:gui',
-            'E4EDataWrangler = e4e_data_management.data_wrangler:gui',
-            'E4ECommitter = e4e_data_management.storage:gui',
-            'E4EArchiver = e4e_data_management.archive:gui',
-            'E4EDuplicatorCli = e4e_data_management.duplicator:cli',
-            'E4EDataWranglerCli = e4e_data_management.data_wrangler:cli',
-            'E4ECommitterCli = e4e_data_management.storage:cli',
-            'E4EArchiverCli = e4e_data_management.archive:cli',
             'e4edm = e4e_data_management.cli:main'
         ]
     },
