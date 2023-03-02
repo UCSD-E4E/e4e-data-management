@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional, List
 
 from e4e_data_management.config import AppConfiguration
-from e4e_data_management.data import Dataset
+from e4e_data_management.data import Dataset, Mission
 from e4e_data_management.metadata import Metadata
 
 class DataManager:
@@ -62,9 +62,11 @@ class DataManager:
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
-        self.active_dataset.add_mission(
+        mission = self.active_dataset.add_mission(
             metadata=metadata
         )
+        self.appconfig.current_mission = mission.path
+        self.appconfig.save()
 
     def status(self) -> str:
         """Generates a status string
@@ -111,6 +113,8 @@ class DataManager:
         Args:
             paths (List[Path]): List of paths to add
         """
+        if self.active_dataset is None:
+            raise RuntimeError('Dataset not active')
 
     def commit(self) -> None:
         """This should copy files and directories in the staging area to the committed area, and
