@@ -77,6 +77,9 @@ def test_create_multiple_missions():
 
         assert len(app.active_dataset.missions) == 3
         assert app.active_dataset.sites == {'Site 1', 'Site 2'}
+        assert app.appconfig.current_dataset == dataset_dir
+        assert app.appconfig.current_dataset_name == '2023.03.TEST.San Diego'
+        assert app.appconfig.current_mission == dataset_dir.joinpath('ED-01', 'RUN003')
 
 
 def test_create_mission():
@@ -143,3 +146,7 @@ def test_create_mission():
         assert app.active_dataset.last_country == 'USA'
         assert app.active_dataset.last_region == 'San Diego'
         assert app.active_dataset.last_site == 'Site 1'
+
+        assert app.appconfig.current_dataset == dataset_dir
+        assert app.appconfig.current_dataset_name == '2023.03.TEST.San Diego'
+        assert app.appconfig.current_mission == dataset_dir.joinpath('ED-00', 'RUN001')
