@@ -7,12 +7,15 @@ import json
 import pickle
 from hashlib import sha256
 from pathlib import Path
-from typing import Dict, Generator, List, Optional, Union, Iterable, Callable
+from typing import (Callable, Dict, Generator, Iterable, List, Optional, Set,
+                    Union)
 
 from e4e_data_management.metadata import Metadata
 
 
 class Manifest:
+    """Manifest of files
+    """
     def __init__(self, path: Path, root: Optional[Path] = None):
         self.__path = path
         if root is None:
@@ -24,6 +27,19 @@ class Manifest:
                  files: Iterable[Path],
                  *,
                  method: str = 'hash') -> bool:
+        """Validates the files against the specified manifest
+
+        Args:
+            manifest (Dict[str, Dict[str, Union[str, int]]]): Manifest to verify against
+            files (Iterable[Path]): Files to verify
+            method (str, optional): Verification method. Defaults to 'hash'.
+
+        Raises:
+            NotImplementedError: Unsupported verification method
+
+        Returns:
+            bool: True if valid, otherwise False
+        """
         for file in files:
             file_key = file.relative_to(self.__root)
             if file_key not in manifest:
@@ -41,10 +57,20 @@ class Manifest:
         return True
 
     def get_dict(self) -> Dict[str, Dict[str, Union[str, int]]]:
+        """Retrieves the dictionary of files and checksums
+
+        Returns:
+            Dict[str, Dict[str, Union[str, int]]]: Dictionary of files, checksums and sizes
+        """
         with open(self.__path, 'r', encoding='ascii') as handle:
             return json.load(handle)
 
     def generate(self, files: Iterable[Path]):
+        """Generates the manifest with only the specified files
+
+        Args:
+            files (Iterable[Path]): Files to make manifest to
+        """
         data = self.__compute_hashes(
             root=self.__root,
             files=files
@@ -56,8 +82,13 @@ class Manifest:
             json.dump(data, handle, indent=4)
 
     def update(self, files: Iterable[Path]):
+        """Updates the manifest with the specified files
+
+        Args:
+            files (Iterable[Path]): Iterable of new files
+        """
         data = self.get_dict()
-        files_to_checksum = (file 
+        files_to_checksum = (file
                              for file in files
                              if file.relative_to(self.__root).as_posix() not in data)
         new_checksums = self.__compute_hashes(
@@ -131,12 +162,21 @@ class Mission:
 
     @classmethod
     def load(cls, path: Path) -> Mission:
+        """Loads mission from disk
+
+        Args:
+            path (Path): Path to mission folder
+
+        Returns:
+            Mission: Mission object
+        """
         metadata = Metadata.load(path)
         return Mission(path=path, mission_metadata=metadata)
 
 class Dataset:
     """Dataset
     """
+    # pylint: disable=too-many-instance-attributes
 
     __MANIFEST_NAME = 'manifest.json'
     __CONFIG_NAME = '.e4edm.pkl'
@@ -147,9 +187,10 @@ class Dataset:
         self.last_country: Optional[str] = None
         self.last_region: Optional[str] = None
         self.last_site: Optional[str] = None
-        self.countries: List[str] = []
-        self.regions: List[str] = []
-        self.sites: List[str] = []
+        self.countries: Set[str] = set()
+        self.regions: Set[str] = set()
+        self.sites: Set[str] = set()
+        self.devices: Set[str] = set()
         self.missions: List[Mission] = []
         self.manifest = Manifest(self.root.joinpath(self.__MANIFEST_NAME))
 
@@ -237,8 +278,18 @@ class Dataset:
         mission.create()
         self.missions.append(mission)
         self.manifest.update(self.get_new_files())
+
+        self.countries.add(metadata.country)
+        self.last_country = metadata.country
+        self.regions.add(metadata.region)
+        self.last_region = metadata.region
+        self.sites.add(metadata.site)
+        self.last_site = metadata.site
+        self.devices.add(metadata.device)
         self.save()
 
     def create(self) -> None:
+        """Creates the folder and file structure
+        """
         self.root.mkdir(parents=True, exist_ok=False)
         self.manifest.generate(self.get_files())
