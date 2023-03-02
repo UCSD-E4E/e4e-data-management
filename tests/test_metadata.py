@@ -42,7 +42,7 @@ def test_no_tzinfo():
     """Testing manifest serialization with no timezone
     """
     with pytest.raises(Exception):
-        manifest = Metadata(
+        Metadata(
             timestamp=dt.datetime.now(),
             device='test',
             country='USA',

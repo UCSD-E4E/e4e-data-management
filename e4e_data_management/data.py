@@ -7,6 +7,7 @@ import json
 import pickle
 from hashlib import sha256
 from pathlib import Path
+from shutil import copy2
 from typing import (Callable, Dict, Generator, Iterable, List, Optional, Set,
                     Union)
 
@@ -17,7 +18,7 @@ class Manifest:
     """Manifest of files
     """
     def __init__(self, path: Path, root: Optional[Path] = None):
-        self.__path = path
+        self.path = path
         if root is None:
             root = path.parent
         self.__root = root
@@ -41,7 +42,7 @@ class Manifest:
             bool: True if valid, otherwise False
         """
         for file in files:
-            file_key = file.relative_to(self.__root)
+            file_key = file.relative_to(self.__root).as_posix()
             if file_key not in manifest:
                 return False
             if method == 'hash':
@@ -62,7 +63,7 @@ class Manifest:
         Returns:
             Dict[str, Dict[str, Union[str, int]]]: Dictionary of files, checksums and sizes
         """
-        with open(self.__path, 'r', encoding='ascii') as handle:
+        with open(self.path, 'r', encoding='ascii') as handle:
             return json.load(handle)
 
     def generate(self, files: Iterable[Path]):
@@ -71,14 +72,14 @@ class Manifest:
         Args:
             files (Iterable[Path]): Files to make manifest to
         """
-        data = self.__compute_hashes(
+        data = self.compute_hashes(
             root=self.__root,
             files=files
         )
         self.__write(data)
 
     def __write(self, data: Dict[str, Dict[str, Union[str, int]]]) -> None:
-        with open(self.__path, 'w', encoding='ascii') as handle:
+        with open(self.path, 'w', encoding='ascii') as handle:
             json.dump(data, handle, indent=4)
 
     def update(self, files: Iterable[Path]):
@@ -89,20 +90,29 @@ class Manifest:
         """
         data = self.get_dict()
         files_to_checksum = (file
-                             for file in files
-                             if file.relative_to(self.__root).as_posix() not in data)
-        new_checksums = self.__compute_hashes(
+                             for file in files)
+        new_checksums = self.compute_hashes(
             root=self.__root,
             files=files_to_checksum
         )
         data.update(new_checksums)
         self.__write(data)
 
-    def __compute_hashes(self,
+    def compute_hashes(self,
                          root: Path,
                          files: Iterable[Path],
                          hash_fn: Optional[Callable[[Path], str]] = None
                          ) -> Dict[str, Dict[str, Union[str, int]]]:
+        """Computes the hashes
+
+        Args:
+            root (Path): Root directory
+            files (Iterable[Path]): Files to analyze
+            hash_fn (Optional[Callable[[Path], str]], optional): Hash Function. Defaults to None.
+
+        Returns:
+            Dict[str, Dict[str, Union[str, int]]]: Hash results
+        """
         if not hash_fn:
             hash_fn = self.__hash
         data: Dict[str, Dict[str, Union[str, int]]] = {}
@@ -172,6 +182,63 @@ class Mission:
         """
         metadata = Metadata.load(path)
         return Mission(path=path, mission_metadata=metadata)
+
+    def stage(self, paths: Iterable[Path]):
+        """Add paths to the staging area
+
+        Args:
+            paths (Iterable[Path]): Paths to stage
+        """
+        self.staged_files.extend(paths)
+
+    @property
+    def name(self) -> str:
+        """Returns a canonical name for this mission
+
+        Returns:
+            str: Name
+        """
+        return f'{self.path.parent.name} {self.path.name}'
+
+    def commit(self) -> List[Path]:
+        """Commits staged files to the mission
+
+        Raises:
+            RuntimeError: Copy fail
+        """
+        # Discover files
+        committed_files: List[Path] = []
+        for path in self.staged_files:
+            added_files: List[Path] = []
+            if path.is_file():
+                # this goes into the root
+                added_files.append(path)
+                root = path.parent
+            elif path.is_dir():
+                # This should get recursively copied in
+                for file in path.rglob('*'):
+                    if file.is_dir():
+                        continue
+                    added_files.append(file)
+                root = path
+            original_manifest = self.manifest.compute_hashes(
+                root=root,
+                files=added_files
+            )
+            new_files: List[Path] = []
+            for file in added_files:
+                src = file
+                dest = self.path.joinpath(file.relative_to(root)).absolute()
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                copy2(src=src, dst=dest)
+                new_files.append(dest)
+            if not self.manifest.validate(manifest=original_manifest, files=new_files):
+                raise RuntimeError(f'Failed to copy {path.as_posix()}')
+            self.manifest.update(new_files)
+            self.committed_files.extend(new_files)
+            committed_files.extend(new_files)
+        self.staged_files = []
+        return committed_files
 
 class Dataset:
     """Dataset
@@ -304,3 +371,15 @@ class Dataset:
             str: Dataset name
         """
         return self.root.name
+
+    def validate(self) -> bool:
+        """Validates the dataset
+
+        Returns:
+            bool: True if valid, otherwise False
+        """
+        return self.manifest.validate(
+            manifest=self.manifest.get_dict(),
+            files=self.get_files()
+        )
+    
