@@ -24,6 +24,10 @@ class AppConfiguration:
     datasets: Dict[str, Path] = field(default_factory=dict)
 
     __app_config_instance = None
+    config_dir = Path(appdirs.user_config_dir(
+        appname='E4EDataManagement',
+        appauthor='Engineers for Exploration'
+    ))
     @classmethod
     def get_instance(cls, config_dir: Optional[Path] = None) -> AppConfiguration:
         """Retrieves the singleton Configuration instance
@@ -38,17 +42,13 @@ class AppConfiguration:
             if cls.__app_config_instance.config_path != config_dir:
                 cls.__app_config_instance = cls.__load(config_dir=config_dir)
         except Exception: # pylint: disable=broad-except
-            cls.__app_config_instance = cls.__load()
+            cls.__app_config_instance = AppConfiguration(config_path=cls.config_dir)
         return cls.__app_config_instance
 
     @classmethod
     def __load(cls, *, config_dir: Optional[Path] = None) -> AppConfiguration:
         if config_dir is None:
-            config_dir = Path(appdirs.user_config_dir(
-                appname='E4EDataManagement',
-                appauthor='Engineers for Exploration'
-            ))
-
+            config_dir = cls.config_dir
         config_file = config_dir.joinpath('config.pkl')
         if not config_file.exists():
             return AppConfiguration(config_path=config_dir)
