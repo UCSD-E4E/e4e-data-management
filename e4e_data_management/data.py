@@ -295,3 +295,12 @@ class Dataset:
         """
         self.root.mkdir(parents=True, exist_ok=False)
         self.manifest.generate(self.get_files())
+
+    @property
+    def name(self) -> str:
+        """Returns this dataset's name
+
+        Returns:
+            str: Dataset name
+        """
+        return self.root.name
