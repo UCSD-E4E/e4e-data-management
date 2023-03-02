@@ -5,12 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name":"E4EDM Status",
-            "type":"python",
-            "request":"launch",
-            "module":"e4e_data_management.cli",
-            "justMyCode":true,
-            "args": ["status"]
+            "name": "E4EDM Prune",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e_data_management.cli",
+            "justMyCode": true,
+            "args": [
+                "prune"
+            ]
+        },
+        {
+            "name": "E4EDM Status",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e_data_management.cli",
+            "justMyCode": true,
+            "args": [
+                "status"
+            ]
         }
     ]
 }
