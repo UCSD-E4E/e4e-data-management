@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
-import logging
+# import logging
 import pickle
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -23,7 +23,7 @@ class DataManager:
         appauthor='Engineers for Exploration'
     ))
     def __init__(self, *, app_config_dir: Optional[Path] = None):
-        self.__log = logging.getLogger('DataManager')
+        # self.__log = logging.getLogger('DataManager')
         self.config_path = app_config_dir
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
@@ -111,6 +111,20 @@ class DataManager:
         else:
             output += 'No dataset active'
             return output
+
+        output += '\n'
+        if self.active_mission:
+            name = self.active_mission.name
+            path = self.active_mission.path.absolute().as_posix()
+            output += f'Mission {name} at {path} activated'
+        else:
+            output += 'No mission active'
+            return output
+
+        output += '\n'
+        if len(self.active_mission.staged_files) > 0:
+            output += 'Staged files:\n\t'
+            output += '\n\t'.join(self.active_mission.staged_files)
         return output
 
     def activate(self,
@@ -144,11 +158,22 @@ class DataManager:
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
+        if self.active_mission is None:
+            raise RuntimeError('Mission not active')
+        self.active_mission.stage(paths)
 
     def commit(self) -> None:
         """This should copy files and directories in the staging area to the committed area, and
         compute the hashes and sizes.
         """
+        if self.active_dataset is None:
+            raise RuntimeError('Dataset not active')
+        if self.active_mission is None:
+            raise RuntimeError('Mission not active')
+        new_files = self.active_mission.commit()
+        self.active_dataset.manifest.update(new_files)
+        self.active_dataset.manifest.update([self.active_mission.manifest.path])
+        self.save()
 
     def duplicate(self, paths: List[Path]) -> None:
         """This will duplicate the active datasets to the provided paths.  We will assume that only
@@ -158,9 +183,14 @@ class DataManager:
             paths (List[Path]): List of paths to duplicate to
         """
 
-    def validate(self) -> None:
+    def validate(self) -> bool:
         """This will check that the active dataset is valid and coherent
         """
+        if self.active_dataset is None:
+            raise RuntimeError('Dataset not active')
+        if self.active_mission is None:
+            raise RuntimeError('Mission not active')
+        return self.active_dataset.validate()
 
     def push(self, path: Path) -> None:
         """This will check that the dataset is complete, verify the dataset, then copy the dataset
