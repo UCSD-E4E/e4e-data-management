@@ -263,7 +263,7 @@ class Dataset:
         old_files = self.manifest.get_dict().keys()
         return (file for file in self.get_files() if file not in old_files)
 
-    def add_mission(self, metadata: Metadata) -> None:
+    def add_mission(self, metadata: Metadata) -> Mission:
         """Adds a new mission with the specified metadata
 
         Args:
@@ -287,6 +287,8 @@ class Dataset:
         self.last_site = metadata.site
         self.devices.add(metadata.device)
         self.save()
+
+        return mission
 
     def create(self) -> None:
         """Creates the folder and file structure
