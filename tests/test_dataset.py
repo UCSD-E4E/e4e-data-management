@@ -15,7 +15,7 @@ def test_init_dataset():
     with TemporaryDirectory() as temp_folder:
         root_dir = Path(temp_folder)
         app = DataManager(app_config_dir=root_dir)
-        date = dt.date.today()
+        date = dt.date(2023, 2, 28)
         project = 'TEST'
         location = 'San Diego'
         app.initialize_dataset(
@@ -35,13 +35,17 @@ def test_init_dataset():
         ])
         assert current_files == expected_files
 
+        assert app.appconfig.current_dataset == dataset_dir
+        assert app.appconfig.current_dataset_name == '2023.02.TEST.San Diego'
+        assert app.appconfig.current_mission is None
+
 def test_init_existing():
     """Tests that running init on an existing dataset will do nothing
     """
     with TemporaryDirectory() as temp_folder:
         root_dir = Path(temp_folder)
         app = DataManager(app_config_dir=root_dir)
-        date = dt.date.today()
+        date = dt.date(2023, 2, 28)
         project = 'TEST'
         location = 'San Diego'
         app.initialize_dataset(
@@ -58,3 +62,6 @@ def test_init_existing():
                 location=location,
                 directory=root_dir
             )
+
+        assert app.appconfig.current_dataset_name == '2023.02.TEST.San Diego'
+        assert app.appconfig.current_mission is None
