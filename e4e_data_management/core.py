@@ -40,13 +40,16 @@ class DataManager:
         Returns:
             DataManager: restored application
         """
-        if config_dir is None:
-            config_dir = cls.config_dir
-        config_file = config_dir.joinpath(cls.__CONFIG_NAME)
-        if not config_file.exists():
+        try:
+            if config_dir is None:
+                config_dir = cls.config_dir
+            config_file = config_dir.joinpath(cls.__CONFIG_NAME)
+            if not config_file.exists():
+                return DataManager(app_config_dir=config_dir)
+            with open(config_file, 'rb') as handle:
+                return pickle.load(handle)
+        except Exception: # pylint: disable=broad-except
             return DataManager(app_config_dir=config_dir)
-        with open(config_file, 'rb') as handle:
-            return pickle.load(handle)
 
     def save(self) -> None:
         """Saves the app into the specified config dir
