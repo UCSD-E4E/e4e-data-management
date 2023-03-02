@@ -35,9 +35,9 @@ def test_init_dataset():
         ])
         assert current_files == expected_files
 
-        assert app.appconfig.current_dataset == dataset_dir
-        assert app.appconfig.current_dataset_name == '2023.02.TEST.San Diego'
-        assert app.appconfig.current_mission is None
+        assert app.active_dataset.root == dataset_dir
+        assert app.active_dataset.name == '2023.02.TEST.San Diego'
+        assert app.active_mission is None
 
 def test_init_existing():
     """Tests that running init on an existing dataset will do nothing
@@ -63,5 +63,5 @@ def test_init_existing():
                 directory=root_dir
             )
 
-        assert app.appconfig.current_dataset_name == '2023.02.TEST.San Diego'
-        assert app.appconfig.current_mission is None
+        assert app.active_dataset.name == '2023.02.TEST.San Diego'
+        assert app.active_mission is None

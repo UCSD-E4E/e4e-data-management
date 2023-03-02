@@ -1,32 +1,61 @@
 '''Core application logic
 '''
+from __future__ import annotations
+
 import datetime as dt
 import logging
+import pickle
 from pathlib import Path
-from typing import Optional, List
+from typing import Dict, List, Optional
 
-from e4e_data_management.config import AppConfiguration
+import appdirs
+
 from e4e_data_management.data import Dataset, Mission
 from e4e_data_management.metadata import Metadata
+
 
 class DataManager:
     """Data Manager Application Core
     """
+    __CONFIG_NAME = 'config.pkl'
+    config_dir = Path(appdirs.user_config_dir(
+        appname='E4EDataManagement',
+        appauthor='Engineers for Exploration'
+    ))
     def __init__(self, *, app_config_dir: Optional[Path] = None):
         self.__log = logging.getLogger('DataManager')
-        self.appconfig = AppConfiguration.get_instance(config_dir=app_config_dir)
+        self.config_path = app_config_dir
         self.active_dataset: Optional[Dataset] = None
-        if self.appconfig.current_dataset:
-            try:
-                self.active_dataset = Dataset.load(self.appconfig.current_dataset)
-            except Exception: # pylint: disable=broad-except
-                self.__log.error('Failed to load dataset %s', self.appconfig.current_dataset_name)
-                self.active_dataset = None
-                self.appconfig.current_dataset = None
-                self.appconfig.current_dataset_name = None
-                self.appconfig.current_mission = None
-                self.appconfig.save()
+        self.active_mission: Optional[Mission] = None
+        self.datasets: Dict[str, Dataset] = {}
+        self.save()
 
+    @classmethod
+    def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
+        """Loads the app from the specified config dir
+
+        Args:
+            config_dir (Optional[Path], optional): Configuration directory. Defaults to None.
+
+        Returns:
+            DataManager: restored application
+        """
+        if config_dir is None:
+            config_dir = cls.config_dir
+        config_file = config_dir.joinpath(cls.__CONFIG_NAME)
+        if not config_file.exists():
+            return DataManager(app_config_dir=config_dir)
+        with open(config_file, 'rb') as handle:
+            return pickle.load(handle)
+
+    def save(self) -> None:
+        """Saves the app into the specified config dir
+        """
+        config_file = self.config_path.joinpath(self.__CONFIG_NAME)
+        if not config_file.exists():
+            config_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(config_file, 'wb') as handle:
+            pickle.dump(self, handle)
 
     def initialize_dataset(self, date: dt.date, project: str, location: str, directory: Path):
         """Initializes a new dataset
@@ -40,10 +69,8 @@ class DataManager:
         dataset_name = f'{date.year:04d}.{date.month:02d}.{project}.{location}'
         dataset_path = directory.joinpath(dataset_name)
 
-        self.appconfig.add_dataset(
-            name=dataset_name,
-            path=dataset_path.absolute()
-        )
+        if dataset_name in self.datasets:
+            raise RuntimeError('Dataset with that name already exists!')
 
         self.active_dataset = Dataset(
             root=dataset_path.absolute(),
@@ -51,6 +78,8 @@ class DataManager:
         )
         self.active_dataset.create()
         self.active_dataset.save()
+        self.datasets[dataset_name] = self.active_dataset
+        self.save()
 
     def initialize_mission(self,
                            metadata: Metadata) -> None:
@@ -65,8 +94,8 @@ class DataManager:
         mission = self.active_dataset.add_mission(
             metadata=metadata
         )
-        self.appconfig.current_mission = mission.path
-        self.appconfig.save()
+        self.active_mission = mission
+        self.save()
 
     def status(self) -> str:
         """Generates a status string
@@ -75,9 +104,9 @@ class DataManager:
             str: Status
         """
         output = ''
-        if self.appconfig.current_dataset:
-            name = self.appconfig.current_dataset_name
-            path = self.appconfig.current_dataset.absolute().as_posix()
+        if self.active_dataset:
+            name = self.active_dataset.name
+            path = self.active_dataset.root.absolute().as_posix()
             output += f'Dataset {name} at {path} activated'
         else:
             output += 'No dataset active'
@@ -162,15 +191,15 @@ class DataManager:
         Returns:
             List[str]: List of dataset names
         """
-        return list(self.appconfig.datasets.keys())
+        return list(self.datasets.keys())
 
     def prune(self) -> None:
         """Prunes missing datasets
         """
         items_to_remove: List[str] = []
-        for name, path in self.appconfig.datasets.items():
-            if not path.exists():
+        for name, dataset in self.datasets.items():
+            if not dataset.root.exists():
                 items_to_remove.append(name)
         for remove in items_to_remove:
-            self.appconfig.datasets.pop(remove)
-        self.appconfig.save()
+            self.datasets.pop(remove)
+        self.save()
