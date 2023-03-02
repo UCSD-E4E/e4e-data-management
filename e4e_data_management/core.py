@@ -3,27 +3,25 @@
 import datetime as dt
 import logging
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Optional, List
 
-from e4e_data_management.config import (AppConfiguration,
-                                        ExpeditionConfiguration)
+from e4e_data_management.config import AppConfiguration
 from e4e_data_management.data import Dataset
-
+from e4e_data_management.metadata import Metadata
 
 class DataManager:
+    """Data Manager Application Core
+    """
     def __init__(self, *, app_config_dir: Optional[Path] = None):
         self.__log = logging.getLogger('DataManager')
         self.appconfig = AppConfiguration.get_instance(config_dir=app_config_dir)
         self.active_dataset: Optional[Dataset] = None
-        self.dataset_config: Optional[ExpeditionConfiguration] = None
         if self.appconfig.current_dataset:
             try:
-                self.active_dataset = Dataset(self.appconfig.current_dataset)
-                self.dataset_config = ExpeditionConfiguration.load(self.appconfig.current_dataset)
+                self.active_dataset = Dataset.load(self.appconfig.current_dataset)
             except Exception: # pylint: disable=broad-except
                 self.__log.error('Failed to load dataset %s', self.appconfig.current_dataset_name)
                 self.active_dataset = None
-                self.dataset_config = None
                 self.appconfig.current_dataset = None
                 self.appconfig.current_dataset_name = None
                 self.appconfig.current_mission = None
@@ -41,49 +39,32 @@ class DataManager:
         """
         dataset_name = f'{date.year:04d}.{date.month:02d}.{project}.{location}'
         dataset_path = directory.joinpath(dataset_name)
-        dataset_path.mkdir(parents=True, exist_ok=True)
 
         self.appconfig.add_dataset(
             name=dataset_name,
             path=dataset_path.absolute()
         )
 
-        self.active_dataset = Dataset(dataset_path.absolute())
-        self.active_dataset.generate_manifest()
-
-        expedition_config = ExpeditionConfiguration(
-            root_path=dataset_path.absolute(),
+        self.active_dataset = Dataset(
+            root=dataset_path.absolute(),
             day_0=date
         )
-        expedition_config.save(dataset_path)
+        self.active_dataset.create()
+        self.active_dataset.save()
 
     def initialize_mission(self,
-                           timestamp: dt.datetime,
-                           device: str,
-                           country: str,
-                           region: str,
-                           site: str,
-                           mission: str,
-                           notes: str = '',
-                           properties: Optional[Dict] = None) -> None:
+                           metadata: Metadata) -> None:
         """Initializes a new mission.  This should create the appropriate folder structure and
         open the staging area
 
         Args:
-            timestamp (dt.datetime): Mission timestamp
-            device (str): Mission device
-            country (str): Mission country
-            region (str): Mission region
-            site (str): Mission site
-            mission (str): Mission name
-            notes (str, optional): Mission notes. Defaults to ''.
-            properties (Optional[Dict], optional): Additional properties. Defaults to None.
+            metadata (Metadata): Mission metadata
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
-        expedition_day = (timestamp.date() - self.dataset_config.day_0).days
-        day_path = Path(self.dataset_config.root_path, f'ED-{expedition_day:02d}')
-        mission_path = day_path.joinpath(mission)
+        self.active_dataset.add_mission(
+            metadata=metadata
+        )
 
     def status(self) -> str:
         """Generates a status string
@@ -184,7 +165,8 @@ class DataManager:
         """
         items_to_remove: List[str] = []
         for name, path in self.appconfig.datasets.items():
-            if not path.is_dir():
+            if not path.exists():
                 items_to_remove.append(name)
         for remove in items_to_remove:
             self.appconfig.datasets.pop(remove)
+        self.appconfig.save()

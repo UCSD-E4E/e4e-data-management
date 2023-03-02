@@ -28,6 +28,12 @@ def test_init_dataset():
         dataset_dir = root_dir.joinpath(f'{date.year:04d}.{date.month:02d}.{project}.{location}')
         assert dataset_dir.is_dir()
         assert dataset_dir.joinpath('manifest.json').is_file()
+        current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
+        expected_files = sorted([
+            Path('.e4edm.pkl'),
+            Path('manifest.json')
+        ])
+        assert current_files == expected_files
 
 def test_init_existing():
     """Tests that running init on an existing dataset will do nothing

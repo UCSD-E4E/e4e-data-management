@@ -1,79 +1,47 @@
 '''Test validators
 '''
-import sys
-import json
+import random
 import subprocess
+import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from e4e_data_management.data import Dataset
+from e4e_data_management.data import Manifest
 
+N_FILES = 128
+N_BYTES = 1024
+def test_validation():
+    """Tests the validation hash is SHA256
 
-def test_create_manifests():
-    """Tests the structure and validity of manifest files
+    Raises:
+        NotImplementedError: Unsupported platform
     """
-    expedition_root = Path('example_dataset')
-    runs = [
-        expedition_root.joinpath('ED-1', 'RUN001'),
-        expedition_root.joinpath('ED-1', 'RUN002'),
-        expedition_root.joinpath('ED-1', 'RUN003'),
-        expedition_root.joinpath('ED-2', 'RUN004'),
-        expedition_root.joinpath('ED-2', 'RUN005'),
-    ]
+    with TemporaryDirectory() as temp_dir:
+        run_dir = Path(temp_dir)
+        for file_idx in range(N_FILES):
+            with open(run_dir.joinpath(f'{file_idx:04d}.bin'), 'w', encoding='ascii') as handle:
+                for _ in range(N_BYTES):
+                    handle.write(f'{random.randint(0, 1024)}')
+        manifest = Manifest(run_dir.joinpath('manifest.json'), run_dir)
+        manifest.generate(run_dir.rglob('*.bin'))
+        manifest_data = manifest.get_dict()
 
-    datasets = [
-        Dataset(root=run) for run in runs
-    ]
+        for file in run_dir.rglob('*.bin'):
+            manifest_key = file.relative_to(run_dir).as_posix()
+            assert manifest_key in manifest_data
 
-    for dataset in datasets:
-        dataset.generate_manifest()
-
-    for run in runs:
-        validate_folder(run)
-
-    expedition_dataset = Dataset(root=expedition_root)
-    expedition_dataset.generate_manifest()
-    validate_folder(expedition_root)
-
-def validate_folder(run: Path):
-    """Validates the folder contents
-
-    Args:
-        run (Path): Folder to validate
-    """
-    manifest_file = run.joinpath('manifest.json')
-    with open(manifest_file, 'r', encoding='ascii') as handle:
-        manifest = json.load(handle)
-    for file in run.rglob('*'):
-        if file == manifest_file:
-            continue
-        if file.is_dir():
-            continue
-        manifest_key = file.relative_to(run).as_posix()
-        assert manifest_key in manifest
-
-        if sys.platform == 'linux':
-            output = subprocess.check_output(['sha256sum', file.as_posix()])
-            cksum = output.decode().splitlines()[0].split()[0]
-        elif sys.platform == 'win32':
-            # Note: certUtil actually throws an error on empty string!  So we need to bypass...
-            if file.lstat().st_size != 0:
-                output = subprocess.check_output(
-                    ['certUtil', '-hashfile', file.absolute().as_posix(), 'SHA256'])
-                cksum = output.decode().splitlines()[1].strip()
+            if sys.platform == 'linux':
+                output = subprocess.check_output(['sha256sum', file.as_posix()])
+                cksum = output.decode().splitlines()[0].split()[0]
+            elif sys.platform == 'win32':
+                # Note: certUtil actually throws an error on empty string!  So we need to bypass...
+                if file.lstat().st_size != 0:
+                    output = subprocess.check_output(
+                        ['certUtil', '-hashfile', file.absolute().as_posix(), 'SHA256'])
+                    cksum = output.decode().splitlines()[1].strip()
+                else:
+                    cksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
             else:
-                cksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-        else:
-            raise NotImplementedError
+                raise NotImplementedError
 
-        assert cksum == manifest[manifest_key]['sha256sum']
-
-def test_self_validate(single_validated_expedition: Path):
-    """Tests self consistency
-
-    Args:
-        single_validated_expedition (Path): Validated Expedition
-    """
-    dataset = Dataset(single_validated_expedition)
-    manifest = dataset.get_manifest()
-    assert dataset.validate(manifest=manifest)
-    
+            assert cksum == manifest_data[manifest_key]['sha256sum']

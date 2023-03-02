@@ -13,7 +13,7 @@ import schema
 
 @dataclass
 class Metadata:
-    """Dataset Metadata
+    """Mission metadata
 
     Raises:
         RuntimeError: No timezone specified
