@@ -16,7 +16,7 @@ def init_dataset(args: List[str]) -> None:
     Args:
         args (List[str]): Command Line Arguments
     """
-    app = DataManager()
+    app = DataManager.load()
     parser = argparse.ArgumentParser(
         prog='e4edm init_dataset'
     )
@@ -53,7 +53,7 @@ def init_mission(args: List[str]) -> None:
     Args:
         args (List[str]): Arguments
     """
-    app = DataManager()
+    app = DataManager.load()
 
     if app.active_dataset is None:
         print('No dataset active!')
@@ -134,7 +134,7 @@ def status(args: List[str]) -> None:
     if len(args) != 0:
         print_help()
         return
-    print(DataManager().status())
+    print(DataManager.load().status())
 
 def list_datasets(args: List[str]) -> None:
     """Lists the known datasets
@@ -145,7 +145,7 @@ def list_datasets(args: List[str]) -> None:
     if len(args) != 0:
         print_help()
         return
-    datasets = DataManager().list_datasets()
+    datasets = DataManager.load().list_datasets()
     if len(datasets) == 0:
         print('No datasets found')
     else:
@@ -161,7 +161,28 @@ def prune_datasets(args: List[str]):
     if len(args) != 0:
         print_help()
         return
-    DataManager().prune()
+    DataManager.load().prune()
+
+def add_files(args: List[str]):
+    """Adds paths to the staging area
+
+    Args:
+        args (List[str]): Arguments
+    """
+    app = DataManager.load()
+    parser = argparse.ArgumentParser(
+        prog='e4edm add'
+    )
+    parser.add_argument(
+        'paths',
+        nargs='+',
+        type=Path,
+        required=True
+    )
+
+    args = parser.parse_args(args=args)
+    paths: List[Path] = args.paths
+    app.add(paths)
 
 def main():
     """Main function
@@ -173,7 +194,7 @@ def main():
         'list': list_datasets,
         'config': None,
         'activate': None,
-        'add': None,
+        'add': add_files,
         'commit': None,
         'duplicate': None,
         'validate': None,
