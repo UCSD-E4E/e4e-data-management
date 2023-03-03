@@ -39,7 +39,7 @@ def list_datasets_cmd(app: DataManager) -> None:
         for dataset in datasets:
             print(dataset)
 
-def add_files_cmd(app: DataManager, paths: List[str]):
+def add_files_cmd(app: DataManager, paths: List[str], readme: bool):
     """Add files parsing
 
     Args:
@@ -49,7 +49,7 @@ def add_files_cmd(app: DataManager, paths: List[str]):
     resolved_paths: List[Path] = []
     for path in paths:
         resolved_paths.extend(Path(file) for file in glob(path))
-    app.add(paths=resolved_paths)
+    app.add(paths=resolved_paths, readme=readme)
 
 def main():
     """Main function
@@ -108,10 +108,12 @@ def __configure_duplicate_parser(app: DataManager, parser: argparse.ArgumentPars
     parser.set_defaults(func=app.duplicate)
 
 def __configure_commit_parser(app: DataManager, parser: argparse.ArgumentParser):
+    parser.add_argument('--readme', action='store_true')
     parser.set_defaults(func=app.commit)
 
 def __configure_add_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.add_argument('paths', nargs='+', type=str)
+    parser.add_argument('--readme', action='store_true')
     parser.set_defaults(func=add_files_cmd, app=app)
 
 def __configure_list_parser(app: DataManager, parser: argparse.ArgumentParser):

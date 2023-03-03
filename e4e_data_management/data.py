@@ -274,6 +274,8 @@ class Dataset:
         self.devices: Set[str] = set()
         self.missions: List[Mission] = []
         self.manifest = Manifest(self.root.joinpath(self.__MANIFEST_NAME))
+        self.committed_files: List[Path] = []
+        self.staged_files: List[Path] = []
 
     @classmethod
     def load(cls, path: Path) -> Dataset:
@@ -396,4 +398,51 @@ class Dataset:
             manifest=self.manifest.get_dict(),
             files=self.get_files()
         )
-    
+
+    def stage(self, paths: Iterable[Path]):
+        """Add paths to the staging area
+
+        Args:
+            paths (Iterable[Path]): Paths to stage
+        """
+        self.staged_files.extend(paths)
+
+    def commit(self) -> List[Path]:
+        """Commits staged files to the mission
+
+        Raises:
+            RuntimeError: Copy fail
+        """
+        # Discover files
+        committed_files: List[Path] = []
+        for path in self.staged_files:
+            added_files: List[Path] = []
+            if path.is_file():
+                # this goes into the root
+                added_files.append(path)
+                root = path.parent
+            elif path.is_dir():
+                # This should get recursively copied in
+                for file in path.rglob('*'):
+                    if file.is_dir():
+                        continue
+                    added_files.append(file)
+                root = path
+            original_manifest = self.manifest.compute_hashes(
+                root=root,
+                files=added_files
+            )
+            new_files: List[Path] = []
+            for file in added_files:
+                src = file
+                dest = self.root.joinpath(file.relative_to(root)).absolute()
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                copy2(src=src, dst=dest)
+                new_files.append(dest)
+            if not self.manifest.validate(manifest=original_manifest, files=new_files):
+                raise RuntimeError(f'Failed to copy {path.as_posix()}')
+            self.manifest.update(new_files)
+            self.committed_files.extend(new_files)
+            committed_files.extend(new_files)
+        self.staged_files = []
+        return committed_files
