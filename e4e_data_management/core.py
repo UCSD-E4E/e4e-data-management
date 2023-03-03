@@ -231,7 +231,9 @@ class DataManager:
             raise RuntimeError('Files still in staging')
 
         # Check that the README is present
-        readmes = self.active_dataset.root.glob('readme.*')
+        readmes = list(self.active_dataset.root.glob('readme.*'))
+        if len(readmes) == 0:
+            raise RuntimeError('Readme not found')
         acceptable_exts = ['.md', '.docx']
         if any(readme.suffix.lower() not in acceptable_exts for readme in readmes):
             raise RuntimeError('Illegal README format')

@@ -22,8 +22,8 @@ def test_push(single_mission_data: Tuple[Tuple[Mock, DataManager, Path], Tuple[P
     test_app, _ = single_mission_data
     _, app, _ = test_app
 
-    app.add([test_readme])
-    app.commit()
+    app.add([test_readme], readme=True)
+    app.commit(readme=True)
     with TemporaryDirectory() as push_dir:
         push_path = Path(push_dir)
         app.push(push_path)
@@ -51,8 +51,8 @@ def test_valid_readme_names(single_mission: Tuple[Mock, DataManager, Path], read
         readme_path = Path(data_dir).joinpath(readme_name)
         with open(readme_path, 'w', encoding='ascii') as handle:
             handle.write('readme\n')
-        app.add([readme_path])
-        app.commit()
+        app.add([readme_path], readme=True)
+        app.commit(readme=True)
 
         with TemporaryDirectory() as push_dir:
             push_path = Path(push_dir)
