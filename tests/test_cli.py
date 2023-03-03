@@ -88,3 +88,40 @@ def test_add_files(test_mock_app: Tuple[Mock, DataManager, Path], test_data: Tup
     with patch('sys.argv', args):
         main()
         mock.add.assert_called_once_with(paths=bin_files)
+
+def test_commit_files(test_mock_app: Tuple[Mock, DataManager, Path],
+                      test_data: Tuple[Path, int, int]):
+    """Tests committing files
+
+    Args:
+        test_mock_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_data (Tuple[Path, int, int]): Test Data
+    """
+    mock, app, root_dir = test_mock_app
+    data_dir, _, _ = test_data
+
+    app.initialize_dataset(
+        date=dt.date(2023, 3, 2),
+        project='Test',
+        location='San Diego',
+        directory=root_dir
+    )
+    app.initialize_mission(
+        metadata=Metadata(
+        timestamp=dt.datetime.fromisoformat('2023-03-02T18:35-08:00'),
+        country='USA',
+        region='California',
+        device='Device1',
+        site='SD',
+        mission='TAF001'
+        )
+    )
+
+    bin_files = list(data_dir.rglob('*.bin'))[:2]
+    app.add(
+        paths=bin_files
+    )
+    args = split('e4edm commit')
+    with patch('sys.argv', args):
+        main()
+        mock.commit.assert_called_once()

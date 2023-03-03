@@ -8,7 +8,7 @@ from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
 
-def test_stage_files(test_app: Tuple[DataManager, Path], test_data: Tuple[Path, int, int]):
+def test_stage_commit_files(test_app: Tuple[DataManager, Path], test_data: Tuple[Path, int, int]):
     """Test staging data
     """
     app, root = test_app
