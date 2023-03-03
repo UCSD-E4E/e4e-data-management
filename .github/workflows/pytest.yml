@@ -20,7 +20,7 @@ jobs:
         python -m pip install .
     - name: Test
       run: |
-        coverage run -m pytest tests/
+        coverage run --branch -m pytest tests/
     - name: Generate Report
       run: |
         coverage html
