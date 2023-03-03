@@ -183,6 +183,18 @@ def add_files(args: List[str]):
     paths: List[Path] = args.paths
     app.add(paths=paths)
 
+def commit_files(args: List[str]) -> None:
+    """Commits files to mission
+
+    Args:
+        args (List[str]): args
+    """
+    app = DataManager.load()
+    if len(args) != 0:
+        print_help()
+        return
+    app.commit()
+
 def main():
     """Main function
     """
@@ -194,7 +206,7 @@ def main():
         'config': None,
         'activate': None,
         'add': add_files,
-        'commit': None,
+        'commit': commit_files,
         'duplicate': None,
         'validate': None,
         'push': None,
