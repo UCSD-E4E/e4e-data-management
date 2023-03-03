@@ -124,36 +124,3 @@ def create_single_mission_data(single_mission: Tuple[Mock, DataManager, Path],
     app.commit()
 
     return single_mission, test_data
-
-@pytest.fixture(name='mock_single_mission')
-def create_mock_single_mission(test_app: Tuple[Mock, DataManager, Path]
-                          ) -> Tuple[Mock, DataManager, Path]:
-    """Creates a single mission
-
-    Args:
-        test_app (Tuple[DataManager, Path]): Test App
-
-    Returns:
-        Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]: test app, test data
-    """
-    _, app, root_dir = test_app
-
-    app.initialize_dataset(
-        date=dt.date(2023, 3, 2),
-        project='Test',
-        location='San Diego',
-        directory=root_dir
-    )
-
-    app.initialize_mission(
-        metadata=Metadata(
-        timestamp=dt.datetime.fromisoformat('2023-03-02T19:38-08:00'),
-        device='Device1',
-        country='USA',
-        region='California',
-        site='SD',
-        mission='TPF001'
-        )
-    )
-
-    return test_app
