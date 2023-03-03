@@ -18,7 +18,7 @@ MockAppFixture = namedtuple('MockAppFixture', ['mock', 'app', 'root'])
 DataFixture = namedtuple('DataFixture', ['path', 'n_files', 'file_size'])
 
 @pytest.fixture(name='test_app')
-def create_mock_test_app() -> MockAppFixture:
+def create_test_app() -> MockAppFixture:
     """Creates a mock test app
 
     Yields:
@@ -73,7 +73,7 @@ def create_test_readme() -> Path:
 
 @pytest.fixture(name='single_mission')
 def create_single_mission(test_app: Tuple[Mock, DataManager, Path]
-                          ) -> Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]:
+                          ) -> Tuple[Mock, DataManager, Path]:
     """Creates a single mission
 
     Args:
@@ -102,12 +102,12 @@ def create_single_mission(test_app: Tuple[Mock, DataManager, Path]
         )
     )
 
-    return app, root_dir
+    return test_app
 
 @pytest.fixture(name='single_mission_data')
-def create_single_mission_data(single_mission: Tuple[DataManager, Path],
+def create_single_mission_data(single_mission: Tuple[Mock, DataManager, Path],
                           test_data: Tuple[Path, int, int]
-                          ) -> Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]:
+                          ) -> Tuple[Tuple[Mock, DataManager, Path], Tuple[Path, int, int]]:
     """Creates a single mission
 
     Args:
@@ -117,7 +117,7 @@ def create_single_mission_data(single_mission: Tuple[DataManager, Path],
     Returns:
         Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]: test app, test data
     """
-    app, _ = single_mission
+    _, app, _ = single_mission
     data_dir, _, _ = test_data
 
     app.add(data_dir.rglob('*.bin'))

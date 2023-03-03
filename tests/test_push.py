@@ -3,13 +3,14 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Tuple
+from unittest.mock import Mock
 
 import pytest
 
 from e4e_data_management.core import DataManager
 
 
-def test_push(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]],
+def test_push(single_mission_data: Tuple[Tuple[Mock, DataManager, Path], Tuple[Path, int, int]],
               test_readme: Path):
     """Tests pushing data
 
@@ -19,7 +20,7 @@ def test_push(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Path, i
         test_readme (Path): Test Readme
     """
     test_app, _ = single_mission_data
-    app, _ = test_app
+    _, app, _ = test_app
 
     app.add([test_readme])
     app.commit()
@@ -37,14 +38,14 @@ def test_push(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Path, i
     'readme.DOCX',
     'Readme.docx'
 ])
-def test_valid_readme_names(single_mission: Tuple[DataManager, Path], readme_name: str):
+def test_valid_readme_names(single_mission: Tuple[Mock, DataManager, Path], readme_name: str):
     """Tests valid readme names
 
     Args:
         test_app (Tuple[DataManager, Path]): Test app
         readme_name (str): Readme name
     """
-    app, _ = single_mission
+    _, app, _ = single_mission
 
     with TemporaryDirectory() as data_dir:
         readme_path = Path(data_dir).joinpath(readme_name)
