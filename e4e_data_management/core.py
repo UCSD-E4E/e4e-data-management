@@ -127,7 +127,8 @@ class DataManager:
         output += '\n'
         if len(self.active_mission.staged_files) > 0:
             output += 'Staged files:\n\t'
-            output += '\n\t'.join(self.active_mission.staged_files)
+            output += '\n\t'.join(file.relative_to(Path('.')).as_posix()
+                                  for file in sorted(self.active_mission.staged_files))
         return output
 
     def activate(self,
@@ -164,6 +165,7 @@ class DataManager:
         if self.active_mission is None:
             raise RuntimeError('Mission not active')
         self.active_mission.stage(paths)
+        self.save()
 
     def commit(self) -> None:
         """This should copy files and directories in the staging area to the committed area, and
