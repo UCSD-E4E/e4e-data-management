@@ -24,7 +24,7 @@ Each of these also has a corresponding command line version:
 6. Run `python -m pip install -e .[dev]`
 
 `e4edm init_dataset --date date --project project --location location [--path path]`
-`e4edm init_mission --timestamp timestamp --device device --country country --region region --site site --mission mission [--notes notes]`
+`e4edm init_mission --timestamp timestamp --device device --country country --region region --site site --name name [--message message]`
 `e4edm config parameter value`
 `e4edm status`
 `e4edm activate dataset [day mission]`
