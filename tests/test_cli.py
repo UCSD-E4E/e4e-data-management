@@ -53,7 +53,7 @@ def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
                 region='California',
                 site='SD',
                 mission='RUN001',
-                notes=None
+                notes=''
             )
         )
 
@@ -165,3 +165,30 @@ def test_duplicate(
         with patch('sys.argv', args):
             main()
             mock.duplicate.assert_called_once_with(paths=[target1, target2])
+
+def test_status(test_app: Tuple[Mock, DataManager, Path]):
+    """Tests the status command line interface
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test app
+    """
+    mock, _,_ = test_app
+
+    args = split('e4edm status')
+    with patch('sys.argv', args):
+        main()
+        mock.status.assert_called_once_with()
+
+def test_list(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests the list command
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission
+    """
+    mock, app, _ = single_mission
+
+    mock.list_datasets.return_value = app.list_datasets()
+    args = split('e4edm list')
+    with patch('sys.argv', args):
+        main()
+        mock.list_datasets.assert_called_once_with()
