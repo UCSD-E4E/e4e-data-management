@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import datetime as dt
 import pickle
+import re
 from pathlib import Path
 from shutil import copy2
-from typing import Dict, List, Optional, Iterable
-
+from typing import Dict, Iterable, List, Optional
+import fnmatch
 import appdirs
 
 from e4e_data_management.data import Dataset, Mission
@@ -231,7 +232,10 @@ class DataManager:
             raise RuntimeError('Files still in staging')
 
         # Check that the README is present
-        readmes = list(self.active_dataset.root.glob('readme.*'))
+        readmes = [file
+                   for file in list(self.active_dataset.root.glob('*'))
+                   if re.match(fnmatch.translate('readme.*'), file.name, re.IGNORECASE)]
+
         if len(readmes) == 0:
             raise RuntimeError('Readme not found')
         acceptable_exts = ['.md', '.docx']
