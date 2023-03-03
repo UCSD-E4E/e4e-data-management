@@ -127,7 +127,7 @@ def create_single_mission_data(single_mission: Tuple[Mock, DataManager, Path],
 
 @pytest.fixture(name='mock_single_mission')
 def create_mock_single_mission(test_app: Tuple[Mock, DataManager, Path]
-                          ) -> Tuple[DataManager, Path]:
+                          ) -> Tuple[Mock, DataManager, Path]:
     """Creates a single mission
 
     Args:
