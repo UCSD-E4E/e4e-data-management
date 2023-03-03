@@ -68,3 +68,16 @@ def create_test_data() -> DataFixture:
                     data = bytes([random.randint(0, 255) for _ in range(FILE_SIZE)])
                 handle.write(data)
         yield DataFixture(data_dir, N_FILES, FILE_SIZE)
+
+@pytest.fixture(name='test_readme')
+def create_test_readme() -> Path:
+    """Creates a test README.md
+
+    Returns:
+        Path: README.md
+    """
+    with TemporaryDirectory() as path:
+        readme_path = Path(path).joinpath('readme.md')
+        with open(readme_path, 'w', encoding='ascii') as handle:
+            handle.write('readme\n')
+        yield readme_path
