@@ -154,7 +154,7 @@ class DataManager:
             root_dir (Optional[Path], optional): Optional root directory. Defaults to None.
         """
 
-    def add(self, paths: Iterable[Path]) -> None:
+    def add(self, paths: Iterable[Path], readme: bool = False) -> None:
         """This adds a file or directory to the staging area.
 
         Args:
@@ -162,20 +162,28 @@ class DataManager:
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
+        if readme:
+            # This is a dataset level readme, no need to seek into the mission
+            self.active_dataset.stage(paths)
+            self.save()
+            return
         if self.active_mission is None:
             raise RuntimeError('Mission not active')
         self.active_mission.stage(paths)
         self.save()
 
-    def commit(self) -> None:
+    def commit(self, *, readme: bool = False) -> None:
         """This should copy files and directories in the staging area to the committed area, and
         compute the hashes and sizes.
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
-        if self.active_mission is None:
-            raise RuntimeError('Mission not active')
-        new_files = self.active_mission.commit()
+        if readme:
+            new_files = self.active_dataset.commit()
+        else:
+            if self.active_mission is None:
+                raise RuntimeError('Mission not active')
+            new_files = self.active_mission.commit()
         self.active_dataset.manifest.update(new_files)
         self.active_dataset.manifest.update([self.active_mission.manifest.path])
         self.save()
