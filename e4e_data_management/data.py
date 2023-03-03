@@ -398,7 +398,7 @@ class Dataset:
             manifest=self.manifest.get_dict(),
             files=self.get_files()
         )
-    
+
     def stage(self, paths: Iterable[Path]):
         """Add paths to the staging area
 
