@@ -173,7 +173,7 @@ class DataManager:
         self.active_mission.stage(paths)
         self.save()
 
-    def commit(self, *, readme: bool = False) -> None:
+    def commit(self, readme: bool = False) -> None:
         """This should copy files and directories in the staging area to the committed area, and
         compute the hashes and sizes.
         """
