@@ -3,12 +3,14 @@
 import datetime as dt
 from pathlib import Path
 from typing import Tuple
+from unittest.mock import Mock
 
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
-from unittest.mock import Mock
 
-def test_stage_commit_files(test_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
+
+def test_stage_commit_files(test_app: Tuple[Mock, DataManager, Path],
+                            test_data: Tuple[Path, int, int]):
     """Test staging data
     """
     _, app, root = test_app

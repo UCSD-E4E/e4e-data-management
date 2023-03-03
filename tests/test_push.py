@@ -1,6 +1,5 @@
 '''Tests pushing files
 '''
-import datetime as dt
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Tuple
@@ -8,7 +7,6 @@ from typing import Tuple
 import pytest
 
 from e4e_data_management.core import DataManager
-from e4e_data_management.metadata import Metadata
 
 
 def test_push(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]],

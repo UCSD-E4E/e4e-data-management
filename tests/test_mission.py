@@ -4,10 +4,11 @@ import datetime as dt
 import json
 from pathlib import Path
 from typing import Tuple
+from unittest.mock import Mock
 
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
-from unittest.mock import Mock
+
 
 def test_create_multiple_missions(test_app: Tuple[Mock, DataManager, Path]):
     """Tests creating multiple missions
