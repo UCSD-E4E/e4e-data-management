@@ -168,7 +168,7 @@ def test_push_files(test_app: Tuple[Mock, DataManager, Path],
             main()
             mock.push.assert_called_once_with(path=push_path)
 
-def test_duplicate(mock_single_mission: Tuple[Mock, DataManager, Path],
+def test_duplicate(single_mission: Tuple[Mock, DataManager, Path],
                    test_data: Tuple[Path, int, int]):
     """Tests duplication
 
@@ -176,7 +176,7 @@ def test_duplicate(mock_single_mission: Tuple[Mock, DataManager, Path],
         test_mock_app (Tuple[Mock, DataManager, Path]): Mock App
         test_data (Tuple[Path, int, int]): Test Data
     """
-    mock, app, _ = mock_single_mission
+    mock, app, _ = single_mission
     data_dir, _, _ = test_data
 
 
