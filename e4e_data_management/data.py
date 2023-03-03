@@ -27,7 +27,8 @@ class Manifest:
                  manifest: Dict[str, Dict[str, Union[str, int]]],
                  files: Iterable[Path],
                  *,
-                 method: str = 'hash') -> bool:
+                 method: str = 'hash',
+                 root: Optional[Path] = None) -> bool:
         """Validates the files against the specified manifest
 
         Args:
@@ -41,8 +42,10 @@ class Manifest:
         Returns:
             bool: True if valid, otherwise False
         """
+        if root is None:
+            root = self.__root
         for file in files:
-            file_key = file.relative_to(self.__root).as_posix()
+            file_key = file.relative_to(root).as_posix()
             if file_key not in manifest:
                 return False
             if method == 'hash':
@@ -76,10 +79,21 @@ class Manifest:
             root=self.__root,
             files=files
         )
-        self.__write(data)
+        self.write(data)
 
-    def __write(self, data: Dict[str, Dict[str, Union[str, int]]]) -> None:
-        with open(self.path, 'w', encoding='ascii') as handle:
+    def write(self,
+              data: Dict[str, Dict[str, Union[str, int]]],
+              *,
+              path: Optional[Path] = None) -> None:
+        """Writes the manifest to disk
+
+        Args:
+            data (Dict[str, Dict[str, Union[str, int]]]): Manifest data
+            path (Optional[Path], optional): Manifest file path. Defaults to None.
+        """
+        if path is None:
+            path = self.path
+        with open(path, 'w', encoding='ascii') as handle:
             json.dump(data, handle, indent=4)
 
     def update(self, files: Iterable[Path]):
@@ -96,7 +110,7 @@ class Manifest:
             files=files_to_checksum
         )
         data.update(new_checksums)
-        self.__write(data)
+        self.write(data)
 
     def compute_hashes(self,
                          root: Path,

@@ -195,6 +195,38 @@ def commit_files(args: List[str]) -> None:
         return
     app.commit()
 
+def push(args: List[str]) -> None:
+    """Pushes files to a destination
+
+    Args:
+        args (List[str]): args
+    """
+    app = DataManager.load()
+    parser = argparse.ArgumentParser('e4edm push')
+    parser.add_argument('dest', type=Path)
+    args = parser.parse_args(args)
+    app.push(path=args.dest)
+
+def duplicate(args: List[str]):
+    """Duplication command
+
+    Args:
+        args (List[str]): Arguments
+    """
+    app = DataManager.load()
+    parser = argparse.ArgumentParser(
+        prog='e4edm duplicate'
+    )
+    parser.add_argument(
+        'paths',
+        nargs='+',
+        type=Path
+    )
+
+    args = parser.parse_args(args=args)
+    paths: List[Path] = args.paths
+    app.duplicate(paths=paths)
+
 def main():
     """Main function
     """
@@ -207,9 +239,9 @@ def main():
         'activate': None,
         'add': add_files,
         'commit': commit_files,
-        'duplicate': None,
+        'duplicate': duplicate,
         'validate': None,
-        'push': None,
+        'push': push,
         'zip': None,
         'unzip': None,
         'prune': prune_datasets,

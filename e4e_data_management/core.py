@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import datetime as dt
-# import logging
 import pickle
 from pathlib import Path
-from typing import Dict, List, Optional
+from shutil import copy2
+from typing import Dict, List, Optional, Iterable
 
 import appdirs
 
@@ -153,11 +153,11 @@ class DataManager:
             root_dir (Optional[Path], optional): Optional root directory. Defaults to None.
         """
 
-    def add(self, paths: List[Path]) -> None:
+    def add(self, paths: Iterable[Path]) -> None:
         """This adds a file or directory to the staging area.
 
         Args:
-            paths (List[Path]): List of paths to add
+            paths (Iterable[Path]): List of paths to add
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
@@ -185,6 +185,21 @@ class DataManager:
         Args:
             paths (List[Path]): List of paths to duplicate to
         """
+        manifest = self.active_dataset.manifest.get_dict()
+        new_files = [[] * len(paths)]
+        for file in manifest:
+            src_path = self.active_dataset.root.joinpath(file)
+            dests = [dest.joinpath(file) for dest in paths]
+            for idx, dest in enumerate(dests):
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                copy2(src=src_path, dst=dest)
+                new_files[idx].append(dest)
+        for idx, new_file_list in enumerate(new_files):
+            self.active_dataset.manifest.validate(
+                manifest=manifest,
+                files=new_file_list,
+                root=paths[idx])
+            self.active_dataset.manifest.write(manifest, path=paths[idx].joinpath('manifest.json'))
 
     def validate(self) -> bool:
         """This will check that the active dataset is valid and coherent
@@ -202,6 +217,20 @@ class DataManager:
         Args:
             path (Path): Destination to push completed dataset to
         """
+        if any(len(mission.staged_files) != 0 for mission in self.active_dataset.missions):
+            raise RuntimeError('Files still in staging')
+
+        # Check that the README is present
+        readmes = self.active_dataset.root.rglob('readme.*')
+        acceptable_exts = ['.md', '.docx']
+        if any(readme.suffix.lower() not in acceptable_exts for readme in readmes):
+            raise RuntimeError('Illegal README format')
+
+        # validate self
+        self.active_dataset.validate()
+
+        # Duplicate to destination
+        self.duplicate([path])
 
     def zip(self, output_path: Path) -> None:
         """This will zip the active and completed dataset to the specified path
