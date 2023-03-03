@@ -61,6 +61,9 @@ def create_test_data() -> DataFixture:
         data_dir = Path(path)
         for file_idx in range(N_FILES):
             with open(data_dir.joinpath(f'{file_idx:04d}.bin'), 'wb') as handle:
-                data = random.randbytes(FILE_SIZE)
+                try:
+                    data = random.randbytes(FILE_SIZE)
+                except Exception: # pylint: disable=broad-except
+                    data = bytes([random.randint(0, 255) for _ in range(FILE_SIZE)])
                 handle.write(data)
         yield DataFixture(data_dir, N_FILES, FILE_SIZE)
