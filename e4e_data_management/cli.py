@@ -3,6 +3,7 @@
 import argparse
 import datetime as dt
 import sys
+from glob import glob
 from pathlib import Path
 from typing import Callable, Dict, List
 
@@ -176,12 +177,15 @@ def add_files(args: List[str]):
     parser.add_argument(
         'paths',
         nargs='+',
-        type=Path
+        type=str
     )
 
     args = parser.parse_args(args=args)
-    paths: List[Path] = args.paths
-    app.add(paths=paths)
+    paths: List[str] = args.paths
+    resolved_paths: List[Path] = []
+    for path in paths:
+        resolved_paths.extend(Path(file) for file in glob(path))
+    app.add(paths=resolved_paths)
 
 def commit_files(args: List[str]) -> None:
     """Commits files to mission
