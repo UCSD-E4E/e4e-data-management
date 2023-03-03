@@ -176,13 +176,12 @@ def add_files(args: List[str]):
     parser.add_argument(
         'paths',
         nargs='+',
-        type=Path,
-        required=True
+        type=Path
     )
 
     args = parser.parse_args(args=args)
     paths: List[Path] = args.paths
-    app.add(paths)
+    app.add(paths=paths)
 
 def main():
     """Main function

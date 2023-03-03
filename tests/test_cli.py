@@ -41,8 +41,7 @@ def test_init_mission(test_mock_app: Tuple[Mock, DataManager, Path]):
 
     args = split('e4edm init_mission --timestamp 2023-03-02T15:06-08:00 --device Device1 '
                 '--country USA --region California --site SD --name RUN001')
-    with patch('sys.argv', args),\
-            patch('e4e_data_management.cli.DataManager', mock):
+    with patch('sys.argv', args):
         main()
         mock.initialize_mission.assert_called_once_with(
             metadata=Metadata(
@@ -56,3 +55,36 @@ def test_init_mission(test_mock_app: Tuple[Mock, DataManager, Path]):
                 notes=None
             )
         )
+
+def test_add_files(test_mock_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
+    """Tests adding files
+
+    Args:
+        test_mock_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_data (Tuple[Path, int, int]): Test Data
+    """
+    mock, app, root_dir = test_mock_app
+    data_dir, _, _ = test_data
+
+    app.initialize_dataset(
+        date=dt.date(2023, 3, 2),
+        project='Test',
+        location='San Diego',
+        directory=root_dir
+    )
+    app.initialize_mission(
+        metadata=Metadata(
+        timestamp=dt.datetime.fromisoformat('2023-03-02T18:35-08:00'),
+        country='USA',
+        region='California',
+        device='Device1',
+        site='SD',
+        mission='TAF001'
+        )
+    )
+
+    bin_files = list(data_dir.rglob('*.bin'))[:2]
+    args = split(f'e4edm add {bin_files[0].as_posix()} {bin_files[1].as_posix()}')
+    with patch('sys.argv', args):
+        main()
+        mock.add.assert_called_once_with(paths=bin_files)
