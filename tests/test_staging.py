@@ -58,3 +58,54 @@ def test_stage_commit_files(test_app: Tuple[Mock, DataManager, Path],
     assert current_files == sorted(expected_files)
 
     assert app.validate()
+
+def test_stage_commit_readme(test_app: Tuple[Mock, DataManager, Path],
+                            test_readme: Path):
+    """Test staging data
+    """
+    _, app, root = test_app
+    app.initialize_dataset(
+        date=dt.date(2023, 3, 2),
+        project='TestStaging',
+        location='San Diego',
+        directory=root
+    )
+    app.initialize_mission(
+        metadata=Metadata(
+            timestamp=dt.datetime.fromisoformat('2023-03-02T00:11-08:00'),
+            device='Device 1',
+            country='USA',
+            region='California',
+            site='Site 1',
+            mission='TSF001'
+        )
+    )
+
+    app.add([test_readme], readme=True)
+
+    assert len(app.active_mission.staged_files) == 0
+    assert len(app.active_mission.committed_files) == 0
+    assert len(app.active_dataset.staged_files) == 1
+    assert len(app.active_dataset.committed_files) == 0
+
+    app.commit(readme=True)
+
+    assert len(app.active_mission.staged_files) == 0
+    assert len(app.active_mission.committed_files) == 0
+    assert len(app.active_dataset.staged_files) == 0
+    assert len(app.active_dataset.committed_files) == 1
+
+    expected_files = [
+        Path('.e4edm.pkl'),
+        Path('manifest.json'),
+        Path('readme.md'),
+        Path('ED-00'),
+        Path('ED-00', 'TSF001'),
+        Path('ED-00', 'TSF001', 'metadata.json'),
+        Path('ED-00', 'TSF001', 'manifest.json'),
+    ]
+    dataset_dir = root.joinpath('2023.03.TestStaging.San Diego')
+    current_files = sorted(file.relative_to(dataset_dir) for file in dataset_dir.rglob('*'))
+    assert current_files == sorted(expected_files)
+
+    assert app.validate()

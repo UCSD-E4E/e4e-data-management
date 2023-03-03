@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import datetime as dt
 import pickle
+import re
 from pathlib import Path
 from shutil import copy2
-from typing import Dict, List, Optional, Iterable
-
+from typing import Dict, Iterable, List, Optional
+import fnmatch
 import appdirs
 
 from e4e_data_management.data import Dataset, Mission
@@ -154,7 +155,7 @@ class DataManager:
             root_dir (Optional[Path], optional): Optional root directory. Defaults to None.
         """
 
-    def add(self, paths: Iterable[Path]) -> None:
+    def add(self, paths: Iterable[Path], readme: bool = False) -> None:
         """This adds a file or directory to the staging area.
 
         Args:
@@ -162,20 +163,28 @@ class DataManager:
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
+        if readme:
+            # This is a dataset level readme, no need to seek into the mission
+            self.active_dataset.stage(paths)
+            self.save()
+            return
         if self.active_mission is None:
             raise RuntimeError('Mission not active')
         self.active_mission.stage(paths)
         self.save()
 
-    def commit(self) -> None:
+    def commit(self, readme: bool = False) -> None:
         """This should copy files and directories in the staging area to the committed area, and
         compute the hashes and sizes.
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
-        if self.active_mission is None:
-            raise RuntimeError('Mission not active')
-        new_files = self.active_mission.commit()
+        if readme:
+            new_files = self.active_dataset.commit()
+        else:
+            if self.active_mission is None:
+                raise RuntimeError('Mission not active')
+            new_files = self.active_mission.commit()
         self.active_dataset.manifest.update(new_files)
         self.active_dataset.manifest.update([self.active_mission.manifest.path])
         self.save()
@@ -219,11 +228,17 @@ class DataManager:
         Args:
             path (Path): Destination to push completed dataset to
         """
-        if any(len(mission.staged_files) != 0 for mission in self.active_dataset.missions):
+        if any(len(mission.staged_files) != 0 for mission in self.active_dataset.missions) or \
+            len(self.active_dataset.staged_files) != 0:
             raise RuntimeError('Files still in staging')
 
         # Check that the README is present
-        readmes = self.active_dataset.root.rglob('readme.*')
+        readmes = [file
+                   for file in list(self.active_dataset.root.glob('*'))
+                   if re.match(fnmatch.translate('readme.*'), file.name, re.IGNORECASE)]
+
+        if len(readmes) == 0:
+            raise RuntimeError('Readme not found')
         acceptable_exts = ['.md', '.docx']
         if any(readme.suffix.lower() not in acceptable_exts for readme in readmes):
             raise RuntimeError('Illegal README format')
