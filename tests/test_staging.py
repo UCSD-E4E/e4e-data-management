@@ -6,12 +6,12 @@ from typing import Tuple
 
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
+from unittest.mock import Mock
 
-
-def test_stage_commit_files(test_app: Tuple[DataManager, Path], test_data: Tuple[Path, int, int]):
+def test_stage_commit_files(test_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
     """Test staging data
     """
-    app, root = test_app
+    _, app, root = test_app
     data_dir, n_files, _ = test_data
     app.initialize_dataset(
         date=dt.date(2023, 3, 2),

@@ -7,12 +7,12 @@ from typing import Tuple
 
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
+from unittest.mock import Mock
 
-
-def test_create_multiple_missions(test_app: Tuple[DataManager, Path]):
+def test_create_multiple_missions(test_app: Tuple[Mock, DataManager, Path]):
     """Tests creating multiple missions
     """
-    app, root = test_app
+    _, app, root = test_app
     app.initialize_dataset(
         date=dt.date(2023, 3, 1),
         project='TEST',
@@ -78,10 +78,10 @@ def test_create_multiple_missions(test_app: Tuple[DataManager, Path]):
     assert app.active_mission.path == dataset_dir.joinpath('ED-01', 'TCMM003')
 
 
-def test_create_mission(test_app):
+def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
     """Tests creating a mission
     """
-    app, root = test_app
+    _, app, root = test_app
     app.initialize_dataset(
         date=dt.date(2023, 3, 1),
         project='TEST',

@@ -3,16 +3,17 @@
 import datetime as dt
 from pathlib import Path
 from typing import Tuple
+from unittest.mock import Mock
 
 import pytest
 
 from e4e_data_management.core import DataManager
 
 
-def test_init_dataset(test_app: Tuple[DataManager, Path]):
+def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
     """Tests creating the dataset
     """
-    app, root_dir = test_app
+    _, app, root_dir = test_app
     date = dt.date(2023, 2, 28)
     project = 'TEST'
     location = 'San Diego'
@@ -37,10 +38,10 @@ def test_init_dataset(test_app: Tuple[DataManager, Path]):
     assert app.active_dataset.name == '2023.02.TEST.San Diego'
     assert app.active_mission is None
 
-def test_init_existing(test_app: Tuple[DataManager, Path]):
+def test_init_existing(test_app: Tuple[Mock, DataManager, Path]):
     """Tests that running init on an existing dataset will do nothing
     """
-    app, root_dir = test_app
+    _, app, root_dir = test_app
     date = dt.date(2023, 2, 28)
     project = 'TEST'
     location = 'San Diego'
