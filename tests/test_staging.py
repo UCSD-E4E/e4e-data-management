@@ -1,13 +1,12 @@
 '''Data staging tests
 '''
 import datetime as dt
-import random
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Tuple
 
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
+
 
 def test_stage_files(test_app: Tuple[DataManager, Path], test_data: Tuple[Path, int, int]):
     """Test staging data
