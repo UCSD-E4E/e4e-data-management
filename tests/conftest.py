@@ -3,9 +3,9 @@
 from collections import namedtuple
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import Mock, patch
 
 import pytest
-from unittest.mock import Mock, patch
 
 from e4e_data_management.core import DataManager
 
