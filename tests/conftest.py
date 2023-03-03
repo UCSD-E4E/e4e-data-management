@@ -61,8 +61,9 @@ def create_test_data() -> DataFixture:
         data_dir = Path(path)
         for file_idx in range(N_FILES):
             with open(data_dir.joinpath(f'{file_idx:04d}.bin'), 'wb') as handle:
+                # Python 3.8 doesn't have random.randbytes, so this is the bypass
                 try:
-                    data = random.randbytes(FILE_SIZE)
+                    data = random.randbytes(FILE_SIZE) # pylint: disable=no-member
                 except Exception: # pylint: disable=broad-except
                     data = bytes([random.randint(0, 255) for _ in range(FILE_SIZE)])
                 handle.write(data)
