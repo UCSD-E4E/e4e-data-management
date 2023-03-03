@@ -3,11 +3,13 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Tuple
+from unittest.mock import Mock
 
 from e4e_data_management.core import DataManager
 
 
-def test_duplicate(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]):
+def test_duplicate(
+        single_mission_data: Tuple[Tuple[Mock, DataManager, Path], Tuple[Path, int, int]]):
     """Tests duplicating data
 
     Args:
@@ -16,7 +18,7 @@ def test_duplicate(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Pa
         test_readme (Path): Test Readme
     """
     test_app, _ = single_mission_data
-    app, root_dir = test_app
+    _, app, root_dir = test_app
 
     with TemporaryDirectory() as duplication_dir:
         target = Path(duplication_dir)
