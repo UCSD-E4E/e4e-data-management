@@ -32,7 +32,6 @@ def test_stage_commit_files(test_app: Tuple[Mock, DataManager, Path],
         )
     )
 
-
     app.add(list(data_dir.rglob('*.bin')))
 
     assert len(app.active_mission.staged_files) == n_files
