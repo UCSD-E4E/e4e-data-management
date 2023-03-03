@@ -58,7 +58,7 @@ def test_stage_files(test_app: Tuple[DataManager, Path]):
             Path('ED-00', 'TSF001', 'manifest.json'),
         ]
         expected_files.extend(
-            [Path('ED-00', 'RUN001', f'{file_idx:04d}.bin') for file_idx in range(N_FILES)]
+            [Path('ED-00', 'TSF001', f'{file_idx:04d}.bin') for file_idx in range(N_FILES)]
         )
         dataset_dir = root.joinpath('2023.03.TestStaging.San Diego')
         current_files = sorted(file.relative_to(dataset_dir) for file in dataset_dir.rglob('*'))

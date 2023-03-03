@@ -75,7 +75,7 @@ def test_create_multiple_missions(test_app: Tuple[DataManager, Path]):
     assert app.active_dataset.sites == {'Site 1', 'Site 2'}
     assert app.active_dataset.root == dataset_dir
     assert app.active_dataset.name == '2023.03.TEST.San Diego'
-    assert app.active_mission.path == dataset_dir.joinpath('ED-01', 'RUN003')
+    assert app.active_mission.path == dataset_dir.joinpath('ED-01', 'TCMM003')
 
 
 def test_create_mission(test_app):
@@ -104,7 +104,7 @@ def test_create_mission(test_app):
             country='USA',
             region='San Diego',
             site='Site 1',
-            mission='RUN001'
+            mission='TCM001'
         )
     )
 
@@ -124,7 +124,7 @@ def test_create_mission(test_app):
     with open(manifest_path, 'r', encoding='ascii') as handle:
         manifest = json.load(handle)
 
-    metadata = root.joinpath('2023.03.TEST.San Diego', 'ED-00', 'RUN001', 'metadata.json')
+    metadata = root.joinpath('2023.03.TEST.San Diego', 'ED-00', 'TCM001', 'metadata.json')
     assert metadata.relative_to(root.joinpath('2023.03.TEST.San Diego')).as_posix() in manifest
 
     config = root.joinpath('2023.03.TEST.San Diego', '.e4edm.pkl')
@@ -141,4 +141,4 @@ def test_create_mission(test_app):
 
     assert app.active_dataset.root == dataset_dir
     assert app.active_dataset.name == '2023.03.TEST.San Diego'
-    assert app.active_mission.path == dataset_dir.joinpath('ED-00', 'RUN001')
+    assert app.active_mission.path == dataset_dir.joinpath('ED-00', 'TCM001')
