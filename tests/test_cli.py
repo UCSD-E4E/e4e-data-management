@@ -3,7 +3,6 @@
 import datetime as dt
 from pathlib import Path
 from shlex import split
-from tempfile import TemporaryDirectory
 from typing import Tuple
 from unittest.mock import Mock, patch
 
