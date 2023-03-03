@@ -11,8 +11,7 @@ from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
 
-def test_push(test_app: Tuple[DataManager, Path],
-              test_data: Tuple[Path, int, int],
+def test_push(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]],
               test_readme: Path):
     """Tests pushing data
 
@@ -21,26 +20,9 @@ def test_push(test_app: Tuple[DataManager, Path],
         test_data (Tuple[Path, int, int]): Test data
         test_readme (Path): Test Readme
     """
-    app, root_dir = test_app
-    data_dir, _, _ = test_data
+    test_app, _ = single_mission_data
+    app, _ = test_app
 
-    app.initialize_dataset(
-        date=dt.date(2023, 3, 2),
-        project='Test',
-        location='San Diego',
-        directory=root_dir
-    )
-    app.initialize_mission(
-        metadata=Metadata(
-        timestamp=dt.datetime.fromisoformat('2023-03-02T19:38-08:00'),
-        device='Device1',
-        country='USA',
-        region='California',
-        site='SD',
-        mission='TPF001'
-        )
-    )
-    app.add(data_dir.rglob('*.bin'))
     app.add([test_readme])
     app.commit()
     with TemporaryDirectory() as push_dir:
@@ -57,30 +39,15 @@ def test_push(test_app: Tuple[DataManager, Path],
     'readme.DOCX',
     'Readme.docx'
 ])
-def test_valid_readme_names(test_app: Tuple[DataManager, Path], readme_name: str):
+def test_valid_readme_names(single_mission: Tuple[DataManager, Path], readme_name: str):
     """Tests valid readme names
 
     Args:
         test_app (Tuple[DataManager, Path]): Test app
         readme_name (str): Readme name
     """
-    app, root_dir = test_app
-    app.initialize_dataset(
-        date=dt.date(2023, 3, 2),
-        project='Test',
-        location='San Diego',
-        directory=root_dir
-    )
-    app.initialize_mission(
-        metadata=Metadata(
-        timestamp=dt.datetime.fromisoformat('2023-03-02T19:38-08:00'),
-        device='Device1',
-        country='USA',
-        region='California',
-        site='SD',
-        mission='TPF001'
-        )
-    )
+    app, _ = single_mission
+
     with TemporaryDirectory() as data_dir:
         readme_path = Path(data_dir).joinpath(readme_name)
         with open(readme_path, 'w', encoding='ascii') as handle:

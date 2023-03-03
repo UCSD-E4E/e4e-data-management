@@ -1,44 +1,22 @@
 '''Testing duplication
 '''
-import datetime as dt
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Tuple
 
 from e4e_data_management.core import DataManager
-from e4e_data_management.metadata import Metadata
 
 
-def test_push(test_app: Tuple[DataManager, Path],
-              test_data: Tuple[Path, int, int]):
-    """Tests pushing data
+def test_duplicate(single_mission_data: Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]):
+    """Tests duplicating data
 
     Args:
         test_app (Tuple[DataManager, Path]): Test app
         test_data (Tuple[Path, int, int]): Test data
         test_readme (Path): Test Readme
     """
+    test_app, _ = single_mission_data
     app, root_dir = test_app
-    data_dir, _, _ = test_data
-
-    app.initialize_dataset(
-        date=dt.date(2023, 3, 2),
-        project='Test',
-        location='San Diego',
-        directory=root_dir
-    )
-    app.initialize_mission(
-        metadata=Metadata(
-        timestamp=dt.datetime.fromisoformat('2023-03-02T19:38-08:00'),
-        device='Device1',
-        country='USA',
-        region='California',
-        site='SD',
-        mission='TPF001'
-        )
-    )
-    app.add(data_dir.rglob('*.bin'))
-    app.commit()
 
     with TemporaryDirectory() as duplication_dir:
         target = Path(duplication_dir)

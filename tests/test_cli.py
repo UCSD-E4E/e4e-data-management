@@ -28,10 +28,10 @@ def test_init_dataset():
             directory=Path('.')
         )
 
-def test_init_mission(test_mock_app: Tuple[Mock, DataManager, Path]):
+def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
     """Tests init_mission
     """
-    mock, app, root_dir = test_mock_app
+    mock, app, root_dir = test_app
 
     app.initialize_dataset(
         date=dt.date(2023,3,2),
@@ -57,14 +57,14 @@ def test_init_mission(test_mock_app: Tuple[Mock, DataManager, Path]):
             )
         )
 
-def test_add_files(test_mock_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
+def test_add_files(test_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
     """Tests adding files
 
     Args:
-        test_mock_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_app (Tuple[Mock, DataManager, Path]): Mock App
         test_data (Tuple[Path, int, int]): Test Data
     """
-    mock, app, root_dir = test_mock_app
+    mock, app, root_dir = test_app
     data_dir, _, _ = test_data
 
     app.initialize_dataset(
@@ -90,15 +90,15 @@ def test_add_files(test_mock_app: Tuple[Mock, DataManager, Path], test_data: Tup
         main()
         mock.add.assert_called_once_with(paths=bin_files)
 
-def test_commit_files(test_mock_app: Tuple[Mock, DataManager, Path],
+def test_commit_files(test_app: Tuple[Mock, DataManager, Path],
                       test_data: Tuple[Path, int, int]):
     """Tests committing files
 
     Args:
-        test_mock_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_app (Tuple[Mock, DataManager, Path]): Mock App
         test_data (Tuple[Path, int, int]): Test Data
     """
-    mock, app, root_dir = test_mock_app
+    mock, app, root_dir = test_app
     data_dir, _, _ = test_data
 
     app.initialize_dataset(
@@ -127,15 +127,15 @@ def test_commit_files(test_mock_app: Tuple[Mock, DataManager, Path],
         main()
         mock.commit.assert_called_once()
 
-def test_push_files(test_mock_app: Tuple[Mock, DataManager, Path],
+def test_push_files(test_app: Tuple[Mock, DataManager, Path],
                       test_data: Tuple[Path, int, int]):
     """Tests pushing files
 
     Args:
-        test_mock_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_app (Tuple[Mock, DataManager, Path]): Mock App
         test_data (Tuple[Path, int, int]): Test Data
     """
-    mock, app, root_dir = test_mock_app
+    mock, app, root_dir = test_app
     data_dir, _, _ = test_data
 
     app.initialize_dataset(
@@ -168,32 +168,16 @@ def test_push_files(test_mock_app: Tuple[Mock, DataManager, Path],
             main()
             mock.push.assert_called_once_with(path=push_path)
 
-def test_duplicate(test_mock_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
+def test_duplicate(mock_single_mission: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
     """Tests duplication
 
     Args:
         test_mock_app (Tuple[Mock, DataManager, Path]): Mock App
         test_data (Tuple[Path, int, int]): Test Data
     """
-    mock, app, root_dir = test_mock_app
+    mock, app, root_dir = mock_single_mission
     data_dir, _, _ = test_data
 
-    app.initialize_dataset(
-        date=dt.date(2023, 3, 2),
-        project='Test',
-        location='San Diego',
-        directory=root_dir
-    )
-    app.initialize_mission(
-        metadata=Metadata(
-        timestamp=dt.datetime.fromisoformat('2023-03-02T18:35-08:00'),
-        country='USA',
-        region='California',
-        device='Device1',
-        site='SD',
-        mission='TD001'
-        )
-    )
 
     app.add(data_dir.rglob('*.bin'))
     app.commit()
