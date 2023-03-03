@@ -1,5 +1,6 @@
 '''Common Test Fixtures
 '''
+import random
 from collections import namedtuple
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,6 +12,7 @@ from e4e_data_management.core import DataManager
 
 AppFixture = namedtuple('AppFixture', ['app', 'root'])
 MockAppFixture = namedtuple('MockAppFixture', ['mock', 'app', 'root'])
+DataFixture = namedtuple('DataFixture', ['path', 'n_files', 'file_size'])
 
 @pytest.fixture(name='test_app')
 def create_test_app() -> AppFixture:
@@ -44,3 +46,21 @@ def create_mock_test_app() -> MockAppFixture:
         mock.load.return_value = mock
         with patch('e4e_data_management.cli.DataManager', mock):
             yield MockAppFixture(mock, app, root_dir)
+
+N_FILES = 128
+FILE_SIZE = 1024
+@pytest.fixture(name='test_data')
+def create_test_data() -> DataFixture:
+    """Creates test data
+
+    Returns:
+        DataFixture: Data Fixture
+    """
+    random.seed(0)
+    with TemporaryDirectory() as path:
+        data_dir = Path(path)
+        for file_idx in range(N_FILES):
+            with open(data_dir.joinpath(f'{file_idx:04d}.bin'), 'wb') as handle:
+                data = random.randbytes(FILE_SIZE)
+                handle.write(data)
+        yield DataFixture(data_dir, N_FILES, FILE_SIZE)
