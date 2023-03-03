@@ -228,7 +228,8 @@ class DataManager:
         Args:
             path (Path): Destination to push completed dataset to
         """
-        if any(len(mission.staged_files) != 0 for mission in self.active_dataset.missions):
+        if any(len(mission.staged_files) != 0 for mission in self.active_dataset.missions) or \
+            len(self.active_dataset.staged_files) != 0:
             raise RuntimeError('Files still in staging')
 
         # Check that the README is present
@@ -238,7 +239,7 @@ class DataManager:
 
         if len(readmes) == 0:
             raise RuntimeError('Readme not found')
-        acceptable_exts = ['.md', '.docx', '.odt']
+        acceptable_exts = ['.md', '.docx']
         if any(readme.suffix.lower() not in acceptable_exts for readme in readmes):
             raise RuntimeError('Illegal README format')
 
