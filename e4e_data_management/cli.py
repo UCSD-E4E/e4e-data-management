@@ -2,7 +2,9 @@
 '''
 import argparse
 import datetime as dt
+from glob import glob
 from pathlib import Path
+from typing import List
 
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
@@ -36,6 +38,18 @@ def list_datasets_cmd(app: DataManager) -> None:
     else:
         for dataset in datasets:
             print(dataset)
+
+def add_files_cmd(app: DataManager, paths: List[str]):
+    """Add files parsing
+
+    Args:
+        app (DataManager): App
+        paths (List[str]): Paths
+    """
+    resolved_paths: List[Path] = []
+    for path in paths:
+        resolved_paths.extend(Path(file) for file in glob(path))
+    app.add(paths=resolved_paths)
 
 def main():
     """Main function
@@ -97,8 +111,8 @@ def __configure_commit_parser(app: DataManager, parser: argparse.ArgumentParser)
     parser.set_defaults(func=app.commit)
 
 def __configure_add_parser(app: DataManager, parser: argparse.ArgumentParser):
-    parser.add_argument('paths', nargs='+', type=Path)
-    parser.set_defaults(func=app.add)
+    parser.add_argument('paths', nargs='+', type=str)
+    parser.set_defaults(func=add_files_cmd, app=app)
 
 def __configure_list_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.set_defaults(func=list_datasets_cmd, app=app)

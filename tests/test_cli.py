@@ -74,6 +74,41 @@ def test_add_files(single_mission: Tuple[Mock, DataManager, Path],
         main()
         mock.add.assert_called_once_with(paths=bin_files)
 
+def test_add_glob(single_mission: Tuple[Mock, DataManager, Path],
+                   test_data: Tuple[Path, int, int]):
+    """Tests adding files
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_data (Tuple[Path, int, int]): Test Data
+    """
+    mock, _, _ = single_mission
+    data_dir, _, _ = test_data
+
+    args = split(f'e4edm add {data_dir.as_posix()}/*.bin')
+    with patch('sys.argv', args):
+        main()
+        mock.add.assert_called_once_with(paths=list(data_dir.glob('*.bin')))
+
+def test_add_multifile(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests adding multiple files at the same time
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission
+    """
+    mock, _, root_dir = single_mission
+
+    file1 = root_dir.joinpath('test1.txt')
+    file1.touch()
+
+    file2 = root_dir.joinpath('test2.txt')
+    file2.touch()
+
+    args = split(f'e4edm add {file1.as_posix()} {file2.as_posix()}')
+    with patch('sys.argv', args):
+        main()
+        mock.add.assert_called_once_with(paths=[file1, file2])
+
 def test_commit_files(single_mission: Tuple[Mock, DataManager, Path],
                       test_data: Tuple[Path, int, int]):
     """Tests committing files
