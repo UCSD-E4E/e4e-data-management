@@ -87,7 +87,7 @@ def test_add_files_start_stop(single_mission: Tuple[Mock, DataManager, Path],
     data_dir, n_files, _ = test_data
 
 
-    bin_files = data_dir.glob('*.bin')
+    bin_files = list(data_dir.glob('*.bin'))
     start_time = dt.datetime.fromtimestamp(bin_files[0].stat().st_mtime)
     end_time = dt.datetime.fromtimestamp(bin_files[-1].stat().st_mtime)
 
