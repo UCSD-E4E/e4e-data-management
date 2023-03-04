@@ -272,7 +272,7 @@ class Dataset:
         self.regions: Set[str] = set()
         self.sites: Set[str] = set()
         self.devices: Set[str] = set()
-        self.missions: List[Mission] = []
+        self.missions: Dict[str, Mission] = {}
         self.manifest = Manifest(self.root.joinpath(self.__MANIFEST_NAME))
         self.committed_files: List[Path] = []
         self.staged_files: List[Path] = []
@@ -359,7 +359,7 @@ class Dataset:
             mission_metadata=metadata
         )
         mission.create()
-        self.missions.append(mission)
+        self.missions[mission.name] = mission
         self.manifest.update(self.get_new_files())
 
         self.countries.add(metadata.country)

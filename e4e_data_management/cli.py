@@ -95,7 +95,7 @@ def main():
     __configure_push_parser(app, parsers['push'])
     __configure_prune_parser(app, parsers['prune'])
     # __configure_config_parser(app, parsers['config'])
-    # __configure_activate_parser(app, parsers['activate'])
+    __configure_activate_parser(app, parsers['activate'])
     # __configure_validate_parser(app, parsers['validate'])
     # __configure_zip_parser(app, parsers['zip'])
     # __configure_unzip_parser(app, parsers['unzip'])
@@ -105,6 +105,27 @@ def main():
     arg_dict = vars(args)
     arg_dict.pop('func')
     arg_fn(**arg_dict)
+
+def __configure_activate_parser(app: DataManager, parser: argparse.ArgumentParser):
+    parser.add_argument('dataset',
+                        type=str,
+                        help='Dataset name')
+    parser.add_argument('--day',
+                        type=int,
+                        help='Mission day',
+                        default=None,
+                        required=False)
+    parser.add_argument('--mission',
+                        type=str,
+                        help='Mission name',
+                        default=None,
+                        required=False)
+    parser.add_argument('--root_dir',
+                        type=Path,
+                        help='Dataset location',
+                        required=False,
+                        default=None)
+    parser.set_defaults(func=app.activate)
 
 def __configure_prune_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.set_defaults(func=app.prune)
