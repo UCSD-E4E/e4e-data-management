@@ -4,8 +4,7 @@ import argparse
 import datetime as dt
 from glob import glob
 from pathlib import Path
-from typing import List
-
+from typing import List, Optional
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
@@ -39,7 +38,10 @@ def list_datasets_cmd(app: DataManager) -> None:
         for dataset in datasets:
             print(dataset)
 
-def add_files_cmd(app: DataManager, paths: List[str], readme: bool):
+def add_files_cmd(app: DataManager,
+                  paths: List[str], readme: bool,
+                  start: Optional[dt.datetime] = None,
+                  end: Optional[dt.datetime] = None):
     """Add files parsing
 
     Args:
@@ -49,6 +51,14 @@ def add_files_cmd(app: DataManager, paths: List[str], readme: bool):
     resolved_paths: List[Path] = []
     for path in paths:
         resolved_paths.extend(Path(file) for file in glob(path))
+    if start:
+        resolved_paths = [path
+                          for path in resolved_paths
+                          if dt.datetime.fromtimestamp(path.stat().st_mtime) >= start]
+    if end:
+        resolved_paths = [path
+                          for path in resolved_paths
+                          if dt.datetime.fromtimestamp(path.stat().st_mtime) <= end]
     app.add(paths=resolved_paths, readme=readme)
 
 def main():
@@ -114,6 +124,8 @@ def __configure_commit_parser(app: DataManager, parser: argparse.ArgumentParser)
 def __configure_add_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.add_argument('paths', nargs='+', type=str)
     parser.add_argument('--readme', action='store_true')
+    parser.add_argument('--start', default=None, type=dt.datetime.fromisoformat)
+    parser.add_argument('--end', default=None, type=dt.datetime.fromisoformat)
     parser.set_defaults(func=add_files_cmd, app=app)
 
 def __configure_list_parser(app: DataManager, parser: argparse.ArgumentParser):
