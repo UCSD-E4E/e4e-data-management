@@ -263,3 +263,54 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
     with patch('sys.argv', args):
         main()
         mock.list_datasets.assert_called_once_with()
+
+def test_activate(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests the activate command
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission setup
+    """
+    mock, app, root_dir = single_mission
+    app.initialize_dataset(
+        date=dt.date(2023, 3, 3),
+        project='Test',
+        location='Location1',
+        directory=root_dir
+    )
+    app.initialize_mission(
+        metadata=Metadata(
+        timestamp=dt.datetime.fromisoformat('2023-03-03T22:52-08:00'),
+        device='device1',
+        country='country',
+        region='region',
+        site='site',
+        mission='mission1'
+        )
+    )
+
+    args = split('e4edm activate "2023.03.Test.San Diego"')
+    with patch('sys.argv', args):
+        main()
+        mock.activate.assert_called_once_with(
+            dataset="2023.03.Test.San Diego",
+            day=None,
+            mission=None,
+            root_dir=None,
+        )
+
+    app.activate(
+        dataset="2023.03.Test.San Diego",
+        day=None,
+        mission=None,
+        root_dir=None,
+    )
+
+    args = split('e4edm activate "2023.03.Test.Location1" --day 0 --mission mission1')
+    with patch('sys.argv', args):
+        main()
+        mock.activate.assert_called_with(
+            dataset='2023.03.Test.Location1',
+            day=0,
+            mission='mission1',
+            root_dir=None
+        )
