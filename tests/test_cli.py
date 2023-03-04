@@ -84,7 +84,7 @@ def test_add_files_start_stop(single_mission: Tuple[Mock, DataManager, Path],
         test_data (Tuple[Path, int, int]): Test Data
     """
     mock, _, _ = single_mission
-    data_dir, _, _ = test_data
+    data_dir, n_files, _ = test_data
 
 
     bin_files = sorted(data_dir.glob('*.bin'))
@@ -92,13 +92,13 @@ def test_add_files_start_stop(single_mission: Tuple[Mock, DataManager, Path],
     end_time = dt.datetime.fromtimestamp(bin_files[-1].stat().st_mtime)
 
     sleep(1)
-    bin_files[0].touch()
+    data_dir.joinpath(f'{n_files + 1:04d}.bin').touch()
 
     args = split(f'e4edm add {data_dir.as_posix()}/*.bin '
                  f'--start {start_time.isoformat()} --end {end_time.isoformat()}')
     with patch('sys.argv', args):
         main()
-        mock.add.assert_called_once_with(paths=bin_files[1:], readme=False)
+        mock.add.assert_called_once_with(paths=bin_files, readme=False)
 
 def test_add_glob(single_mission: Tuple[Mock, DataManager, Path],
                    test_data: Tuple[Path, int, int]):
