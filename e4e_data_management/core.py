@@ -127,7 +127,7 @@ class DataManager:
 
         output += '\n'
         if len(self.active_mission.staged_files) > 0:
-            output += 'Staged files:\n\t'
+            output += f'{len(self.active_mission.staged_files)} staged files:\n\t'
             output += '\n\t'.join(file.relative_to(Path('.')).as_posix()
                                   for file in sorted(self.active_mission.staged_files))
         return output
