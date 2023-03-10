@@ -7,6 +7,8 @@ from tempfile import TemporaryDirectory
 from typing import Tuple
 from unittest.mock import Mock, patch
 
+import pytest
+
 from e4e_data_management.cli import main
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
@@ -218,3 +220,11 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
     with patch('sys.argv', args):
         main()
         mock.list_datasets.assert_called_once_with()
+
+def test_inactive_commands(test_app):
+    """Tests that inactive environment doesn't break --help
+    """
+    # pylint: disable=unused-argument
+    args = split('e4edm --help')
+    with patch('sys.argv', args), pytest.raises(SystemExit):
+        main()
