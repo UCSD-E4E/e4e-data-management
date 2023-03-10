@@ -19,6 +19,7 @@ class DataManager:
     """Data Manager Application Core
     """
     __CONFIG_NAME = 'config.pkl'
+    __VERSION = 1
     config_dir = Path(appdirs.user_config_dir(
         appname='E4EDataManagement',
         appauthor='Engineers for Exploration'
@@ -29,7 +30,14 @@ class DataManager:
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
         self.datasets: Dict[str, Dataset] = {}
+        self.version = self.__VERSION
         self.save()
+
+    def upgrade(self):
+        """Upgrades self to current version
+        """
+        if self.version < 1:
+            pass
 
     @classmethod
     def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
@@ -48,7 +56,12 @@ class DataManager:
             if not config_file.exists():
                 return DataManager(app_config_dir=config_dir)
             with open(config_file, 'rb') as handle:
-                return pickle.load(handle)
+                loaded = pickle.load(handle)
+                if not isinstance(loaded, DataManager):
+                    raise RuntimeError('Not a DataManager')
+                if loaded.version != cls.__VERSION:
+                    loaded.upgrade()
+                return loaded
         except Exception: # pylint: disable=broad-except
             return DataManager(app_config_dir=config_dir)
 
