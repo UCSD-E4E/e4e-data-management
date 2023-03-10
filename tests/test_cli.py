@@ -221,9 +221,10 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
         main()
         mock.list_datasets.assert_called_once_with()
 
-def test_inactive_commands():
+def test_inactive_commands(test_app):
     """Tests that inactive environment doesn't break --help
     """
+    # pylint: disable=unused-argument
     args = split('e4edm --help')
     with patch('sys.argv', args), pytest.raises(SystemExit):
         main()
