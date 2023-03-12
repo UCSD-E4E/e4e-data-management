@@ -31,6 +31,23 @@ def test_init_dataset():
             directory=Path('.')
         )
 
+def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
+    """Tests init_dataset with the `today` parameter
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
+    """
+    mock, _, _ = test_app
+    args = split('e4edm init_dataset --date today --project TEST --location Location')
+    with patch('sys.argv', args):
+        main()
+        mock.initialize_dataset.assert_called_once_with(
+            date=dt.date.today(),
+            project='TEST',
+            location='Location',
+            directory=Path('.')
+        )
+
 def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
     """Tests init_mission
     """
