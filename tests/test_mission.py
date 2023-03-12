@@ -158,7 +158,7 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
         location='Location1',
         directory=root_dir
     )
-    assert app.active_dataset.name == '2023.03.Test.Location1'
+    assert app.active_dataset.name == '2023.03.test_mission_activate.Location1'
 
     app.initialize_dataset(
         date=dt.date(2023, 3, 3),
@@ -170,9 +170,9 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
     assert app.active_dataset.name == '2023.03.Test.Location2'
 
     app.activate(
-        dataset='2023.03.Test.Location1'
+        dataset='2023.03.test_mission_activate.Location1'
     )
-    assert app.active_dataset.name == '2023.03.Test.Location1'
+    assert app.active_dataset.name == '2023.03.test_mission_activate.Location1'
 
     app.initialize_mission(
         metadata=Metadata(
@@ -199,7 +199,7 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
     assert app.active_mission.name == 'ED-00 mission2'
 
     app.activate(
-        dataset='2023.03.Test.Location1',
+        dataset='2023.03.test_mission_activate.Location1',
         day=0,
         mission='mission1'
     )
@@ -211,5 +211,5 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
         day=None,
         mission=None
     )
-    
+
     assert app.active_mission is None
