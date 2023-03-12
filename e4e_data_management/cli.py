@@ -234,10 +234,11 @@ def __configure_init_dataset_parser(app: DataManager, parser: argparse.ArgumentP
     parser.add_argument('--location', '-l',
                         help='Expedition location (common name)',
                         required=True)
+    data_dir = Path(app.dataset_dir)
     parser.add_argument('--path',
-                        default=Path('.'),
+                        default=data_dir,
                         type=Path,
-                        help='Dataset location, defaults to current directory',
+                        help=f'Dataset location, defaults to {data_dir.as_posix()}',
                         dest='directory')
     parser.set_defaults(func=app.initialize_dataset)
 
