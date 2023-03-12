@@ -61,6 +61,14 @@ def add_files_cmd(app: DataManager,
                           if dt.datetime.fromtimestamp(path.stat().st_mtime) <= end]
     app.add(paths=resolved_paths, readme=readme)
 
+def status_cmd(app: DataManager):
+    """Handles status cmd
+
+    Args:
+        app (DataManager): DataManager app
+    """
+    print(app.status())
+
 def main():
     """Main function
     """
@@ -153,7 +161,7 @@ def __configure_list_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.set_defaults(func=list_datasets_cmd, app=app)
 
 def __configure_status_parser(app: DataManager, parser: argparse.ArgumentParser):
-    parser.set_defaults(func=app.status)
+    parser.set_defaults(func=status_cmd, app=app)
 
 def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.add_argument('--timestamp', '-t',
