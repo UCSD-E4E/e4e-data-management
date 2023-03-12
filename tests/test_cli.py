@@ -273,7 +273,7 @@ def test_activate(single_mission: Tuple[Mock, DataManager, Path]):
     mock, app, root_dir = single_mission
     app.initialize_dataset(
         date=dt.date(2023, 3, 3),
-        project='Test',
+        project='test_cli_activate',
         location='Location1',
         directory=root_dir
     )
