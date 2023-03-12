@@ -4,8 +4,7 @@ import argparse
 import datetime as dt
 from glob import glob
 from pathlib import Path
-from typing import List
-
+from typing import List, Optional
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
@@ -39,7 +38,10 @@ def list_datasets_cmd(app: DataManager) -> None:
         for dataset in datasets:
             print(dataset)
 
-def add_files_cmd(app: DataManager, paths: List[str], readme: bool):
+def add_files_cmd(app: DataManager,
+                  paths: List[str], readme: bool,
+                  start: Optional[dt.datetime] = None,
+                  end: Optional[dt.datetime] = None):
     """Add files parsing
 
     Args:
@@ -49,6 +51,14 @@ def add_files_cmd(app: DataManager, paths: List[str], readme: bool):
     resolved_paths: List[Path] = []
     for path in paths:
         resolved_paths.extend(Path(file) for file in glob(path))
+    if start:
+        resolved_paths = [path
+                          for path in resolved_paths
+                          if dt.datetime.fromtimestamp(path.stat().st_mtime) >= start]
+    if end:
+        resolved_paths = [path
+                          for path in resolved_paths
+                          if dt.datetime.fromtimestamp(path.stat().st_mtime) <= end]
     app.add(paths=resolved_paths, readme=readme)
 
 def status_cmd(app: DataManager):
@@ -93,7 +103,7 @@ def main():
     __configure_push_parser(app, parsers['push'])
     __configure_prune_parser(app, parsers['prune'])
     # __configure_config_parser(app, parsers['config'])
-    # __configure_activate_parser(app, parsers['activate'])
+    __configure_activate_parser(app, parsers['activate'])
     # __configure_validate_parser(app, parsers['validate'])
     # __configure_zip_parser(app, parsers['zip'])
     # __configure_unzip_parser(app, parsers['unzip'])
@@ -103,6 +113,27 @@ def main():
     arg_dict = vars(args)
     arg_dict.pop('func')
     arg_fn(**arg_dict)
+
+def __configure_activate_parser(app: DataManager, parser: argparse.ArgumentParser):
+    parser.add_argument('dataset',
+                        type=str,
+                        help='Dataset name')
+    parser.add_argument('--day',
+                        type=int,
+                        help='Mission day',
+                        default=None,
+                        required=False)
+    parser.add_argument('--mission',
+                        type=str,
+                        help='Mission name',
+                        default=None,
+                        required=False)
+    parser.add_argument('--root_dir',
+                        type=Path,
+                        help='Dataset location',
+                        required=False,
+                        default=None)
+    parser.set_defaults(func=app.activate)
 
 def __configure_prune_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.set_defaults(func=app.prune)
@@ -122,6 +153,8 @@ def __configure_commit_parser(app: DataManager, parser: argparse.ArgumentParser)
 def __configure_add_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.add_argument('paths', nargs='+', type=str)
     parser.add_argument('--readme', action='store_true')
+    parser.add_argument('--start', default=None, type=dt.datetime.fromisoformat)
+    parser.add_argument('--end', default=None, type=dt.datetime.fromisoformat)
     parser.set_defaults(func=add_files_cmd, app=app)
 
 def __configure_list_parser(app: DataManager, parser: argparse.ArgumentParser):
@@ -139,7 +172,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
                         help='Mission device identifier',
                         required=True,
                         type=str)
-    if app.active_dataset.last_country:
+    if app.active_dataset and app.active_dataset.last_country:
         parser.add_argument('--country', '-c',
                             help='Mission country',
                             required=False,
@@ -148,7 +181,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
         parser.add_argument('--country', '-c',
                             help='Mission country',
                             required=True)
-    if app.active_dataset.last_region:
+    if app.active_dataset and app.active_dataset.last_region:
         parser.add_argument('--region', '-r',
                             help='Mission region',
                             required=False,
@@ -157,7 +190,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
         parser.add_argument('--region', '-r',
                             help='Mission region',
                             required=True)
-    if app.active_dataset.last_site:
+    if app.active_dataset and app.active_dataset.last_site:
         parser.add_argument('--site', '-s',
                             help='Mission site',
                             required=False,
@@ -179,7 +212,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
 def __configure_init_dataset_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--date', '-d',
-        help='Date of expedition (YY.MM)',
+        help='Date of expedition (YYYY-MM-DD)',
         required=True,
         type=dt.date.fromisoformat)
     parser.add_argument('--project', '-p',
