@@ -8,6 +8,7 @@ from time import sleep
 from typing import Tuple
 from unittest.mock import Mock, patch
 
+import appdirs
 import pytest
 
 from e4e_data_management.cli import main
@@ -15,10 +16,10 @@ from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
 
-def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
+def test_init_dataset(test_bare_app: Tuple[Mock, DataManager, Path]):
     """Tests initialize dataset
     """
-    mock, _, _ = test_app
+    mock, _, _ = test_bare_app
     args = split('e4edm init_dataset --date 2023-03-02 --project "TEST" --location "San Diego"')
     with patch('sys.argv', args):
         main()
@@ -26,7 +27,10 @@ def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
             date=dt.date(2023, 3, 2),
             project='TEST',
             location='San Diego',
-            directory=Path('.')
+            directory=Path(appdirs.user_data_dir(
+            appname='E4EDataManagement',
+            appauthor='Engineers for Exploration'
+            ))
         )
 
 def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
@@ -43,7 +47,10 @@ def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
             date=dt.date.today(),
             project='TEST',
             location='Location',
-            directory=Path('.')
+            directory=Path(appdirs.user_data_dir(
+            appname='E4EDataManagement',
+            appauthor='Engineers for Exploration'
+            ))
         )
 
 def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
