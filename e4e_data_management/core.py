@@ -96,6 +96,7 @@ class DataManager:
         self.active_dataset.create()
         self.active_dataset.save()
         self.datasets[dataset_name] = self.active_dataset
+        self.active_mission = None
         self.save()
 
     def initialize_mission(self,
