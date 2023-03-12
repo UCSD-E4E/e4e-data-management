@@ -143,3 +143,73 @@ def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
     assert app.active_dataset.root == dataset_dir
     assert app.active_dataset.name == '2023.03.TEST.San Diego'
     assert app.active_mission.path == dataset_dir.joinpath('ED-00', 'TCM001')
+
+def test_activate(test_app: Tuple[Mock, DataManager, Path]):
+    """Tests activate
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test app
+    """
+    _, app, root_dir = test_app
+
+    app.initialize_dataset(
+        date=dt.date(2023, 3, 3),
+        project='test_mission_activate',
+        location='Location1',
+        directory=root_dir
+    )
+    assert app.active_dataset.name == '2023.03.test_mission_activate.Location1'
+
+    app.initialize_dataset(
+        date=dt.date(2023, 3, 3),
+        project='Test',
+        location='Location2',
+        directory=root_dir
+    )
+
+    assert app.active_dataset.name == '2023.03.Test.Location2'
+
+    app.activate(
+        dataset='2023.03.test_mission_activate.Location1'
+    )
+    assert app.active_dataset.name == '2023.03.test_mission_activate.Location1'
+
+    app.initialize_mission(
+        metadata=Metadata(
+        timestamp=dt.datetime.fromisoformat('2023-03-03T22:37-08:00'),
+        device='device1',
+        country='country1',
+        region='region1',
+        site='site1',
+        mission='mission1'
+        )
+    )
+    assert app.active_mission.name == 'ED-00 mission1'
+
+    app.initialize_mission(
+        metadata=Metadata(
+        timestamp=dt.datetime.fromisoformat('2023-03-03T22:39-08:00'),
+        device='device1',
+        country='country1',
+        region='region1',
+        site='site1',
+        mission='mission2'
+        )
+    )
+    assert app.active_mission.name == 'ED-00 mission2'
+
+    app.activate(
+        dataset='2023.03.test_mission_activate.Location1',
+        day=0,
+        mission='mission1'
+    )
+
+    assert app.active_mission.name == 'ED-00 mission1'
+
+    app.activate(
+        dataset='2023.03.Test.Location2',
+        day=None,
+        mission=None
+    )
+
+    assert app.active_mission is None

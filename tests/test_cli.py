@@ -4,8 +4,11 @@ import datetime as dt
 from pathlib import Path
 from shlex import split
 from tempfile import TemporaryDirectory
+from time import sleep
 from typing import Tuple
 from unittest.mock import Mock, patch
+
+import pytest
 
 from e4e_data_management.cli import main
 from e4e_data_management.core import DataManager
@@ -74,6 +77,50 @@ def test_add_files(single_mission: Tuple[Mock, DataManager, Path],
         main()
         mock.add.assert_called_once_with(paths=bin_files, readme=False)
 
+def test_add_files_start(single_mission: Tuple[Mock, DataManager, Path],
+                   test_data: Tuple[Path, int, int]):
+    """Tests adding files
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_data (Tuple[Path, int, int]): Test Data
+    """
+    mock, _, _ = single_mission
+    data_dir, _, _ = test_data
+
+
+    sleep(1)
+
+    start_time = dt.datetime.now()
+
+    args = split(f'e4edm add {data_dir.as_posix()}/*.bin '
+                 f'--start {start_time.isoformat()}')
+    with patch('sys.argv', args):
+        main()
+        mock.add.assert_called_once_with(paths=[], readme=False)
+
+def test_add_files_end(single_mission: Tuple[Mock, DataManager, Path],
+                   test_data: Tuple[Path, int, int]):
+    """Tests adding files
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Mock App
+        test_data (Tuple[Path, int, int]): Test Data
+    """
+    mock, _, _ = single_mission
+    data_dir, _, _ = test_data
+
+
+    bin_files = list(data_dir.glob('*.bin'))
+    sleep(1)
+
+    start_time = dt.datetime.now()
+
+    args = split(f'e4edm add {data_dir.as_posix()}/*.bin '
+                 f'--end {start_time.isoformat()}')
+    with patch('sys.argv', args):
+        main()
+        mock.add.assert_called_once_with(paths=bin_files, readme=False)
 def test_add_glob(single_mission: Tuple[Mock, DataManager, Path],
                    test_data: Tuple[Path, int, int]):
     """Tests adding files
@@ -218,3 +265,62 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
     with patch('sys.argv', args):
         main()
         mock.list_datasets.assert_called_once_with()
+
+def test_inactive_commands(test_app):
+    """Tests that inactive environment doesn't break --help
+    """
+    # pylint: disable=unused-argument
+    args = split('e4edm --help')
+    with patch('sys.argv', args), pytest.raises(SystemExit):
+        main()
+
+def test_activate(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests the activate command
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission setup
+    """
+    mock, app, root_dir = single_mission
+    app.initialize_dataset(
+        date=dt.date(2023, 3, 3),
+        project='test_cli_activate',
+        location='Location1',
+        directory=root_dir
+    )
+    app.initialize_mission(
+        metadata=Metadata(
+        timestamp=dt.datetime.fromisoformat('2023-03-03T22:52-08:00'),
+        device='device1',
+        country='country',
+        region='region',
+        site='site',
+        mission='mission1'
+        )
+    )
+
+    args = split('e4edm activate "2023.03.Test.San Diego"')
+    with patch('sys.argv', args):
+        main()
+        mock.activate.assert_called_once_with(
+            dataset="2023.03.Test.San Diego",
+            day=None,
+            mission=None,
+            root_dir=None,
+        )
+
+    app.activate(
+        dataset="2023.03.Test.San Diego",
+        day=None,
+        mission=None,
+        root_dir=None,
+    )
+
+    args = split('e4edm activate "2023.03.Test.Location1" --day 0 --mission mission1')
+    with patch('sys.argv', args):
+        main()
+        mock.activate.assert_called_with(
+            dataset='2023.03.Test.Location1',
+            day=0,
+            mission='mission1',
+            root_dir=None
+        )

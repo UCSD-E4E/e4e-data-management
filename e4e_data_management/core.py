@@ -19,6 +19,7 @@ class DataManager:
     """Data Manager Application Core
     """
     __CONFIG_NAME = 'config.pkl'
+    __VERSION = 1
     config_dir = Path(appdirs.user_config_dir(
         appname='E4EDataManagement',
         appauthor='Engineers for Exploration'
@@ -29,7 +30,14 @@ class DataManager:
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
         self.datasets: Dict[str, Dataset] = {}
+        self.version = self.__VERSION
         self.save()
+
+    def upgrade(self):
+        """Upgrades self to current version
+        """
+        if self.version < 1:
+            pass
 
     @classmethod
     def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
@@ -48,7 +56,12 @@ class DataManager:
             if not config_file.exists():
                 return DataManager(app_config_dir=config_dir)
             with open(config_file, 'rb') as handle:
-                return pickle.load(handle)
+                loaded = pickle.load(handle)
+                if not isinstance(loaded, DataManager):
+                    raise RuntimeError('Not a DataManager')
+                if loaded.version != cls.__VERSION:
+                    loaded.upgrade()
+                return loaded
         except Exception: # pylint: disable=broad-except
             return DataManager(app_config_dir=config_dir)
 
@@ -128,7 +141,7 @@ class DataManager:
 
         output += '\n'
         if len(self.active_mission.staged_files) > 0:
-            output += 'Staged files:\n\t'
+            output += f'{len(self.active_mission.staged_files)} staged files:\n\t'
             output += '\n\t'.join(file.relative_to(Path('.')).as_posix()
                                   for file in sorted(self.active_mission.staged_files))
         return output
@@ -155,6 +168,21 @@ class DataManager:
             mission (Optional[str], optional): Mission name. Defaults to None.
             root_dir (Optional[Path], optional): Optional root directory. Defaults to None.
         """
+        if dataset in self.datasets:
+            self.active_dataset = self.datasets[dataset]
+        else:
+            dataset_path = root_dir.joinpath(dataset)
+            if not dataset_path.is_dir():
+                raise RuntimeError('Unable to find dataset')
+            self.active_dataset = Dataset.load(dataset_path)
+
+        if mission:
+            if day is None:
+                raise RuntimeError('Expedted day parameter')
+            name = f'ED-{day:02d} {mission}'
+            self.active_mission = self.active_dataset.missions[name]
+        else:
+            self.active_mission = None
 
     def add(self, paths: Iterable[Path], readme: bool = False) -> None:
         """This adds a file or directory to the staging area.
@@ -229,7 +257,8 @@ class DataManager:
         Args:
             path (Path): Destination to push completed dataset to
         """
-        if any(len(mission.staged_files) != 0 for mission in self.active_dataset.missions) or \
+        if any(len(mission.staged_files) != 0
+               for mission in self.active_dataset.missions.values()) or \
             len(self.active_dataset.staged_files) != 0:
             raise RuntimeError('Files still in staging')
 
