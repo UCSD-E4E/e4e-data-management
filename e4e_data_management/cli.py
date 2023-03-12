@@ -9,6 +9,19 @@ from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
 
+def init_dataset_fromisoformat(token: str) -> dt.date:
+    """Provides a `today` bypass for fromisoformat
+
+    Args:
+        token (str): User input token
+
+    Returns:
+        dt.date: Date object
+    """
+    if token.lower() == 'today':
+        return dt.date.today()
+    return dt.date.fromisoformat(token)
+
 def init_mission_cmd(**kwargs) -> None:
     """`init_mission` command line interface
 
@@ -214,7 +227,7 @@ def __configure_init_dataset_parser(app: DataManager, parser: argparse.ArgumentP
         '--date', '-d',
         help='Date of expedition (YYYY-MM-DD)',
         required=True,
-        type=dt.date.fromisoformat)
+        type=init_dataset_fromisoformat)
     parser.add_argument('--project', '-p',
                         help='Project',
                         required=True)
