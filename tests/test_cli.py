@@ -15,16 +15,14 @@ from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
 
-def test_init_dataset():
+def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
     """Tests initialize dataset
     """
+    mock, _, _ = test_app
     args = split('e4edm init_dataset --date 2023-03-02 --project "TEST" --location "San Diego"')
-    e4edm_mock = Mock(spec=DataManager)
-    with patch('sys.argv', args),\
-         patch('e4e_data_management.cli.DataManager', e4edm_mock):
+    with patch('sys.argv', args):
         main()
-        initialize_dataset_mock: Mock = e4edm_mock.load.return_value.initialize_dataset
-        initialize_dataset_mock.assert_called_once_with(
+        mock.initialize_dataset.assert_called_once_with(
             date=dt.date(2023, 3, 2),
             project='TEST',
             location='San Diego',
