@@ -164,7 +164,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
                         help='Mission device identifier',
                         required=True,
                         type=str)
-    if app.active_dataset.last_country:
+    if app.active_dataset and app.active_dataset.last_country:
         parser.add_argument('--country', '-c',
                             help='Mission country',
                             required=False,
@@ -173,7 +173,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
         parser.add_argument('--country', '-c',
                             help='Mission country',
                             required=True)
-    if app.active_dataset.last_region:
+    if app.active_dataset and app.active_dataset.last_region:
         parser.add_argument('--region', '-r',
                             help='Mission region',
                             required=False,
@@ -182,7 +182,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
         parser.add_argument('--region', '-r',
                             help='Mission region',
                             required=True)
-    if app.active_dataset.last_site:
+    if app.active_dataset and app.active_dataset.last_site:
         parser.add_argument('--site', '-s',
                             help='Mission site',
                             required=False,
@@ -204,7 +204,7 @@ def __configure_init_mission_parser(app: DataManager, parser: argparse.ArgumentP
 def __configure_init_dataset_parser(app: DataManager, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--date', '-d',
-        help='Date of expedition (YY.MM)',
+        help='Date of expedition (YYYY-MM-DD)',
         required=True,
         type=dt.date.fromisoformat)
     parser.add_argument('--project', '-p',

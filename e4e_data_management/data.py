@@ -261,6 +261,7 @@ class Dataset:
 
     __MANIFEST_NAME = 'manifest.json'
     __CONFIG_NAME = '.e4edm.pkl'
+    VERSION = 1
 
     def __init__(self, root: Path, day_0: dt.date):
         self.root = root
@@ -276,6 +277,13 @@ class Dataset:
         self.manifest = Manifest(self.root.joinpath(self.__MANIFEST_NAME))
         self.committed_files: List[Path] = []
         self.staged_files: List[Path] = []
+        self.version = self.VERSION
+
+    def upgrade(self):
+        """Upgrades self to latest version
+        """
+        if self.version < 1:
+            pass
 
     @classmethod
     def load(cls, path: Path) -> Dataset:
@@ -287,14 +295,20 @@ class Dataset:
         Returns:
             Dataset: Dataset
         """
-        config_file = path.joinpath(cls.__CONFIG_NAME)
-        if config_file.exists():
+        try:
+            config_file = path.joinpath(cls.__CONFIG_NAME)
+            assert config_file.exists()
             with open(config_file, 'rb') as handle:
-                return pickle.load(handle)
-        else:
+                loaded = pickle.load(handle)
+                if not isinstance(loaded, Dataset):
+                    raise RuntimeError('Not a dataset')
+                if loaded.version != cls.VERSION:
+                    loaded.upgrade()
+                return loaded
+        except Exception: # pylint: disable=broad-except
             metadata_files = list(path.rglob('metadata.json'))
             if len(metadata_files) == 0:
-                raise RuntimeError('No config file and no data!')
+                raise RuntimeError('No config file and no data!') #pylint: disable=raise-missing-from
             metadata_file = metadata_files[0].relative_to(path)
             metadata = Metadata.load(metadata_files[0].parent)
             mission_date = metadata.timestamp.date()
