@@ -7,6 +7,7 @@ from glob import glob
 from pathlib import Path
 from typing import Callable, List, Optional, TypeVar
 
+from e4e_data_management import __version__
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
@@ -80,6 +81,8 @@ class DataMangerCLI:
         # self.__configure_validate_parser(parsers['validate'])
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
+
+        self.parser.add_argument('--version', action='store_true')
 
 
     def configure_parameters(self, parameter: str, value: Optional[str]) -> None:
@@ -177,9 +180,13 @@ class DataMangerCLI:
         """Main function
         """
         args = self.parser.parse_args()
-        arg_fn = args.func
         arg_dict = vars(args)
+        if 'version' in arg_dict:
+            print(f'e4edm version {__version__}')
+            return
         arg_dict.pop('func')
+        arg_fn = args.func
+
         arg_fn(**arg_dict)
 
     def __configure_config_parser(self, parser: argparse.ArgumentParser):
