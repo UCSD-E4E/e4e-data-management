@@ -27,7 +27,7 @@ class DataManager:
     )
     def __init__(self, *, app_config_dir: Optional[Path] = None):
         # self.__log = logging.getLogger('DataManager')
-        self.config_path = app_config_dir
+        self.config_path = Path(app_config_dir)
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
         self.datasets: Dict[str, Dataset] = {}
@@ -54,7 +54,7 @@ class DataManager:
         """
         try:
             if config_dir is None:
-                config_dir = cls.dirs.user_config_dir
+                config_dir = Path(cls.dirs.user_config_dir)
             config_file = config_dir.joinpath(cls.__CONFIG_NAME)
             if not config_file.exists():
                 return DataManager(app_config_dir=config_dir)
