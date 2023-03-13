@@ -346,3 +346,18 @@ def test_activate(single_mission: Tuple[Mock, DataManager, Path]):
             mission='mission1',
             root_dir=None
         )
+
+def test_set_dataset_dir(test_bare_app: Tuple[Mock, DataManager, Path]):
+    """Tests setting the dataset directory
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
+    """
+    mock, _, _ = test_bare_app
+
+    with TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+        args = split(f'e4edm config dataset_dir {temp_path.as_posix()}')
+        with patch('sys.argv', args):
+            main()
+            assert mock.dataset_dir == temp_path
