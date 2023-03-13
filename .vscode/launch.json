@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "E4EDM Version",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e_data_management.cli",
+            "justMyCode": true,
+            "args": ["--version"]
+        },
+        {
             "name": "E4EDM Prune",
             "type": "python",
             "request": "launch",
