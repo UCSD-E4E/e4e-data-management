@@ -8,6 +8,7 @@ from time import sleep
 from typing import Tuple
 from unittest.mock import Mock, patch
 
+import appdirs
 import pytest
 
 from e4e_data_management.cli import main
@@ -15,20 +16,21 @@ from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
 
 
-def test_init_dataset():
+def test_init_dataset(test_bare_app: Tuple[Mock, DataManager, Path]):
     """Tests initialize dataset
     """
+    mock, _, _ = test_bare_app
     args = split('e4edm init_dataset --date 2023-03-02 --project "TEST" --location "San Diego"')
-    e4edm_mock = Mock(spec=DataManager)
-    with patch('sys.argv', args),\
-         patch('e4e_data_management.cli.DataManager', e4edm_mock):
+    with patch('sys.argv', args):
         main()
-        initialize_dataset_mock: Mock = e4edm_mock.load.return_value.initialize_dataset
-        initialize_dataset_mock.assert_called_once_with(
+        mock.initialize_dataset.assert_called_once_with(
             date=dt.date(2023, 3, 2),
             project='TEST',
             location='San Diego',
-            directory=Path('.')
+            directory=Path(appdirs.user_data_dir(
+            appname='E4EDataManagement',
+            appauthor='Engineers for Exploration'
+            ))
         )
 
 def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
@@ -45,7 +47,10 @@ def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
             date=dt.date.today(),
             project='TEST',
             location='Location',
-            directory=Path('.')
+            directory=Path(appdirs.user_data_dir(
+            appname='E4EDataManagement',
+            appauthor='Engineers for Exploration'
+            ))
         )
 
 def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
@@ -341,3 +346,18 @@ def test_activate(single_mission: Tuple[Mock, DataManager, Path]):
             mission='mission1',
             root_dir=None
         )
+
+def test_set_dataset_dir(test_bare_app: Tuple[Mock, DataManager, Path]):
+    """Tests setting the dataset directory
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
+    """
+    mock, _, _ = test_bare_app
+
+    with TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+        args = split(f'e4edm config dataset_dir {temp_path.as_posix()}')
+        with patch('sys.argv', args):
+            main()
+            assert mock.dataset_dir == temp_path

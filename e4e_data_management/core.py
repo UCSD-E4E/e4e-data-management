@@ -19,25 +19,28 @@ class DataManager:
     """Data Manager Application Core
     """
     __CONFIG_NAME = 'config.pkl'
-    __VERSION = 1
-    config_dir = Path(appdirs.user_config_dir(
+    __VERSION = 2
+
+    dirs = appdirs.AppDirs(
         appname='E4EDataManagement',
         appauthor='Engineers for Exploration'
-    ))
+    )
     def __init__(self, *, app_config_dir: Optional[Path] = None):
         # self.__log = logging.getLogger('DataManager')
-        self.config_path = app_config_dir
+        self.config_path = Path(app_config_dir)
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
         self.datasets: Dict[str, Dataset] = {}
         self.version = self.__VERSION
+        self.dataset_dir = Path(self.dirs.user_data_dir)
         self.save()
 
     def upgrade(self):
         """Upgrades self to current version
         """
-        if self.version < 1:
-            pass
+        if self.version < 2:
+            self.dataset_dir = Path(self.dirs.user_data_dir)
+        self.version = 2
 
     @classmethod
     def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
@@ -51,7 +54,7 @@ class DataManager:
         """
         try:
             if config_dir is None:
-                config_dir = cls.config_dir
+                config_dir = Path(cls.dirs.user_config_dir)
             config_file = config_dir.joinpath(cls.__CONFIG_NAME)
             if not config_file.exists():
                 return DataManager(app_config_dir=config_dir)
