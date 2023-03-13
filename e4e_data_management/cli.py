@@ -181,11 +181,14 @@ class DataMangerCLI:
         """
         args = self.parser.parse_args()
         arg_dict = vars(args)
-        if 'version' in arg_dict:
+
+        if arg_dict['version']:
             print(f'e4edm version {__version__}')
             return
-        arg_dict.pop('func')
+        arg_dict.pop('version')
+
         arg_fn = args.func
+        arg_dict.pop('func')
 
         arg_fn(**arg_dict)
 
