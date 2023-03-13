@@ -17,12 +17,14 @@ AppFixture = namedtuple('AppFixture', ['app', 'root'])
 MockAppFixture = namedtuple('MockAppFixture', ['mock', 'app', 'root'])
 DataFixture = namedtuple('DataFixture', ['path', 'n_files', 'file_size'])
 
-@pytest.fixture(name='test_app')
-def create_test_app() -> MockAppFixture:
+
+@pytest.fixture(name='test_bare_app')
+def create_test_bare_app() -> MockAppFixture:
     """Creates a mock test app
 
-    Yields:
-        TestFixture: Mock, app, and root directory
+    Returns:
+        MockAppFixture: Mock app
+
     """
     with TemporaryDirectory() as temp_dir:
         root_dir = Path(temp_dir)
@@ -33,8 +35,21 @@ def create_test_app() -> MockAppFixture:
 
         mock = Mock(app)
         mock.load.return_value = mock
+        mock.dirs = app.dirs
+        mock.dataset_dir = app.dataset_dir
         with patch('e4e_data_management.cli.DataManager', mock):
             yield MockAppFixture(mock, app, root_dir)
+
+@pytest.fixture(name='test_app')
+def create_test_app(test_bare_app: Tuple[Mock, DataManager, Path]) -> MockAppFixture:
+    """Creates a mock test app
+
+    Yields:
+        TestFixture: Mock, app, and root directory
+    """
+    _, app, root_dir = test_bare_app
+    app.dataset_dir = root_dir
+    yield test_bare_app
 
 N_FILES = 128
 FILE_SIZE = 1024
