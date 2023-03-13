@@ -245,7 +245,8 @@ class DataMangerCLI:
 
     def __configure_init_mission_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('--timestamp', '-t',
-                                            help='Mission timestamp',
+                                            help=('ISO 8601 Mission timestamp, '
+                                                  'YYYY-MM-DDThh:mm:ss\u00B1hh:mm'),
                                             required=True,
                                             type=dt.datetime.fromisoformat)
         parser.add_argument('--device', '-d',
@@ -292,7 +293,7 @@ class DataMangerCLI:
     def __configure_init_dataset_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument(
             '--date', '-d',
-            help='Date of expedition (YYYY-MM-DD)',
+            help='ISO 8601 Date of expedition (YYYY-MM-DD) or "today"',
             required=True,
             type=self.init_dataset_fromisoformat)
         parser.add_argument('--project', '-p',
