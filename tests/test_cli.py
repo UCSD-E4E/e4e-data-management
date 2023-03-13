@@ -54,7 +54,10 @@ def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
         )
 
 def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
-    """Tests init_mission
+    """Tests that `e4edm init_mission` properly calls DataManager.initialize_mission
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
     """
     mock, app, root_dir = test_app
 
