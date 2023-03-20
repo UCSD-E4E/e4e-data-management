@@ -364,3 +364,15 @@ def test_set_dataset_dir(test_bare_app: Tuple[Mock, DataManager, Path]):
         with patch('sys.argv', args):
             main()
             assert mock.dataset_dir == temp_path
+
+def test_e4edm_empty_call(test_app: Tuple[Mock, DataManager, Path]):
+    """Tests calling `e4edm` and ensures that it does not result in an Exception
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
+    """
+    _ = test_app
+
+    args = split('e4edm')
+    with patch('sys.argv', args):
+        main()
