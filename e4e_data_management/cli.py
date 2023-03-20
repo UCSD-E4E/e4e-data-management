@@ -82,7 +82,8 @@ class DataMangerCLI:
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
 
-        self.parser.add_argument('--version', action='store_true')
+        self.parser.add_argument('--version', action='version', version=f'e4edm {__version__}')
+        self.parser.set_defaults(func=self.parser.print_help)
 
 
     def configure_parameters(self, parameter: str, value: Optional[str]) -> None:
@@ -181,11 +182,6 @@ class DataMangerCLI:
         """
         args = self.parser.parse_args()
         arg_dict = vars(args)
-
-        if arg_dict['version']:
-            print(f'e4edm version {__version__}')
-            return
-        arg_dict.pop('version')
 
         arg_fn = args.func
         arg_dict.pop('func')
