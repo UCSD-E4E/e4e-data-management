@@ -112,8 +112,15 @@ def test_stage_commit_readme(test_app: Tuple[Mock, DataManager, Path],
     assert app.validate()
 
 def test_relative_path(test_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
-    mock, app, root_dir = test_app
-    data_dir, n_files, file_size = test_data
+    """Tests that adding a relative path retains the origin of the relative path and doesn't throw
+    an exception
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
+        test_data (Tuple[Path, int, int]): Test data
+    """
+    _, app, root_dir = test_app
+    data_dir, _, _ = test_data
 
     app.initialize_dataset(
         date=dt.date.fromisoformat('2023-03-25'),
