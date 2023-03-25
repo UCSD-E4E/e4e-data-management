@@ -145,8 +145,11 @@ class DataManager:
         output += '\n'
         if len(self.active_mission.staged_files) > 0:
             output += f'{len(self.active_mission.staged_files)} staged files:\n\t'
-            output += '\n\t'.join(file.relative_to(Path('.')).as_posix()
-                                  for file in sorted(self.active_mission.staged_files))
+            staged_files = ((f"{file.origin_path.as_posix()} -> "
+                            f"{file.target_path.relative_to(self.active_mission.path).as_posix()}")
+                                  for file in self.active_mission.staged_files)
+    
+            output += '\n\t'.join(staged_files)
         return output
 
     def activate(self,
