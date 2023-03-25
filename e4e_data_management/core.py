@@ -148,7 +148,7 @@ class DataManager:
             staged_files = ((f"{file.origin_path.as_posix()} -> "
                             f"{file.target_path.relative_to(self.active_mission.path).as_posix()}")
                                   for file in self.active_mission.staged_files)
-    
+
             output += '\n\t'.join(staged_files)
         return output
 
