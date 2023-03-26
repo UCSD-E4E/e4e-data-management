@@ -296,7 +296,9 @@ class DataManager:
         self.active_dataset.validate()
 
         # Duplicate to destination
-        self.duplicate([path])
+        destination = path.joinpath(self.active_dataset.name)
+        destination.mkdir(parents=True, exist_ok=False)
+        self.duplicate([destination])
 
     def zip(self, output_path: Path) -> None:
         """This will zip the active and completed dataset to the specified path
