@@ -124,6 +124,23 @@ def test_add_files_start(single_mission: Tuple[Mock, DataManager, Path],
         main()
         mock.add.assert_called_once_with(paths=[], readme=False)
 
+def test_add_files_timezone(single_mission: Tuple[Mock, DataManager, Path],
+                            test_data: Tuple[Path, int, int]):
+    """Tests whether timezone-aware timestamps can be fed into `e4edm add`
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission app
+        test_data (Tuple[Path, int, int]): Test data
+    """
+    mock, _, _ = single_mission
+    data_dir, n_files, _ = test_data
+
+    args = split(f'e4edm add --start 2023-03-25T17:18-07:00 {data_dir.as_posix()}/*')
+    with patch('sys.argv', args):
+        main()
+        expected_files = [data_dir.joinpath(f'{i:04d}.bin') for i in range(n_files)]
+        mock.add.assert_called_once_with(paths=expected_files, readme=False)
+
 def test_add_files_end(single_mission: Tuple[Mock, DataManager, Path],
                    test_data: Tuple[Path, int, int]):
     """Tests adding files
