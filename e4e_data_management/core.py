@@ -147,7 +147,8 @@ class DataManager:
             output += f'{len(self.active_mission.staged_files)} staged files:\n\t'
             staged_files = ((f"{file.origin_path.as_posix()} -> "
                             f"{file.target_path.relative_to(self.active_mission.path).as_posix()}")
-                                  for file in self.active_mission.staged_files)
+                                  for file in sorted(self.active_mission.staged_files,
+                                                     key=lambda x: x.target_path.name))
 
             output += '\n\t'.join(staged_files)
         if len(self.active_dataset.staged_files) > 0:
