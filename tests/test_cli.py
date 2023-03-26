@@ -133,7 +133,7 @@ def test_add_files_timezone(single_mission: Tuple[Mock, DataManager, Path],
         test_data (Tuple[Path, int, int]): Test data
     """
     mock, _, _ = single_mission
-    data_dir, n_files, _ = test_data
+    data_dir, _, _ = test_data
     local_tz = dt.datetime.now().astimezone().tzinfo
     sleep(1)
     start_time = dt.datetime.now(tz=local_tz)
@@ -141,8 +141,8 @@ def test_add_files_timezone(single_mission: Tuple[Mock, DataManager, Path],
     args = split(f'e4edm add --start {start_time.isoformat()} {data_dir.as_posix()}/*')
     with patch('sys.argv', args):
         main()
-        expected_files = [data_dir.joinpath(f'{i:04d}.bin') for i in range(n_files)]
-        mock.add.assert_called_once_with(paths=expected_files, readme=False)
+        mock.add.assert_called_once_with(paths=[], readme=False)
+
 
 def test_add_files_end(single_mission: Tuple[Mock, DataManager, Path],
                    test_data: Tuple[Path, int, int]):
