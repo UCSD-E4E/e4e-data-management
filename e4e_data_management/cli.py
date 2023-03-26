@@ -149,23 +149,32 @@ class DataMangerCLI:
                     paths: List[str], readme: bool,
                     start: Optional[dt.datetime] = None,
                     end: Optional[dt.datetime] = None):
-        """Add files parsing
+        """Add files command parsing
+
+        Any timestamps passed if timezone-naive will be assumed to be using the local timezone
 
         Args:
-            app (DataManager): App
             paths (List[str]): Paths
+            readme (bool): Readme flag
+            start (Optional[dt.datetime], optional): Start timestamp. Defaults to None.
+            end (Optional[dt.datetime], optional): End timestamp. Defaults to None.
         """
+        local_tz = dt.datetime.now().astimezone().tzinfo
         resolved_paths: List[Path] = []
         for path in paths:
             resolved_paths.extend(Path(file) for file in glob(path))
         if start:
+            if start.tzinfo is None:
+                start = start.replace(tzinfo=local_tz)
             resolved_paths = [path
                             for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime) >= start]
+                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) >= start]
         if end:
+            if end.tzinfo is None:
+                end = end.replace(tzinfo=local_tz)
             resolved_paths = [path
                             for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime) <= end]
+                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) <= end]
         self.app.add(paths=resolved_paths, readme=readme)
 
     def status_cmd(self):
