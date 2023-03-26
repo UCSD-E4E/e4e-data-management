@@ -1,6 +1,7 @@
 '''Data staging tests
 '''
 import datetime as dt
+import os
 from pathlib import Path
 from typing import Tuple
 from unittest.mock import Mock
@@ -109,3 +110,46 @@ def test_stage_commit_readme(test_app: Tuple[Mock, DataManager, Path],
     assert current_files == sorted(expected_files)
 
     assert app.validate()
+
+def test_relative_path(test_app: Tuple[Mock, DataManager, Path], test_data: Tuple[Path, int, int]):
+    """Tests that adding a relative path retains the origin of the relative path and doesn't throw
+    an exception
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
+        test_data (Tuple[Path, int, int]): Test data
+    """
+    _, app, root_dir = test_app
+    data_dir, _, _ = test_data
+
+    app.initialize_dataset(
+        date=dt.date.fromisoformat('2023-03-25'),
+        project='Test Relative Path',
+        location='San Diego',
+        directory=root_dir
+    )
+    app.initialize_mission(
+        metadata=Metadata(
+        timestamp=dt.datetime.fromisoformat('2023-03-25T15:10-07:00'),
+        device='DUT',
+        country='USA',
+        region='Southern California',
+        site='e4edm',
+        mission='test_relative_path'
+        )
+    )
+
+    original_working_dir = Path.cwd()
+
+    os.chdir(data_dir)
+
+    app.add([Path('0000.bin')])
+
+    os.chdir(original_working_dir)
+
+    app.commit()
+
+    assert root_dir.joinpath('2023.03.Test Relative Path.San Diego',
+                             'ED-00',
+                             'test_relative_path',
+                             '0000.bin').exists()
