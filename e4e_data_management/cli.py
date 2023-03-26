@@ -82,7 +82,8 @@ class DataMangerCLI:
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
 
-        self.parser.add_argument('--version', action='store_true')
+        self.parser.add_argument('--version', action='version', version=f'e4edm {__version__}')
+        self.parser.set_defaults(func=self.parser.print_help)
 
 
     def configure_parameters(self, parameter: str, value: Optional[str]) -> None:
@@ -153,6 +154,8 @@ class DataMangerCLI:
                     destination: Optional[Path] = None):
         """Add files parsing
 
+        Any timestamps passed if timezone-naive will be assumed to be using the local timezone
+
         Args:
             paths (List[str]): Paths to add
             readme (bool): Readme flag
@@ -162,17 +165,23 @@ class DataMangerCLI:
             Defaults to None.
         """
         # pylint: disable=too-many-arguments
+        # `add_files_cmd` reflects the complexity/flexibility of the `e4edm add` command
+        local_tz = dt.datetime.now().astimezone().tzinfo
         resolved_paths: List[Path] = []
         for path in paths:
             resolved_paths.extend(Path(file) for file in glob(path))
         if start:
+            if start.tzinfo is None:
+                start = start.replace(tzinfo=local_tz)
             resolved_paths = [path
                             for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime) >= start]
+                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) >= start]
         if end:
+            if end.tzinfo is None:
+                end = end.replace(tzinfo=local_tz)
             resolved_paths = [path
                             for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime) <= end]
+                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) <= end]
         self.app.add(paths=resolved_paths, readme=readme, destination=destination)
 
     def status_cmd(self):
@@ -188,11 +197,6 @@ class DataMangerCLI:
         """
         args = self.parser.parse_args()
         arg_dict = vars(args)
-
-        if arg_dict['version']:
-            print(f'e4edm version {__version__}')
-            return
-        arg_dict.pop('version')
 
         arg_fn = args.func
         arg_dict.pop('func')
