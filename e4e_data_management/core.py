@@ -145,8 +145,11 @@ class DataManager:
         output += '\n'
         if len(self.active_mission.staged_files) > 0:
             output += f'{len(self.active_mission.staged_files)} staged files:\n\t'
-            output += '\n\t'.join(file.relative_to(Path('.')).as_posix()
-                                  for file in sorted(self.active_mission.staged_files))
+            staged_files = ((f"{file.origin_path.as_posix()} -> "
+                            f"{file.target_path.relative_to(self.active_mission.path).as_posix()}")
+                                  for file in self.active_mission.staged_files)
+
+            output += '\n\t'.join(staged_files)
         return output
 
     def activate(self,
@@ -187,11 +190,20 @@ class DataManager:
         else:
             self.active_mission = None
 
-    def add(self, paths: Iterable[Path], readme: bool = False) -> None:
+    def add(self, paths: Iterable[Path],
+            readme: bool = False,
+            destination: Optional[Path] = None) -> None:
         """This adds a file or directory to the staging area.
 
         Args:
             paths (Iterable[Path]): List of paths to add
+            readme (bool, optional): Readme flag. Defaults to False.
+            destination (Optional[Path], optional): Directory in the dataset to add paths to.
+            Defaults to None.
+
+        Raises:
+            RuntimeError: Dataset not active
+            RuntimeError: Mission not active
         """
         if self.active_dataset is None:
             raise RuntimeError('Dataset not active')
@@ -202,7 +214,7 @@ class DataManager:
             return
         if self.active_mission is None:
             raise RuntimeError('Mission not active')
-        self.active_mission.stage(paths)
+        self.active_mission.stage(paths, destination=destination)
         self.save()
 
     def commit(self, readme: bool = False) -> None:
