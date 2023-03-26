@@ -34,7 +34,7 @@ class Manifest:
         self.path = path
         if root is None:
             root = path.parent
-        self.__root = root
+        self.__root = root.resolve()
 
     def validate(self,
                  manifest: Dict[str, Dict[str, Union[str, int]]],
@@ -176,7 +176,7 @@ class Mission:
     """
     __MANIFEST_NAME = 'manifest.json'
     def __init__(self, path: Path, mission_metadata: Metadata) -> None:
-        self.path = path
+        self.path = path.resolve()
         self.metadata = mission_metadata
         self.committed_files: List[Path] = []
         self.staged_files: Set[StagedFile] = set()
@@ -242,7 +242,7 @@ class Mission:
                     StagedFile(
                     origin_path=path.resolve(),
                     target_path=dst.joinpath(path.name).resolve(),
-                    hash=Manifest.compute_file_hash(path.absolute())
+                    hash=Manifest.compute_file_hash(path.resolve())
                     )
                 )
             elif path.is_dir():
@@ -296,7 +296,7 @@ class Dataset:
     VERSION = 1
 
     def __init__(self, root: Path, day_0: dt.date):
-        self.root = root
+        self.root = root.resolve()
         self.day_0: dt.date = day_0
         self.last_country: Optional[str] = None
         self.last_region: Optional[str] = None
@@ -481,7 +481,7 @@ class Dataset:
             new_files: List[Path] = []
             for file in added_files:
                 src = file
-                dest = self.root.joinpath(file.relative_to(root)).absolute()
+                dest = self.root.joinpath(file.relative_to(root)).resolve()
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 copy2(src=src, dst=dest)
                 new_files.append(dest)

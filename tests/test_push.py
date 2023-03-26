@@ -28,6 +28,8 @@ def test_push(single_mission_data: Tuple[Tuple[Mock, DataManager, Path], Tuple[P
         push_path = Path(push_dir)
         app.push(push_path)
 
+        assert push_path.joinpath(app.active_dataset.name).is_dir()
+
 @pytest.mark.parametrize('readme_name', [
     'readme.md',
     'readme.MD',
