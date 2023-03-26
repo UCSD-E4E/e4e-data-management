@@ -147,15 +147,22 @@ class DataMangerCLI:
                 print(dataset)
 
     def add_files_cmd(self,
-                    paths: List[str], readme: bool,
+                    paths: List[str],
+                    readme: bool,
                     start: Optional[dt.datetime] = None,
-                    end: Optional[dt.datetime] = None):
+                    end: Optional[dt.datetime] = None,
+                    destination: Optional[Path] = None):
         """Add files parsing
 
         Args:
-            app (DataManager): App
-            paths (List[str]): Paths
+            paths (List[str]): Paths to add
+            readme (bool): Readme flag
+            start (Optional[dt.datetime], optional): Earliest timestamp to stage. Defaults to None.
+            end (Optional[dt.datetime], optional): Latest timestamp to stage. Defaults to None.
+            destination (Optional[Path], optional): Destination directory within the dataset.
+            Defaults to None.
         """
+        # pylint: disable=too-many-arguments
         resolved_paths: List[Path] = []
         for path in paths:
             resolved_paths.extend(Path(file) for file in glob(path))
@@ -167,7 +174,7 @@ class DataMangerCLI:
             resolved_paths = [path
                             for path in resolved_paths
                             if dt.datetime.fromtimestamp(path.stat().st_mtime) <= end]
-        self.app.add(paths=resolved_paths, readme=readme)
+        self.app.add(paths=resolved_paths, readme=readme, destination=destination)
 
     def status_cmd(self):
         """Handles status cmd
@@ -241,6 +248,7 @@ class DataMangerCLI:
         parser.add_argument('--readme', action='store_true')
         parser.add_argument('--start', default=None, type=dt.datetime.fromisoformat)
         parser.add_argument('--end', default=None, type=dt.datetime.fromisoformat)
+        parser.add_argument('--destination', default=None, type=Path)
         parser.set_defaults(func=self.add_files_cmd)
 
     def __configure_list_parser(self, parser: argparse.ArgumentParser):
