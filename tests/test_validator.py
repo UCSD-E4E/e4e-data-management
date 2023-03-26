@@ -17,7 +17,7 @@ def test_validation():
         NotImplementedError: Unsupported platform
     """
     with TemporaryDirectory() as temp_dir:
-        run_dir = Path(temp_dir)
+        run_dir = Path(temp_dir).resolve()
         for file_idx in range(N_FILES):
             with open(run_dir.joinpath(f'{file_idx:04d}.bin'), 'w', encoding='ascii') as handle:
                 for _ in range(N_BYTES):
@@ -37,7 +37,7 @@ def test_validation():
                 # Note: certUtil actually throws an error on empty string!  So we need to bypass...
                 if file.lstat().st_size != 0:
                     output = subprocess.check_output(
-                        ['certUtil', '-hashfile', file.absolute().as_posix(), 'SHA256'])
+                        ['certUtil', '-hashfile', file.resolve().as_posix(), 'SHA256'])
                     cksum = output.decode().splitlines()[1].strip()
                 else:
                     cksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'

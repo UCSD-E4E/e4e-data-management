@@ -27,7 +27,7 @@ def create_test_bare_app() -> MockAppFixture:
 
     """
     with TemporaryDirectory() as temp_dir:
-        root_dir = Path(temp_dir)
+        root_dir = Path(temp_dir).resolve()
         DataManager.config_dir = root_dir
         app = DataManager(
             app_config_dir=root_dir
@@ -62,7 +62,7 @@ def create_test_data() -> DataFixture:
     """
     random.seed(0)
     with TemporaryDirectory() as path:
-        data_dir = Path(path)
+        data_dir = Path(path).resolve()
         for file_idx in range(N_FILES):
             with open(data_dir.joinpath(f'{file_idx:04d}.bin'), 'wb') as handle:
                 # Python 3.8 doesn't have random.randbytes, so this is the bypass
@@ -81,7 +81,7 @@ def create_test_readme() -> Path:
         Path: README.md
     """
     with TemporaryDirectory() as path:
-        readme_path = Path(path).joinpath('readme.md')
+        readme_path = Path(path).joinpath('readme.md').resolve()
         with open(readme_path, 'w', encoding='ascii') as handle:
             handle.write('readme\n')
         yield readme_path
