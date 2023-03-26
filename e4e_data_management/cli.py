@@ -34,6 +34,7 @@ class DataMangerCLI:
     def __init__(self):
         self.__configure_logging()
         self._log = logging.getLogger('e4edm.cli')
+        self._log.debug('Invoking version %s from %s', __version__, __file__)
         self.app = DataManager.load()
         commands = [
             'init_dataset',
