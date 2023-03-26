@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import pickle
+from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 from shutil import copy2
@@ -13,6 +14,18 @@ from typing import (Callable, Dict, Generator, Iterable, List, Optional, Set,
 
 from e4e_data_management.metadata import Metadata
 
+
+@dataclass
+class StagedFile:
+    """Staged File data type
+
+    """
+    origin_path: Path
+    target_path: Path
+    hash: str
+
+    def __hash__(self) -> int:
+        return hash((self.origin_path, self.target_path, self.hash))
 
 class Manifest:
     """Manifest of files
@@ -49,7 +62,7 @@ class Manifest:
             if file_key not in manifest:
                 return False
             if method == 'hash':
-                computed_hash = self.__hash(file)
+                computed_hash = self.compute_file_hash(file)
                 if computed_hash != manifest[file_key]['sha256sum']:
                     return False
             elif method == 'size':
@@ -128,7 +141,7 @@ class Manifest:
             Dict[str, Dict[str, Union[str, int]]]: Hash results
         """
         if not hash_fn:
-            hash_fn = self.__hash
+            hash_fn = self.compute_file_hash
         data: Dict[str, Dict[str, Union[str, int]]] = {}
         for file in files:
             rel_path = file.relative_to(root).as_posix()
@@ -142,7 +155,15 @@ class Manifest:
         return data
 
     @classmethod
-    def __hash(cls, file: Path):
+    def compute_file_hash(cls, file: Path) -> str:
+        """Computes a file hash
+
+        Args:
+            file (Path): Path to file
+
+        Returns:
+            str: Hash digest
+        """
         cksum = sha256()
         with open(file, 'rb') as handle:
             for byte_block in iter(lambda: handle.read(4096), b''):
@@ -158,7 +179,7 @@ class Mission:
         self.path = path
         self.metadata = mission_metadata
         self.committed_files: List[Path] = []
-        self.staged_files: List[Path] = []
+        self.staged_files: Set[StagedFile] = set()
         self.manifest = Manifest(self.path.joinpath(self.__MANIFEST_NAME))
 
     def create(self) -> None:
@@ -197,13 +218,46 @@ class Mission:
         metadata = Metadata.load(path)
         return Mission(path=path, mission_metadata=metadata)
 
-    def stage(self, paths: Iterable[Path]):
-        """Add paths to the staging area
+    def stage(self, paths: Iterable[Path], destination: Optional[Path] = None):
+        """Add paths to the staging area.
+
+        This function will iterate and recursively seek all normal files in the specification.  This
+        is stored as a mapping from the original path to the destination path, as well as the
+        expected hash for the final file.
 
         Args:
-            paths (Iterable[Path]): Paths to stage
+            paths (Iterable[Path]): Collection of paths to stage
+            destination (Optional[Path], optional): Destination directory in mission to place 
+            assets. Defaults to None.
+
+        Raises:
+            RuntimeWarning: Unsupported file type
         """
-        self.staged_files.extend(paths)
+        if not destination:
+            destination = Path('.')
+        dst = self.path.joinpath(destination)
+        for path in paths:
+            if path.is_file():
+                self.staged_files.add(
+                    StagedFile(
+                    origin_path=path.resolve(),
+                    target_path=dst.joinpath(path.name).resolve(),
+                    hash=Manifest.compute_file_hash(path.absolute())
+                    )
+                )
+            elif path.is_dir():
+                for file in path.rglob('*'):
+                    if file.is_dir():
+                        continue
+                    self.staged_files.add(
+                        StagedFile(
+                        origin_path=file.resolve(),
+                        target_path=dst.joinpath(file.relative_to(path)).resolve(),
+                        hash=Manifest.compute_file_hash(file.resolve())
+                        )
+                    )
+            else:
+                raise RuntimeWarning('Not a normal file')
 
     @property
     def name(self) -> str:
@@ -220,38 +274,16 @@ class Mission:
         Raises:
             RuntimeError: Copy fail
         """
-        # Discover files
         committed_files: List[Path] = []
-        for path in self.staged_files:
-            added_files: List[Path] = []
-            if path.is_file():
-                # this goes into the root
-                added_files.append(path)
-                root = path.parent
-            elif path.is_dir():
-                # This should get recursively copied in
-                for file in path.rglob('*'):
-                    if file.is_dir():
-                        continue
-                    added_files.append(file)
-                root = path
-            original_manifest = self.manifest.compute_hashes(
-                root=root,
-                files=added_files
-            )
-            new_files: List[Path] = []
-            for file in added_files:
-                src = file
-                dest = self.path.joinpath(file.relative_to(root)).absolute()
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                copy2(src=src, dst=dest)
-                new_files.append(dest)
-            if not self.manifest.validate(manifest=original_manifest, files=new_files):
-                raise RuntimeError(f'Failed to copy {path.as_posix()}')
-            self.manifest.update(new_files)
-            self.committed_files.extend(new_files)
-            committed_files.extend(new_files)
-        self.staged_files = []
+        for staged_file in self.staged_files:
+            staged_file.target_path.parent.mkdir(parents=True, exist_ok=True)
+            copy2(src=staged_file.origin_path, dst=staged_file.target_path)
+            if Manifest.compute_file_hash(staged_file.target_path) != staged_file.hash:
+                raise RuntimeError(f'Failed to copy {staged_file.origin_path.as_posix()}')
+            committed_files.append(staged_file.target_path)
+        self.manifest.update(committed_files)
+        self.committed_files.extend([file.relative_to(self.path) for file in committed_files])
+        self.staged_files = set()
         return committed_files
 
 class Dataset:
