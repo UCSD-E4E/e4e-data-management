@@ -93,7 +93,7 @@ class DataManager:
             raise RuntimeError('Dataset with that name already exists!')
 
         self.active_dataset = Dataset(
-            root=dataset_path.absolute(),
+            root=dataset_path.resolve(),
             day_0=date
         )
         self.active_dataset.create()
@@ -127,7 +127,7 @@ class DataManager:
         output = ''
         if self.active_dataset:
             name = self.active_dataset.name
-            path = self.active_dataset.root.absolute().as_posix()
+            path = self.active_dataset.root.resolve().as_posix()
             output += f'Dataset {name} at {path} activated'
         else:
             output += 'No dataset active'
@@ -136,7 +136,7 @@ class DataManager:
         output += '\n'
         if self.active_mission:
             name = self.active_mission.name
-            path = self.active_mission.path.absolute().as_posix()
+            path = self.active_mission.path.resolve().as_posix()
             output += f'Mission {name} at {path} activated'
         else:
             output += 'No mission active'
@@ -147,9 +147,13 @@ class DataManager:
             output += f'{len(self.active_mission.staged_files)} staged files:\n\t'
             staged_files = ((f"{file.origin_path.as_posix()} -> "
                             f"{file.target_path.relative_to(self.active_mission.path).as_posix()}")
-                                  for file in self.active_mission.staged_files)
+                                  for file in sorted(self.active_mission.staged_files,
+                                                     key=lambda x: x.target_path.name))
 
             output += '\n\t'.join(staged_files)
+        if len(self.active_dataset.staged_files) > 0:
+            output += f'{len(self.active_dataset.staged_files)} staged dataset files:\n\t'
+            output += '\n\t'.join(file.as_posix() for file in self.active_dataset.staged_files)
         return output
 
     def activate(self,
