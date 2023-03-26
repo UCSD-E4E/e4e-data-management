@@ -93,7 +93,7 @@ class DataManager:
             raise RuntimeError('Dataset with that name already exists!')
 
         self.active_dataset = Dataset(
-            root=dataset_path.absolute(),
+            root=dataset_path.resolve(),
             day_0=date
         )
         self.active_dataset.create()
@@ -127,7 +127,7 @@ class DataManager:
         output = ''
         if self.active_dataset:
             name = self.active_dataset.name
-            path = self.active_dataset.root.absolute().as_posix()
+            path = self.active_dataset.root.resolve().as_posix()
             output += f'Dataset {name} at {path} activated'
         else:
             output += 'No dataset active'
@@ -136,7 +136,7 @@ class DataManager:
         output += '\n'
         if self.active_mission:
             name = self.active_mission.name
-            path = self.active_mission.path.absolute().as_posix()
+            path = self.active_mission.path.resolve().as_posix()
             output += f'Mission {name} at {path} activated'
         else:
             output += 'No mission active'
