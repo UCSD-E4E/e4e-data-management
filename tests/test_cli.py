@@ -141,7 +141,7 @@ def test_add_files_timezone(single_mission: Tuple[Mock, DataManager, Path],
     args = split(f'e4edm add --start {start_time.isoformat()} {data_dir.as_posix()}/*')
     with patch('sys.argv', args):
         main()
-        mock.add.assert_called_once_with(paths=[], readme=False)
+        mock.add.assert_called_once_with(paths=[], readme=False, destination=None)
 
 
 def test_add_files_end(single_mission: Tuple[Mock, DataManager, Path],
