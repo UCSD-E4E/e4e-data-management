@@ -165,6 +165,7 @@ class DataMangerCLI:
             Defaults to None.
         """
         # pylint: disable=too-many-arguments
+        # `add_files_cmd` reflects the complexity/flexibility of the `e4edm add` command
         local_tz = dt.datetime.now().astimezone().tzinfo
         resolved_paths: List[Path] = []
         for path in paths:
