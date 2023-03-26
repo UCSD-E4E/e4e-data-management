@@ -97,7 +97,7 @@ def test_add_files(single_mission: Tuple[Mock, DataManager, Path],
     data_dir, _, _ = test_data
 
     bin_files = list(data_dir.rglob('*.bin'))[:2]
-    args = split(f'e4edm add {bin_files[0].as_posix()} {bin_files[1].as_posix()}')
+    args = split(f'e4edm add "{bin_files[0].as_posix()}" "{bin_files[1].as_posix()}"')
     with patch('sys.argv', args):
         main()
         mock.add.assert_called_once_with(paths=bin_files, readme=False, destination=None)
@@ -161,7 +161,7 @@ def test_add_files_end(single_mission: Tuple[Mock, DataManager, Path],
 
     start_time = dt.datetime.now()
 
-    args = split(f'e4edm add {data_dir.as_posix()}/*.bin '
+    args = split(f'e4edm add "{data_dir.as_posix()}/*.bin" '
                  f'--end {start_time.isoformat()}')
     with patch('sys.argv', args):
         main()
@@ -178,7 +178,7 @@ def test_add_glob(single_mission: Tuple[Mock, DataManager, Path],
     mock, _, _ = single_mission
     data_dir, _, _ = test_data
 
-    args = split(f'e4edm add {data_dir.as_posix()}/*.bin')
+    args = split(f'e4edm add "{data_dir.as_posix()}/*.bin"')
     with patch('sys.argv', args):
         main()
         mock.add.assert_called_once_with(paths=list(data_dir.glob('*.bin')),
@@ -199,7 +199,7 @@ def test_add_multifile(single_mission: Tuple[Mock, DataManager, Path]):
     file2 = root_dir.joinpath('test2.txt')
     file2.touch()
 
-    args = split(f'e4edm add {file1.as_posix()} {file2.as_posix()}')
+    args = split(f'e4edm add "{file1.as_posix()}" "{file2.as_posix()}"')
     with patch('sys.argv', args):
         main()
         mock.add.assert_called_once_with(paths=[file1, file2], readme=False, destination=None)
@@ -250,7 +250,7 @@ def test_add_readme(single_mission: Tuple[Mock, DataManager, Path], test_readme:
     """
     mock, _, _ = single_mission
 
-    args = split(f'e4edm add --readme {test_readme.as_posix()}')
+    args = split(f'e4edm add --readme "{test_readme.as_posix()}"')
     with patch('sys.argv', args):
         main()
         mock.add.assert_called_once_with(paths=[test_readme], readme=True, destination=None)
@@ -387,3 +387,15 @@ def test_set_dataset_dir(test_bare_app: Tuple[Mock, DataManager, Path]):
         with patch('sys.argv', args):
             main()
             assert mock.dataset_dir == temp_path
+
+def test_e4edm_empty_call(test_app: Tuple[Mock, DataManager, Path]):
+    """Tests calling `e4edm` and ensures that it does not result in an Exception
+
+    Args:
+        test_app (Tuple[Mock, DataManager, Path]): Test application
+    """
+    _ = test_app
+
+    args = split('e4edm')
+    with patch('sys.argv', args):
+        main()
