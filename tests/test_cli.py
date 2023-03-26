@@ -134,8 +134,11 @@ def test_add_files_timezone(single_mission: Tuple[Mock, DataManager, Path],
     """
     mock, _, _ = single_mission
     data_dir, n_files, _ = test_data
+    local_tz = dt.datetime.now().astimezone().tzinfo
+    sleep(1)
+    start_time = dt.datetime.now(tz=local_tz)
 
-    args = split(f'e4edm add --start 2023-03-25T17:18-07:00 {data_dir.as_posix()}/*')
+    args = split(f'e4edm add --start {start_time.isoformat()} {data_dir.as_posix()}/*')
     with patch('sys.argv', args):
         main()
         expected_files = [data_dir.joinpath(f'{i:04d}.bin') for i in range(n_files)]
