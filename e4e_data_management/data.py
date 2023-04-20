@@ -266,7 +266,7 @@ class Mission:
                         hash=file_hash
                         )
                     )
-                    self.__log.info('Staging %s (%s) to %s', origin_file.as_posix(), file_hash, 
+                    self.__log.info('Staging %s (%s) to %s', origin_file.as_posix(), file_hash,
                                 target_path.as_posix())
             else:
                 raise RuntimeWarning('Not a normal file')
