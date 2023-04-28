@@ -2,6 +2,7 @@
 '''
 import datetime as dt
 import random
+import sys
 from collections import namedtuple
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -32,6 +33,15 @@ def create_test_bare_app() -> MockAppFixture:
         app = DataManager(
             app_config_dir=root_dir
         )
+
+        default_editor = {
+            'win': Path(r'C:\Windows\System32\notepad.exe'),
+            'win32': Path(r'C:\Windows\System32\notepad.exe'),
+            'linux': Path('/usr/bin/vim')
+        }
+
+        if sys.platform in default_editor:
+            app.set_editor(default_editor[sys.platform])
 
         mock = Mock(app)
         mock.load.return_value = mock
