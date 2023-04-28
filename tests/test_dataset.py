@@ -2,6 +2,7 @@
 '''
 import datetime as dt
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Tuple
 from unittest.mock import Mock
 
@@ -62,3 +63,19 @@ def test_init_existing(test_app: Tuple[Mock, DataManager, Path]):
 
     assert app.active_dataset.name == '2023.02.TEST.San Diego'
     assert app.active_mission is None
+
+def test_prune(create_single_mission_data: Tuple[Tuple[Mock, DataManager, Path],
+                                                 Tuple[Path, int, int]]):
+    """Tests that datasets are pruned after being pushed
+
+    Args:
+        create_single_mission_data (Tuple[Tuple[Mock, DataManager, Path], Tuple[Path, int, int]]):
+        single mission data
+    """
+    (_, app, _), (_, _, _) = create_single_mission_data
+    with TemporaryDirectory() as tempdir:
+        temp_dir = Path(tempdir).resolve()
+        app.push(temp_dir)
+        app.prune()
+        assert app.active_dataset is None
+        assert len(app.datasets) == 0
