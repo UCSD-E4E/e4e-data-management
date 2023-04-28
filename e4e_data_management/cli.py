@@ -2,9 +2,11 @@
 '''
 import argparse
 import datetime as dt
+import subprocess
 from dataclasses import dataclass
 from glob import glob
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Callable, List, Optional, TypeVar
 
 from e4e_data_management import __version__
@@ -66,7 +68,7 @@ class DataMangerCLI:
             Parameter(
             name='editor',
             getter=lambda: getattr(self.app, 'editor'),
-            setter=lambda x: setattr(self.app, 'editor', x),
+            setter=self.app.set_editor,
             parser=Path,
             formatter=lambda x: x.as_posix() if x else "",
             validator=Path.is_file
@@ -201,6 +203,19 @@ class DataMangerCLI:
             app (DataManager): DataManager app
         """
         print(self.app.status())
+
+    def interactive_readme(self):
+        """interactive Readme
+        """
+        editor_cmd = self.app.editor
+        with TemporaryDirectory() as tempdir:
+            temp_dir = Path(tempdir).resolve()
+            readme = temp_dir.joinpath('readme.md')
+            readme.touch(exist_ok=True)
+            subprocess.run([editor_cmd.as_posix(),
+                            readme.as_posix()], check=False)
+            self.app.add([readme], readme=True)
+            self.app.commit(readme=True)
 
     def main(self):
         """Main function
