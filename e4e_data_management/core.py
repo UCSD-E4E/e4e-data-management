@@ -334,8 +334,10 @@ class DataManager:
         for name, dataset in self.datasets.items():
             if not dataset.root.exists():
                 items_to_remove.add(name)
-            if not dataset.pushed:
+            if dataset.pushed:
                 items_to_remove.add(name)
+        if self.active_dataset.name in items_to_remove:
+            self.active_dataset = None
         for remove in items_to_remove:
             self.datasets.pop(remove)
         self.save()
