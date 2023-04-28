@@ -19,7 +19,7 @@ class DataManager:
     """Data Manager Application Core
     """
     __CONFIG_NAME = 'config.pkl'
-    __VERSION = 2
+    __VERSION = 3
 
     dirs = appdirs.AppDirs(
         appname='E4EDataManagement',
@@ -33,6 +33,7 @@ class DataManager:
         self.datasets: Dict[str, Dataset] = {}
         self.version = self.__VERSION
         self.dataset_dir = Path(self.dirs.user_data_dir)
+        self.editor: Optional[Path] = None
         self.save()
 
     def upgrade(self):
@@ -40,7 +41,9 @@ class DataManager:
         """
         if self.version < 2:
             self.dataset_dir = Path(self.dirs.user_data_dir)
-        self.version = 2
+        if self.version < 3:
+            self.editor = None
+        self.version = 3
 
     @classmethod
     def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
