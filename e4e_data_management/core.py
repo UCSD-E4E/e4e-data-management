@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import datetime as dt
+import fnmatch
+import os
 import pickle
 import re
 from pathlib import Path
 from shutil import copy2
 from typing import Dict, Iterable, List, Optional
-import fnmatch
+
 import appdirs
 
 from e4e_data_management.data import Dataset, Mission
@@ -33,8 +35,35 @@ class DataManager:
         self.datasets: Dict[str, Dataset] = {}
         self.version = self.__VERSION
         self.dataset_dir = Path(self.dirs.user_data_dir)
-        self.editor: Optional[Path] = None
+        self.__editor: Optional[Path] = None
         self.save()
+
+    @property
+    def editor(self) -> Path:
+        """Retrieves the current editor settings
+
+        Raises:
+            RuntimeError: Unable to determine editor
+
+        Returns:
+            Path: Editor command
+        """
+        editor_cmd = None
+        if 'EDITOR' in os.environ:
+            editor_cmd = Path(os.environ['EDITOR'])
+        if self.__editor and self.__editor.exists():
+            editor_cmd = self.__editor
+        if not editor_cmd:
+            raise RuntimeError('No editor defined')
+        return editor_cmd
+
+    def set_editor(self, editor: Path) -> None:
+        """Sets the current editor
+
+        Args:
+            editor (Path): Editor command
+        """
+        self.__editor = editor
 
     def upgrade(self):
         """Upgrades self to current version
@@ -42,7 +71,7 @@ class DataManager:
         if self.version < 2:
             self.dataset_dir = Path(self.dirs.user_data_dir)
         if self.version < 3:
-            self.editor = None
+            self.__editor = None
         self.version = 3
 
     @classmethod
@@ -237,7 +266,8 @@ class DataManager:
                 raise RuntimeError('Mission not active')
             new_files = self.active_mission.commit()
         self.active_dataset.manifest.update(new_files)
-        self.active_dataset.manifest.update([self.active_mission.manifest.path])
+        if self.active_mission:
+            self.active_dataset.manifest.update([self.active_mission.manifest.path])
         self.save()
 
     def duplicate(self, paths: List[Path]) -> None:
