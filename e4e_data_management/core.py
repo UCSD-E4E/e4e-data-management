@@ -7,7 +7,7 @@ import pickle
 import re
 from pathlib import Path
 from shutil import copy2
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Set
 import fnmatch
 import appdirs
 
@@ -300,6 +300,10 @@ class DataManager:
         destination.mkdir(parents=True, exist_ok=False)
         self.duplicate([destination])
 
+        # set pushed flag
+        self.active_dataset.pushed = True
+        self.active_dataset.save()
+
     def zip(self, output_path: Path) -> None:
         """This will zip the active and completed dataset to the specified path
 
@@ -326,10 +330,12 @@ class DataManager:
     def prune(self) -> None:
         """Prunes missing datasets
         """
-        items_to_remove: List[str] = []
+        items_to_remove: Set[str] = set()
         for name, dataset in self.datasets.items():
             if not dataset.root.exists():
-                items_to_remove.append(name)
+                items_to_remove.add(name)
+            if not dataset.pushed:
+                items_to_remove.add(name)
         for remove in items_to_remove:
             self.datasets.pop(remove)
         self.save()
