@@ -51,6 +51,8 @@ class DataManager:
         editor_cmd = None
         if 'EDITOR' in os.environ:
             editor_cmd = Path(os.environ['EDITOR'])
+        if 'VISUAL' in os.environ:
+            editor_cmd = Path(os.environ['VISUAL'])
         if self.__editor and self.__editor.exists():
             editor_cmd = self.__editor
         if not editor_cmd:
