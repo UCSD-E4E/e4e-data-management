@@ -43,7 +43,8 @@ class DataMangerCLI:
             'push',
             'zip',
             'unzip',
-            'prune'
+            'prune',
+            'readme',
         ]
         self.parameters = [
             Parameter(
@@ -61,6 +62,14 @@ class DataMangerCLI:
             parser=int,
             formatter=str,
             validator=None
+            ),
+            Parameter(
+            name='editor',
+            getter=lambda: getattr(self.app, 'editor'),
+            setter=lambda x: setattr(self.app, 'editor', x),
+            parser=Path,
+            formatter=lambda x: x.as_posix() if x else "",
+            validator=Path.is_file
             )
         ]
         self.parser = argparse.ArgumentParser()
@@ -78,6 +87,7 @@ class DataMangerCLI:
         self.__configure_prune_parser(parsers['prune'])
         self.__configure_config_parser(parsers['config'])
         self.__configure_activate_parser(parsers['activate'])
+        self.__configure_readme_parser(parsers['readme'])
         # self.__configure_validate_parser(parsers['validate'])
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
@@ -202,6 +212,9 @@ class DataMangerCLI:
         arg_dict.pop('func')
 
         arg_fn(**arg_dict)
+
+    def __configure_readme_parser(self, parser: argparse.ArgumentParser):
+        parser.set_defaults(func=self.interactive_readme)
 
     def __configure_config_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('parameter',
