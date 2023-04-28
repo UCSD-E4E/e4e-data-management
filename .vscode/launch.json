@@ -31,6 +31,16 @@
             "args": [
                 "status"
             ]
+        },
+        {
+            "name": "E4EDM Readme",
+            "type": "python",
+            "request": "launch",
+            "module": "e4e_data_management.cli",
+            "justMyCode": true,
+            "args": [
+                "readme"
+            ]
         }
     ]
 }
