@@ -293,7 +293,7 @@ class Dataset:
 
     __MANIFEST_NAME = 'manifest.json'
     __CONFIG_NAME = '.e4edm.pkl'
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self, root: Path, day_0: dt.date):
         self.root = root.resolve()
@@ -309,13 +309,15 @@ class Dataset:
         self.manifest = Manifest(self.root.joinpath(self.__MANIFEST_NAME))
         self.committed_files: List[Path] = []
         self.staged_files: List[Path] = []
+        self.pushed: bool = False
         self.version = self.VERSION
 
     def upgrade(self):
         """Upgrades self to latest version
         """
-        if self.version < 1:
-            pass
+        if self.version < 2:
+            self.pushed = False
+        self.version = 2
 
     @classmethod
     def load(cls, path: Path) -> Dataset:
