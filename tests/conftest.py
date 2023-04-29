@@ -123,7 +123,7 @@ def create_single_mission(test_app: Tuple[Mock, DataManager, Path]
 def create_single_mission_data(single_mission: Tuple[Mock, DataManager, Path],
                           test_data: Tuple[Path, int, int]
                           ) -> Tuple[Tuple[Mock, DataManager, Path], Tuple[Path, int, int]]:
-    """Creates a single mission
+    """Creates a single mission with committed data
 
     Args:
         test_app (Tuple[DataManager, Path]): Test App
