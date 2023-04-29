@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import datetime as dt
+import fnmatch
 import pickle
 import re
 from pathlib import Path
 from shutil import copy2
 from typing import Dict, Iterable, List, Optional, Set
-import fnmatch
+
 import appdirs
 
 from e4e_data_management.data import Dataset, Mission
