@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import datetime as dt
+import fnmatch
+import logging
 import pickle
 import re
 from pathlib import Path
 from shutil import copy2
 from typing import Dict, Iterable, List, Optional
-import fnmatch
+
 import appdirs
 
 from e4e_data_management.data import Dataset, Mission
@@ -26,7 +28,7 @@ class DataManager:
         appauthor='Engineers for Exploration'
     )
     def __init__(self, *, app_config_dir: Optional[Path] = None):
-        # self.__log = logging.getLogger('DataManager')
+        self.__log = logging.getLogger('e4edm')
         self.config_path = Path(app_config_dir)
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
@@ -38,6 +40,7 @@ class DataManager:
     def upgrade(self):
         """Upgrades self to current version
         """
+        self.__log.warning('Upgrading to version 2 from version %d', self.version)
         if self.version < 2:
             self.dataset_dir = Path(self.dirs.user_data_dir)
         self.version = 2
@@ -71,6 +74,7 @@ class DataManager:
     def save(self) -> None:
         """Saves the app into the specified config dir
         """
+        self.__log.debug('Saving')
         config_file = self.config_path.joinpath(self.__CONFIG_NAME)
         if not config_file.exists():
             config_file.parent.mkdir(parents=True, exist_ok=True)
