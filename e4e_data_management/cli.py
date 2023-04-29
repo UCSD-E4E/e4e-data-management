@@ -2,6 +2,10 @@
 '''
 import argparse
 import datetime as dt
+import logging
+import logging.handlers
+import sys
+import time
 from dataclasses import dataclass
 from glob import glob
 from pathlib import Path
@@ -28,6 +32,9 @@ class DataMangerCLI:
     """Data Manager Command Line Interface
     """
     def __init__(self):
+        self.__configure_logging()
+        self._log = logging.getLogger('e4edm.cli')
+        self._log.debug('Invoking version %s from %s', __version__, __file__)
         self.app = DataManager.load()
         commands = [
             'init_dataset',
@@ -85,6 +92,26 @@ class DataMangerCLI:
         self.parser.add_argument('--version', action='version', version=f'e4edm {__version__}')
         self.parser.set_defaults(func=self.parser.print_help)
 
+    def __configure_logging(self) -> None:
+        log_dir = Path(DataManager.dirs.user_log_dir).resolve()
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_dest = log_dir.joinpath('e4edm.log')
+
+        root_logger = logging.getLogger()
+        root_logger.setLevel(logging.DEBUG)
+
+        log_file_handler = logging.handlers.RotatingFileHandler(log_dest,
+                                                                maxBytes=5*1024*1024,
+                                                                backupCount=5)
+        log_file_handler.setLevel(logging.DEBUG)
+
+        root_formatter = logging.Formatter(('%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - '
+                                           '%(message)s'),
+                                           datefmt="%Y-%m-%d %H:%M:%S")
+        log_file_handler.setFormatter(root_formatter)
+        root_logger.addHandler(log_file_handler)
+
+        logging.Formatter.converter = time.gmtime
 
     def configure_parameters(self, parameter: str, value: Optional[str]) -> None:
         """Configures or prints the specified parameter
@@ -195,6 +222,7 @@ class DataMangerCLI:
     def main(self):
         """Main function
         """
+        self._log.info("Invoked with %s", ' '.join(sys.argv))
         args = self.parser.parse_args()
         arg_dict = vars(args)
 

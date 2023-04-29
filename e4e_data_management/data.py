@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import logging
 import pickle
 from dataclasses import dataclass
 from hashlib import sha256
@@ -176,6 +177,7 @@ class Mission:
     """
     __MANIFEST_NAME = 'manifest.json'
     def __init__(self, path: Path, mission_metadata: Metadata) -> None:
+        self.__log = logging.getLogger(f'e4edm.mission {mission_metadata.mission}')
         self.path = path.resolve()
         self.metadata = mission_metadata
         self.committed_files: List[Path] = []
@@ -237,25 +239,35 @@ class Mission:
             destination = Path('.')
         dst = self.path.joinpath(destination)
         for path in paths:
-            if path.is_file():
+            origin_path = path.resolve()
+            if origin_path.is_file():
+                file_hash = Manifest.compute_file_hash(origin_path.resolve())
+                target_path = dst.joinpath(path.name).resolve()
                 self.staged_files.add(
                     StagedFile(
-                    origin_path=path.resolve(),
-                    target_path=dst.joinpath(path.name).resolve(),
-                    hash=Manifest.compute_file_hash(path.resolve())
+                    origin_path=origin_path,
+                    target_path=target_path,
+                    hash=file_hash
                     )
                 )
-            elif path.is_dir():
-                for file in path.rglob('*'):
+                self.__log.info('Staging %s (%s) to %s', origin_path.as_posix(), file_hash,
+                                target_path.as_posix())
+            elif origin_path.is_dir():
+                for file in origin_path.rglob('*'):
                     if file.is_dir():
                         continue
+                    origin_file = file.resolve()
+                    target_path = dst.joinpath(origin_file.relative_to(origin_path)).resolve()
+                    file_hash = Manifest.compute_file_hash(origin_file)
                     self.staged_files.add(
                         StagedFile(
-                        origin_path=file.resolve(),
-                        target_path=dst.joinpath(file.relative_to(path)).resolve(),
-                        hash=Manifest.compute_file_hash(file.resolve())
+                        origin_path=origin_file,
+                        target_path=target_path,
+                        hash=file_hash
                         )
                     )
+                    self.__log.info('Staging %s (%s) to %s', origin_file.as_posix(), file_hash,
+                                target_path.as_posix())
             else:
                 raise RuntimeWarning('Not a normal file')
 
@@ -281,6 +293,9 @@ class Mission:
             if Manifest.compute_file_hash(staged_file.target_path) != staged_file.hash:
                 raise RuntimeError(f'Failed to copy {staged_file.origin_path.as_posix()}')
             committed_files.append(staged_file.target_path)
+            self.__log.info('Copied %s to %s',
+                            staged_file.origin_path.as_posix(),
+                            staged_file.target_path.as_posix())
         self.manifest.update(committed_files)
         self.committed_files.extend([file.relative_to(self.path) for file in committed_files])
         self.staged_files = set()
@@ -296,6 +311,7 @@ class Dataset:
     VERSION = 2
 
     def __init__(self, root: Path, day_0: dt.date):
+        self.__log = logging.getLogger('e4edm.dataset')
         self.root = root.resolve()
         self.day_0: dt.date = day_0
         self.last_country: Optional[str] = None
@@ -454,6 +470,8 @@ class Dataset:
             paths (Iterable[Path]): Paths to stage
         """
         self.staged_files.extend(paths)
+        for path in paths:
+            self.__log.info('Staged %s', path.as_posix())
 
     def commit(self) -> List[Path]:
         """Commits staged files to the mission
@@ -487,6 +505,7 @@ class Dataset:
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 copy2(src=src, dst=dest)
                 new_files.append(dest)
+                self.__log.info('Copied %s to %s', src.as_posix(), dest.as_posix())
             if not self.manifest.validate(manifest=original_manifest, files=new_files):
                 raise RuntimeError(f'Failed to copy {path.as_posix()}')
             self.manifest.update(new_files)
