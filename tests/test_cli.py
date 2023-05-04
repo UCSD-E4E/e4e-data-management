@@ -100,7 +100,7 @@ def test_add_files(single_mission: Tuple[Mock, DataManager, Path],
     args = split(f'e4edm add "{bin_files[0].as_posix()}" "{bin_files[1].as_posix()}"')
     with patch('sys.argv', args):
         main()
-        mock.add.assert_called_once_with(paths=bin_files, readme=False, destination=None)
+        mock.add.assert_called_once_with(paths=bin_files, destination=None)
 
 def test_add_files_start(single_mission: Tuple[Mock, DataManager, Path],
                    test_data: Tuple[Path, int, int]):
@@ -122,7 +122,7 @@ def test_add_files_start(single_mission: Tuple[Mock, DataManager, Path],
                  f'--start {start_time.isoformat()}')
     with patch('sys.argv', args):
         main()
-        mock.add.assert_called_once_with(paths=[], readme=False, destination=None)
+        mock.add.assert_called_once_with(paths=[], destination=None)
 
 def test_add_files_timezone(single_mission: Tuple[Mock, DataManager, Path],
                             test_data: Tuple[Path, int, int]):
@@ -141,7 +141,7 @@ def test_add_files_timezone(single_mission: Tuple[Mock, DataManager, Path],
     args = split(f'e4edm add --start {start_time.isoformat()} {data_dir.as_posix()}/*')
     with patch('sys.argv', args):
         main()
-        mock.add.assert_called_once_with(paths=[], readme=False, destination=None)
+        mock.add.assert_called_once_with(paths=[], destination=None)
 
 
 def test_add_files_end(single_mission: Tuple[Mock, DataManager, Path],
@@ -165,7 +165,7 @@ def test_add_files_end(single_mission: Tuple[Mock, DataManager, Path],
                  f'--end {start_time.isoformat()}')
     with patch('sys.argv', args):
         main()
-        mock.add.assert_called_once_with(paths=bin_files, readme=False, destination=None)
+        mock.add.assert_called_once_with(paths=bin_files, destination=None)
 
 def test_add_glob(single_mission: Tuple[Mock, DataManager, Path],
                    test_data: Tuple[Path, int, int]):
@@ -182,7 +182,6 @@ def test_add_glob(single_mission: Tuple[Mock, DataManager, Path],
     with patch('sys.argv', args):
         main()
         mock.add.assert_called_once_with(paths=list(data_dir.glob('*.bin')),
-                                         readme=False,
                                          destination=None)
 
 def test_add_multifile(single_mission: Tuple[Mock, DataManager, Path]):
@@ -202,7 +201,7 @@ def test_add_multifile(single_mission: Tuple[Mock, DataManager, Path]):
     args = split(f'e4edm add "{file1.as_posix()}" "{file2.as_posix()}"')
     with patch('sys.argv', args):
         main()
-        mock.add.assert_called_once_with(paths=[file1, file2], readme=False, destination=None)
+        mock.add.assert_called_once_with(paths=[file1, file2], destination=None)
 
 def test_commit_files(single_mission: Tuple[Mock, DataManager, Path],
                       test_data: Tuple[Path, int, int]):
@@ -250,7 +249,7 @@ def test_add_readme(single_mission: Tuple[Mock, DataManager, Path], test_readme:
     """
     mock, _, _ = single_mission
 
-    args = split(f'e4edm add --readme "{test_readme.as_posix()}"')
+    args = split(f'e4edm readme add "{test_readme.as_posix()}"')
     with patch('sys.argv', args):
         main()
         mock.add.assert_called_once_with(paths=[test_readme], readme=True, destination=None)
@@ -263,7 +262,7 @@ def test_commit_readme(single_mission: Tuple[Mock, DataManager, Path], test_read
     """
     mock, app, _ = single_mission
     app.add([test_readme], readme=True)
-    args = split('e4edm commit --readme')
+    args = split('e4edm readme commit')
     with patch('sys.argv', args):
         main()
         mock.commit.assert_called_once_with(readme=True)
