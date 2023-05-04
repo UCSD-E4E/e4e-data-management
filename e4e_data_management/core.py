@@ -21,6 +21,9 @@ from e4e_data_management.metadata import Metadata
 class DataManager:
     """Data Manager Application Core
     """
+    # pylint: disable=too-many-instance-attributes
+    # This class contains the main application handles
+
     __CONFIG_NAME = 'config.pkl'
     __VERSION = 3
 
