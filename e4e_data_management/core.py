@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import datetime as dt
 import fnmatch
+import logging
 import os
 import pickle
 import re
 from pathlib import Path
 from shutil import copy2
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Set
 
 import appdirs
 
@@ -28,7 +29,7 @@ class DataManager:
         appauthor='Engineers for Exploration'
     )
     def __init__(self, *, app_config_dir: Optional[Path] = None):
-        # self.__log = logging.getLogger('DataManager')
+        self.__log = logging.getLogger('e4edm')
         self.config_path = Path(app_config_dir)
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
@@ -70,6 +71,7 @@ class DataManager:
     def upgrade(self):
         """Upgrades self to current version
         """
+        self.__log.warning('Upgrading to version 2 from version %d', self.version)
         if self.version < 2:
             self.dataset_dir = Path(self.dirs.user_data_dir)
         if self.version < 3:
@@ -105,6 +107,7 @@ class DataManager:
     def save(self) -> None:
         """Saves the app into the specified config dir
         """
+        self.__log.debug('Saving')
         config_file = self.config_path.joinpath(self.__CONFIG_NAME)
         if not config_file.exists():
             config_file.parent.mkdir(parents=True, exist_ok=True)
@@ -335,6 +338,10 @@ class DataManager:
         destination.mkdir(parents=True, exist_ok=False)
         self.duplicate([destination])
 
+        # set pushed flag
+        self.active_dataset.pushed = True
+        self.active_dataset.save()
+
     def zip(self, output_path: Path) -> None:
         """This will zip the active and completed dataset to the specified path
 
@@ -361,10 +368,14 @@ class DataManager:
     def prune(self) -> None:
         """Prunes missing datasets
         """
-        items_to_remove: List[str] = []
+        items_to_remove: Set[str] = set()
         for name, dataset in self.datasets.items():
             if not dataset.root.exists():
-                items_to_remove.append(name)
+                items_to_remove.add(name)
+            if dataset.pushed:
+                items_to_remove.add(name)
+        if self.active_dataset.name in items_to_remove:
+            self.active_dataset = None
         for remove in items_to_remove:
             self.datasets.pop(remove)
         self.save()
