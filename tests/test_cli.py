@@ -345,28 +345,28 @@ def test_activate(single_mission: Tuple[Mock, DataManager, Path]):
         )
     )
 
-    args = split('e4edm activate "2023.03.Test.San Diego"')
+    args = split('e4edm activate "2023.03.03.test_cli_activate.Location1"')
     with patch('sys.argv', args):
         main()
         mock.activate.assert_called_once_with(
-            dataset="2023.03.Test.San Diego",
+            dataset="2023.03.03.test_cli_activate.Location1",
             day=None,
             mission=None,
             root_dir=None,
         )
 
     app.activate(
-        dataset="2023.03.Test.San Diego",
+        dataset="2023.03.03.test_cli_activate.Location1",
         day=None,
         mission=None,
         root_dir=None,
     )
 
-    args = split('e4edm activate "2023.03.Test.Location1" --day 0 --mission mission1')
+    args = split('e4edm activate "2023.03.03.Test.Location1" --day 0 --mission mission1')
     with patch('sys.argv', args):
         main()
         mock.activate.assert_called_with(
-            dataset='2023.03.Test.Location1',
+            dataset='2023.03.03.Test.Location1',
             day=0,
             mission='mission1',
             root_dir=None

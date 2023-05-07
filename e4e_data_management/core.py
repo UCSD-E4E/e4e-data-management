@@ -126,7 +126,7 @@ class DataManager:
             location (str): Expedition common name
             directory (Path): Path to create dataset in
         """
-        dataset_name = f'{date.year:04d}.{date.month:02d}.{project}.{location}'
+        dataset_name = f'{date.year:04d}.{date.month:02d}.{date.day:02d}.{project}.{location}'
         dataset_path = directory.joinpath(dataset_name)
 
         if dataset_name in self.datasets:
