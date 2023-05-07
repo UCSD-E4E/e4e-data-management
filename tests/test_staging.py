@@ -54,7 +54,7 @@ def test_stage_commit_files(test_app: Tuple[Mock, DataManager, Path],
     expected_files.extend(
         [Path('ED-00', 'TSF001', f'{file_idx:04d}.bin') for file_idx in range(n_files)]
     )
-    dataset_dir = root.joinpath('2023.03.TestStaging.San Diego')
+    dataset_dir = root.joinpath('2023.03.02.TestStaging.San Diego')
     current_files = sorted(file.relative_to(dataset_dir) for file in dataset_dir.rglob('*'))
     assert current_files == sorted(expected_files)
 
@@ -105,7 +105,7 @@ def test_stage_commit_readme(test_app: Tuple[Mock, DataManager, Path],
         Path('ED-00', 'TSF001', 'metadata.json'),
         Path('ED-00', 'TSF001', 'manifest.json'),
     ]
-    dataset_dir = root.joinpath('2023.03.TestStaging.San Diego')
+    dataset_dir = root.joinpath('2023.03.02.TestStaging.San Diego')
     current_files = sorted(file.relative_to(dataset_dir) for file in dataset_dir.rglob('*'))
     assert current_files == sorted(expected_files)
 
@@ -149,7 +149,7 @@ def test_relative_path(test_app: Tuple[Mock, DataManager, Path], test_data: Tupl
 
     app.commit()
 
-    assert root_dir.joinpath('2023.03.Test Relative Path.San Diego',
+    assert root_dir.joinpath('2023.03.25.Test Relative Path.San Diego',
                              'ED-00',
                              'test_relative_path',
                              '0000.bin').exists()

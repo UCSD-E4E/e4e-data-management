@@ -25,7 +25,7 @@ def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
         directory=root_dir
     )
 
-    dataset_dir = root_dir.joinpath(f'{date.year:04d}.{date.month:02d}.{project}.{location}')
+    dataset_dir = root_dir.joinpath(f'{date.year:04d}.{date.month:02d}.{date.day:02d}.{project}.{location}')
     assert dataset_dir.is_dir()
     assert dataset_dir.joinpath('manifest.json').is_file()
     current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
@@ -36,7 +36,7 @@ def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
     assert current_files == expected_files
 
     assert app.active_dataset.root == dataset_dir
-    assert app.active_dataset.name == '2023.02.TEST.San Diego'
+    assert app.active_dataset.name == '2023.02.28.TEST.San Diego'
     assert app.active_mission is None
 
 def test_init_existing(test_app: Tuple[Mock, DataManager, Path]):
@@ -61,7 +61,7 @@ def test_init_existing(test_app: Tuple[Mock, DataManager, Path]):
             directory=root_dir
         )
 
-    assert app.active_dataset.name == '2023.02.TEST.San Diego'
+    assert app.active_dataset.name == '2023.02.28.TEST.San Diego'
     assert app.active_mission is None
 
 def test_prune(single_mission_data: Tuple[Tuple[Mock, DataManager, Path],
