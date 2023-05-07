@@ -98,9 +98,14 @@ class DataMangerCLI:
 
     def __external_validate(self, root_dir: Optional[Path]):
         if root_dir is None:
-            self.app.validate()
-            return
-    #    dataset = Dataset(root=root_dir)
+            dataset = self.app.active_dataset
+        else:
+            dataset = Dataset.load(path=root_dir)
+
+        if not dataset.validate():
+            print('Dataset validation failed')
+        else:
+            print('Dataset valid')
 
     def __configure_logging(self) -> None:
         log_dir = Path(DataManager.dirs.user_log_dir).resolve()
