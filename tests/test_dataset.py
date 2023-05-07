@@ -25,7 +25,8 @@ def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
         directory=root_dir
     )
 
-    dataset_dir = root_dir.joinpath(f'{date.year:04d}.{date.month:02d}.{date.day:02d}.{project}.{location}')
+    dataset_dir = root_dir.joinpath(f'{date.year:04d}.{date.month:02d}.{date.day:02d}.{project}.'
+                                    f'{location}')
     assert dataset_dir.is_dir()
     assert dataset_dir.joinpath('manifest.json').is_file()
     current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
