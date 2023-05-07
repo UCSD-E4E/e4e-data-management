@@ -53,7 +53,7 @@ def test_create_multiple_missions(test_app: Tuple[Mock, DataManager, Path]):
         mission='TCMM003',
         )
     )
-    dataset_dir = root.joinpath('2023.03.TEST.San Diego')
+    dataset_dir = root.joinpath('2023.03.01.TEST.San Diego')
     current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
     expected_files = sorted([
         Path('.e4edm.pkl'),
@@ -75,7 +75,7 @@ def test_create_multiple_missions(test_app: Tuple[Mock, DataManager, Path]):
     assert len(app.active_dataset.missions) == 3
     assert app.active_dataset.sites == {'Site 1', 'Site 2'}
     assert app.active_dataset.root == dataset_dir
-    assert app.active_dataset.name == '2023.03.TEST.San Diego'
+    assert app.active_dataset.name == '2023.03.01.TEST.San Diego'
     assert app.active_mission.path == dataset_dir.joinpath('ED-01', 'TCMM003')
 
 
@@ -90,12 +90,12 @@ def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
         directory=root
     )
 
-    assert root.joinpath('2023.03.TEST.San Diego').exists()
-    assert app.status().find('2023.03.TEST.San Diego') != -1
-    assert '2023.03.TEST.San Diego' in app.list_datasets()
+    assert root.joinpath('2023.03.01.TEST.San Diego').exists()
+    assert app.status().find('2023.03.01.TEST.San Diego') != -1
+    assert '2023.03.01.TEST.San Diego' in app.list_datasets()
     app.prune()
-    assert '2023.03.TEST.San Diego' in app.list_datasets()
-    assert app.status().find('2023.03.TEST.San Diego') != -1
+    assert '2023.03.01.TEST.San Diego' in app.list_datasets()
+    assert app.status().find('2023.03.01.TEST.San Diego') != -1
 
     timestamp = dt.datetime.fromisoformat('2023-03-01T09:05T-08:00')
     app.initialize_mission(
@@ -109,7 +109,7 @@ def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
         )
     )
 
-    dataset_dir = root.joinpath('2023.03.TEST.San Diego')
+    dataset_dir = root.joinpath('2023.03.01.TEST.San Diego')
     current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
     expected_files = sorted([
         Path('.e4edm.pkl'),
@@ -121,15 +121,15 @@ def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
     ])
     assert current_files == expected_files
 
-    manifest_path = root.joinpath('2023.03.TEST.San Diego', 'manifest.json')
+    manifest_path = root.joinpath('2023.03.01.TEST.San Diego', 'manifest.json')
     with open(manifest_path, 'r', encoding='ascii') as handle:
         manifest = json.load(handle)
 
-    metadata = root.joinpath('2023.03.TEST.San Diego', 'ED-00', 'TCM001', 'metadata.json')
-    assert metadata.relative_to(root.joinpath('2023.03.TEST.San Diego')).as_posix() in manifest
+    metadata = root.joinpath('2023.03.01.TEST.San Diego', 'ED-00', 'TCM001', 'metadata.json')
+    assert metadata.relative_to(root.joinpath('2023.03.01.TEST.San Diego')).as_posix() in manifest
 
-    config = root.joinpath('2023.03.TEST.San Diego', '.e4edm.pkl')
-    config_entry = config.relative_to(root.joinpath('2023.03.TEST.San Diego')).as_posix()
+    config = root.joinpath('2023.03.01.TEST.San Diego', '.e4edm.pkl')
+    config_entry = config.relative_to(root.joinpath('2023.03.01.TEST.San Diego')).as_posix()
     assert config_entry not in manifest
 
     assert 'USA' in app.active_dataset.countries
@@ -141,7 +141,7 @@ def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
     assert app.active_dataset.last_site == 'Site 1'
 
     assert app.active_dataset.root == dataset_dir
-    assert app.active_dataset.name == '2023.03.TEST.San Diego'
+    assert app.active_dataset.name == '2023.03.01.TEST.San Diego'
     assert app.active_mission.path == dataset_dir.joinpath('ED-00', 'TCM001')
 
 def test_activate(test_app: Tuple[Mock, DataManager, Path]):
@@ -158,7 +158,7 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
         location='Location1',
         directory=root_dir
     )
-    assert app.active_dataset.name == '2023.03.test_mission_activate.Location1'
+    assert app.active_dataset.name == '2023.03.03.test_mission_activate.Location1'
 
     app.initialize_dataset(
         date=dt.date(2023, 3, 3),
@@ -167,12 +167,12 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
         directory=root_dir
     )
 
-    assert app.active_dataset.name == '2023.03.Test.Location2'
+    assert app.active_dataset.name == '2023.03.03.Test.Location2'
 
     app.activate(
-        dataset='2023.03.test_mission_activate.Location1'
+        dataset='2023.03.03.test_mission_activate.Location1'
     )
-    assert app.active_dataset.name == '2023.03.test_mission_activate.Location1'
+    assert app.active_dataset.name == '2023.03.03.test_mission_activate.Location1'
 
     app.initialize_mission(
         metadata=Metadata(
@@ -199,7 +199,7 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
     assert app.active_mission.name == 'ED-00 mission2'
 
     app.activate(
-        dataset='2023.03.test_mission_activate.Location1',
+        dataset='2023.03.03.test_mission_activate.Location1',
         day=0,
         mission='mission1'
     )
@@ -207,7 +207,7 @@ def test_activate(test_app: Tuple[Mock, DataManager, Path]):
     assert app.active_mission.name == 'ED-00 mission1'
 
     app.activate(
-        dataset='2023.03.Test.Location2',
+        dataset='2023.03.03.Test.Location2',
         day=None,
         mission=None
     )
