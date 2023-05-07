@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as dt
 import fnmatch
 import logging
+import os
 import pickle
 import re
 from pathlib import Path
@@ -20,8 +21,11 @@ from e4e_data_management.metadata import Metadata
 class DataManager:
     """Data Manager Application Core
     """
+    # pylint: disable=too-many-instance-attributes
+    # This class contains the main application handles
+
     __CONFIG_NAME = 'config.pkl'
-    __VERSION = 2
+    __VERSION = 3
 
     dirs = appdirs.AppDirs(
         appname='E4EDataManagement',
@@ -35,7 +39,37 @@ class DataManager:
         self.datasets: Dict[str, Dataset] = {}
         self.version = self.__VERSION
         self.dataset_dir = Path(self.dirs.user_data_dir)
+        self.__editor: Optional[Path] = None
         self.save()
+
+    @property
+    def editor(self) -> Path:
+        """Retrieves the current editor settings
+
+        Raises:
+            RuntimeError: Unable to determine editor
+
+        Returns:
+            Path: Editor command
+        """
+        editor_cmd = None
+        if 'EDITOR' in os.environ:
+            editor_cmd = Path(os.environ['EDITOR'])
+        if 'VISUAL' in os.environ:
+            editor_cmd = Path(os.environ['VISUAL'])
+        if self.__editor and self.__editor.exists():
+            editor_cmd = self.__editor
+        if not editor_cmd:
+            raise RuntimeError('No editor defined')
+        return editor_cmd
+
+    def set_editor(self, editor: Path) -> None:
+        """Sets the current editor
+
+        Args:
+            editor (Path): Editor command
+        """
+        self.__editor = editor
 
     def upgrade(self):
         """Upgrades self to current version
@@ -43,7 +77,9 @@ class DataManager:
         self.__log.warning('Upgrading to version 2 from version %d', self.version)
         if self.version < 2:
             self.dataset_dir = Path(self.dirs.user_data_dir)
-        self.version = 2
+        if self.version < 3:
+            self.__editor = None
+        self.version = 3
 
     @classmethod
     def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
@@ -238,7 +274,8 @@ class DataManager:
                 raise RuntimeError('Mission not active')
             new_files = self.active_mission.commit()
         self.active_dataset.manifest.update(new_files)
-        self.active_dataset.manifest.update([self.active_mission.manifest.path])
+        if self.active_mission:
+            self.active_dataset.manifest.update([self.active_mission.manifest.path])
         self.save()
 
     def duplicate(self, paths: List[Path]) -> None:

@@ -4,11 +4,13 @@ import argparse
 import datetime as dt
 import logging
 import logging.handlers
+import subprocess
 import sys
 import time
 from dataclasses import dataclass
 from glob import glob
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Callable, List, Optional, TypeVar
 
 from e4e_data_management import __version__
@@ -50,7 +52,8 @@ class DataMangerCLI:
             'push',
             'zip',
             'unzip',
-            'prune'
+            'prune',
+            'readme',
         ]
         self.parameters = [
             Parameter(
@@ -68,6 +71,14 @@ class DataMangerCLI:
             parser=int,
             formatter=str,
             validator=None
+            ),
+            Parameter(
+            name='editor',
+            getter=lambda: getattr(self.app, 'editor'),
+            setter=self.app.set_editor,
+            parser=Path,
+            formatter=lambda x: x.as_posix() if x else "",
+            validator=Path.is_file
             )
         ]
         self.parser = argparse.ArgumentParser()
@@ -85,6 +96,7 @@ class DataMangerCLI:
         self.__configure_prune_parser(parsers['prune'])
         self.__configure_config_parser(parsers['config'])
         self.__configure_activate_parser(parsers['activate'])
+        self.__configure_readme_parser(parsers['readme'])
         # self.__configure_validate_parser(parsers['validate'])
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
@@ -175,7 +187,6 @@ class DataMangerCLI:
 
     def add_files_cmd(self,
                     paths: List[str],
-                    readme: bool,
                     start: Optional[dt.datetime] = None,
                     end: Optional[dt.datetime] = None,
                     destination: Optional[Path] = None):
@@ -185,7 +196,6 @@ class DataMangerCLI:
 
         Args:
             paths (List[str]): Paths to add
-            readme (bool): Readme flag
             start (Optional[dt.datetime], optional): Earliest timestamp to stage. Defaults to None.
             end (Optional[dt.datetime], optional): Latest timestamp to stage. Defaults to None.
             destination (Optional[Path], optional): Destination directory within the dataset.
@@ -209,7 +219,7 @@ class DataMangerCLI:
             resolved_paths = [path
                             for path in resolved_paths
                             if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) <= end]
-        self.app.add(paths=resolved_paths, readme=readme, destination=destination)
+        self.app.add(paths=resolved_paths, destination=destination)
 
     def status_cmd(self):
         """Handles status cmd
@@ -218,6 +228,32 @@ class DataMangerCLI:
             app (DataManager): DataManager app
         """
         print(self.app.status())
+
+    def readme_interactive(self):
+        """interactive Readme
+        """
+        editor_cmd = self.app.editor
+        with TemporaryDirectory() as tempdir:
+            temp_dir = Path(tempdir).resolve()
+            readme = temp_dir.joinpath('readme.md')
+            readme.touch(exist_ok=True)
+            subprocess.run([editor_cmd.as_posix(),
+                            readme.as_posix()], check=False)
+            self.app.add([readme], readme=True)
+            self.app.commit(readme=True)
+
+    def readme_add(self, readme: Path):
+        """Readme Add
+
+        Args:
+            readme (Path): Path to Readme file
+        """
+        self.app.add(paths=[readme], readme=True, destination=None)
+
+    def readme_commit(self):
+        """Readme Commit
+        """
+        self.app.commit(readme=True)
 
     def main(self):
         """Main function
@@ -230,6 +266,16 @@ class DataMangerCLI:
         arg_dict.pop('func')
 
         arg_fn(**arg_dict)
+
+    def __configure_readme_parser(self, parser: argparse.ArgumentParser):
+        subparser = parser.add_subparsers()
+        readme_add = subparser.add_parser('add')
+        readme_add.add_argument('readme', type=Path)
+        readme_add.set_defaults(func=self.readme_add)
+        readme_commit = subparser.add_parser('commit')
+        readme_commit.set_defaults(func=self.readme_commit)
+        readme_interactive = subparser.add_parser('interactive')
+        readme_interactive.set_defaults(func=self.readme_interactive)
 
     def __configure_config_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('parameter',
@@ -276,12 +322,10 @@ class DataMangerCLI:
         parser.set_defaults(func=self.app.duplicate)
 
     def __configure_commit_parser(self, parser: argparse.ArgumentParser):
-        parser.add_argument('--readme', action='store_true')
         parser.set_defaults(func=self.app.commit)
 
     def __configure_add_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('paths', nargs='+', type=str)
-        parser.add_argument('--readme', action='store_true')
         parser.add_argument('--start', default=None, type=dt.datetime.fromisoformat)
         parser.add_argument('--end', default=None, type=dt.datetime.fromisoformat)
         parser.add_argument('--destination', default=None, type=Path)
