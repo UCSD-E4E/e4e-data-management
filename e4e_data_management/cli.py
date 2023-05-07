@@ -14,7 +14,7 @@ from typing import Callable, List, Optional, TypeVar
 from e4e_data_management import __version__
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
-
+from e4e_data_management.data import Dataset
 T = TypeVar('T')
 @dataclass
 class Parameter:
@@ -85,12 +85,22 @@ class DataMangerCLI:
         self.__configure_prune_parser(parsers['prune'])
         self.__configure_config_parser(parsers['config'])
         self.__configure_activate_parser(parsers['activate'])
-        # self.__configure_validate_parser(parsers['validate'])
+        self.__configure_validate_parser(parsers['validate'])
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
 
         self.parser.add_argument('--version', action='version', version=f'e4edm {__version__}')
         self.parser.set_defaults(func=self.parser.print_help)
+
+    def __configure_validate_parser(self, parser: argparse.ArgumentParser):
+        parser.add_argument('root_dir', nargs='?', default=None, type=Path)
+        parser.set_defaults(func=self.__external_validate)
+
+    def __external_validate(self, root_dir: Optional[Path]):
+        if root_dir is None:
+            self.app.validate()
+            return
+    #    dataset = Dataset(root=root_dir)
 
     def __configure_logging(self) -> None:
         log_dir = Path(DataManager.dirs.user_log_dir).resolve()
