@@ -33,7 +33,6 @@ class DataMangerCLI:
     """
     def __init__(self):
         self.__configure_logging()
-        self._log = logging.getLogger('e4edm.cli')
         self._log.debug('Invoking version %s from %s', __version__, __file__)
         self.app = DataManager.load()
         commands = [
@@ -91,6 +90,10 @@ class DataMangerCLI:
 
         self.parser.add_argument('--version', action='version', version=f'e4edm {__version__}')
         self.parser.set_defaults(func=self.parser.print_help)
+
+    @property
+    def _log(self) -> logging.Logger:
+        return logging.getLogger('e4edm.cli')
 
     def __configure_logging(self) -> None:
         log_dir = Path(DataManager.dirs.user_log_dir).resolve()
