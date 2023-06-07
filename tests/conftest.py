@@ -40,7 +40,7 @@ def create_test_reloaded_app() -> MockAppFixture:
         mock.dirs = reloaded_app.dirs
         mock.dataset_dir = reloaded_app.dataset_dir
         with patch('e4e_data_management.cli.DataManager', mock):
-            yield MockAppFixture(mock, reloaded_app, root_dir)   
+            yield MockAppFixture(mock, reloaded_app, root_dir)
 
 @pytest.fixture(name='test_bare_app')
 def create_test_bare_app() -> MockAppFixture:
