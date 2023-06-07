@@ -177,12 +177,15 @@ class Mission:
     """
     __MANIFEST_NAME = 'manifest.json'
     def __init__(self, path: Path, mission_metadata: Metadata) -> None:
-        self.__log = logging.getLogger(f'e4edm.mission {mission_metadata.mission}')
         self.path = path.resolve()
         self.metadata = mission_metadata
         self.committed_files: List[Path] = []
         self.staged_files: Set[StagedFile] = set()
         self.manifest = Manifest(self.path.joinpath(self.__MANIFEST_NAME))
+
+    @property
+    def __log(self) -> logging.Logger:
+        return logging.getLogger(f'e4edm.mission {self.metadata.mission}')
 
     def create(self) -> None:
         """Creates the initial folder and file structure
@@ -308,10 +311,9 @@ class Dataset:
 
     __MANIFEST_NAME = 'manifest.json'
     __CONFIG_NAME = '.e4edm.pkl'
-    VERSION = 2
+    VERSION = 3
 
     def __init__(self, root: Path, day_0: dt.date):
-        self.__log = logging.getLogger('e4edm.dataset')
         self.root = root.resolve()
         self.day_0: dt.date = day_0
         self.last_country: Optional[str] = None
@@ -328,12 +330,16 @@ class Dataset:
         self.pushed: bool = False
         self.version = self.VERSION
 
+    @property
+    def __log(self) -> logging.Logger:
+        return logging.getLogger('e4edm.dataset')
+
     def upgrade(self):
         """Upgrades self to latest version
         """
         if self.version < 2:
             self.pushed = False
-        self.version = 2
+        self.version = 3
 
     @classmethod
     def load(cls, path: Path) -> Dataset:
