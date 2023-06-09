@@ -73,7 +73,7 @@ def test_list(progress_tracker_service: ProgressServiceFixture):
         progress_tracker_service (ProgressServiceFixture): Progress Tracker Service Fixture
     """
     service, handlers = progress_tracker_service
-    array = [idx for idx in range(200)]
+    array = list(range(200))
     for _ in service.wrap(array, name='loop2'):
         pass
     assert handlers[ProgressTrackerEvent.UPDATE].call_count == 200
