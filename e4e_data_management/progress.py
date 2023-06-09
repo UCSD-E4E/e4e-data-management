@@ -6,7 +6,7 @@ import logging
 from enum import Enum, auto
 from pathlib import Path
 from threading import Event
-from typing import Callable, Dict, Iterable, Optional, Set, Union
+from typing import Callable, Dict, Iterable, Optional, Set, TypeVar, Union
 
 
 class ProgressTrackerEvent(Enum):
@@ -17,7 +17,7 @@ class ProgressTrackerEvent(Enum):
     CLOSE = auto()
     CANCEL = auto()
 
-
+T = TypeVar('T')
 class ProgressTrackerService:
     """Top level tracker facility
     """
@@ -121,7 +121,7 @@ class ProgressTrackerService:
         tracker = self.__trackers.pop(tracker_name)
         self.execute_event(ProgressTrackerEvent.CLOSE, tracker)
 
-    def wrap(self, iterable: Iterable, name: str) -> IterableTracker:
+    def wrap(self, iterable: Iterable[T], name: str) -> IterableTracker[T]:
         """Creates an iterable tracker wrapping an interable
 
         Args:
@@ -263,7 +263,7 @@ class Tracker:
 class IterableTracker (Tracker, Iterable):
     """Iterable Tracker for wrapping iterables
     """
-    def __init__(self, iterable: Iterable, name: Path) -> None:
+    def __init__(self, iterable: Iterable[T], name: Path) -> None:
         total = len(iterable)
         self.__iterable = iterable
         super().__init__(name, total)

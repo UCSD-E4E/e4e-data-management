@@ -15,6 +15,7 @@ import appdirs
 
 from e4e_data_management.data import Dataset, Mission
 from e4e_data_management.metadata import Metadata
+from e4e_data_management.progress import ProgressTrackerService
 
 
 class DataManager:
@@ -250,14 +251,15 @@ class DataManager:
         """
         manifest = self.active_dataset.manifest.get_dict()
         new_files = [[] * len(paths)]
-        for file in manifest:
+        service = ProgressTrackerService.get_instance()
+        for file in service.wrap(manifest, name="Duplicating Datasets"):
             src_path = self.active_dataset.root.joinpath(file)
             dests = [dest.joinpath(file) for dest in paths]
             for idx, dest in enumerate(dests):
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 copy2(src=src_path, dst=dest)
                 new_files[idx].append(dest)
-        for idx, new_file_list in enumerate(new_files):
+        for idx, new_file_list in enumerate(service.wrap(new_files, name="Validating Duplicates")):
             self.active_dataset.manifest.validate(
                 manifest=manifest,
                 files=new_file_list,
@@ -335,13 +337,14 @@ class DataManager:
         """Prunes missing datasets
         """
         items_to_remove: Set[str] = set()
-        for name, dataset in self.datasets.items():
+        service = ProgressTrackerService.get_instance()
+        for name, dataset in service.wrap(self.datasets.items(), name='Checking Datasets'):
             if not dataset.root.exists():
                 items_to_remove.add(name)
             if dataset.pushed:
                 items_to_remove.add(name)
         if self.active_dataset.name in items_to_remove:
             self.active_dataset = None
-        for remove in items_to_remove:
+        for remove in service.wrap(items_to_remove, name='Removing Datasets'):
             self.datasets.pop(remove)
         self.save()
