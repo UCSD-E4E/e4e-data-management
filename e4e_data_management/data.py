@@ -6,6 +6,7 @@ import datetime as dt
 import json
 import logging
 import pickle
+import zipfile
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
@@ -513,3 +514,15 @@ class Dataset:
             committed_files.extend(new_files)
         self.staged_files = []
         return committed_files
+    
+    def create_zip(self, zip_path: Path) -> None:
+        """Creates a .zip archive of this Dataset at the specified location
+
+        Args:
+            zip_path (Path): Path to .zip archive
+        """
+        if zip_path.suffix.lower() != '.zip':
+            raise RuntimeError('Invalid suffix')
+        
+        with zipfile.ZipFile(file=zip_path, mode='w') as handle:
+            pass
