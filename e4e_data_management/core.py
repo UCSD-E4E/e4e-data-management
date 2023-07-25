@@ -192,7 +192,7 @@ class DataManager:
 
         if mission:
             if day is None:
-                raise RuntimeError('Expedted day parameter')
+                raise RuntimeError('Expected day parameter')
             name = f'ED-{day:02d} {mission}'
             self.active_mission = self.active_dataset.missions[name]
         else:
