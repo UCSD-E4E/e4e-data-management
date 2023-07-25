@@ -11,6 +11,8 @@ from glob import glob
 from pathlib import Path
 from typing import Callable, List, Optional, TypeVar
 
+from wakepy import keep
+
 from e4e_data_management import __version__
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
@@ -229,7 +231,8 @@ class DataMangerCLI:
         arg_fn = args.func
         arg_dict.pop('func')
 
-        arg_fn(**arg_dict)
+        with keep.running():
+            arg_fn(**arg_dict)
 
     def __configure_config_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('parameter',
