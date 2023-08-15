@@ -270,12 +270,14 @@ class DataMangerCLI:
 
     def __configure_prune_parser(self, parser: argparse.ArgumentParser):
         parser.set_defaults(func=self.app.prune)
-    
+
     def __configure_ipython_parser(self, parser: argparse.ArgumentParser):
         parser.set_defaults(func=self._ipython)
-    
+
     def _ipython(self):
-        app = self.app
+        app = self.app # pylint: disable=unused-variable
+        # this variable for ipython access
+        print('Use app to access DataManager')
         embed()
 
     def __configure_push_parser(self, parser: argparse.ArgumentParser):
