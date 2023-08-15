@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'schema',
         'appdirs',
+        'ipython',
     ],
     extras_require={
         'dev': [

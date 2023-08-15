@@ -11,6 +11,8 @@ from glob import glob
 from pathlib import Path
 from typing import Callable, List, Optional, TypeVar
 
+from IPython import embed
+
 from e4e_data_management import __version__
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
@@ -50,7 +52,8 @@ class DataMangerCLI:
             'push',
             'zip',
             'unzip',
-            'prune'
+            'prune',
+            'ipython',
         ]
         self.parameters = [
             Parameter(
@@ -85,6 +88,7 @@ class DataMangerCLI:
         self.__configure_prune_parser(parsers['prune'])
         self.__configure_config_parser(parsers['config'])
         self.__configure_activate_parser(parsers['activate'])
+        self.__configure_ipython_parser(parsers['ipython'])
         # self.__configure_validate_parser(parsers['validate'])
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
@@ -266,6 +270,13 @@ class DataMangerCLI:
 
     def __configure_prune_parser(self, parser: argparse.ArgumentParser):
         parser.set_defaults(func=self.app.prune)
+    
+    def __configure_ipython_parser(self, parser: argparse.ArgumentParser):
+        parser.set_defaults(func=self._ipython)
+    
+    def _ipython(self):
+        app = self.app
+        embed()
 
     def __configure_push_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('path', type=Path)
