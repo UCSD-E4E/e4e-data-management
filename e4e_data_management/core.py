@@ -198,6 +198,8 @@ class DataManager:
         else:
             self.active_mission = None
 
+        self.save()
+
     def add(self, paths: Iterable[Path],
             readme: bool = False,
             destination: Optional[Path] = None) -> None:
