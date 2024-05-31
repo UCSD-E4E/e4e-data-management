@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'schema',
         'appdirs',
+        'wakepy',
     ],
     extras_require={
         'dev': [
