@@ -17,11 +17,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        persist-credentials: false
+        token: ${{ secrets.DEPLOY }}
 
 
     - name: Python Semantic Release
       uses: python-semantic-release/python-semantic-release@v9.8.6
       with:
-        github_token: ${{ secrets.RELEASER }}
+        github_token: ${{ secrets.DEPLOY }}
         root_options: "-vv"
