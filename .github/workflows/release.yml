@@ -18,6 +18,8 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.RELEASER }}
+        persist-credentials: true
+
 
     - name: Python Semantic Release
       uses: python-semantic-release/python-semantic-release@master
