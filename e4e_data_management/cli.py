@@ -211,7 +211,8 @@ class DataMangerCLI:
             raise RuntimeError('end before start')
         resolved_paths = [path
                         for path in resolved_paths
-                        if start <= dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) <= end]
+                        if start <= dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) \
+                              <= end]
         self.app.add(paths=resolved_paths, readme=readme, destination=destination)
 
     def status_cmd(self):
@@ -223,14 +224,19 @@ class DataMangerCLI:
         print(self.app.status())
 
     def ls_dir(self, path: Path):
+        """Lists the files in the given directory with information relevant to e4edm
+
+        Args:
+            path (Path): Path to ls
+        """
         local_tz = dt.datetime.now().astimezone().tzinfo
         print(path.as_posix())
         dirs = sorted([node for node in path.glob('*') if node.is_dir()])
         files = sorted([node for node in path.glob('*') if node.is_file()])
         dir_times = [dt.datetime.fromtimestamp(node.stat().st_mtime, local_tz) for node in dirs]
         file_times = [dt.datetime.fromtimestamp(node.stat().st_mtime, local_tz) for node in files]
-        for idx, dir in enumerate(dirs):
-            print(f'{dir_times[idx].isoformat()} {dir.name}')
+        for idx, dir_path in enumerate(dirs):
+            print(f'{dir_times[idx].isoformat()} {dir_path.name}')
         for idx, file in enumerate(files):
             print(f'{file_times[idx].isoformat()} {file.name}')
 
