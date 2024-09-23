@@ -199,18 +199,19 @@ class DataMangerCLI:
         resolved_paths: List[Path] = []
         for path in paths:
             resolved_paths.extend(Path(file) for file in glob(path))
-        if start:
-            if start.tzinfo is None:
-                start = start.replace(tzinfo=local_tz)
-            resolved_paths = [path
-                            for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) >= start]
-        if end:
-            if end.tzinfo is None:
-                end = end.replace(tzinfo=local_tz)
-            resolved_paths = [path
-                            for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) <= end]
+        if not start:
+            start = dt.datetime.min
+        if not end:
+            end = dt.datetime.max
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=local_tz)
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=local_tz)
+        if end < start:
+            raise RuntimeError('end before start')
+        resolved_paths = [path
+                        for path in resolved_paths
+                        if start <= dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) <= end]
         self.app.add(paths=resolved_paths, readme=readme, destination=destination)
 
     def status_cmd(self):
