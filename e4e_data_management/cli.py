@@ -50,7 +50,8 @@ class DataMangerCLI:
             'push',
             'zip',
             'unzip',
-            'prune'
+            'prune',
+            'ls',
         ]
         self.parameters = [
             Parameter(
@@ -85,6 +86,7 @@ class DataMangerCLI:
         self.__configure_prune_parser(parsers['prune'])
         self.__configure_config_parser(parsers['config'])
         self.__configure_activate_parser(parsers['activate'])
+        self.__configure_ls_parser(parsers['ls'])
         # self.__configure_validate_parser(parsers['validate'])
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
@@ -219,6 +221,18 @@ class DataMangerCLI:
         """
         print(self.app.status())
 
+    def ls_dir(self, path: Path):
+        local_tz = dt.datetime.now().astimezone().tzinfo
+        print(path.as_posix())
+        dirs = sorted([node for node in path.glob('*') if node.is_dir()])
+        files = sorted([node for node in path.glob('*') if node.is_file()])
+        dir_times = [dt.datetime.fromtimestamp(node.stat().st_mtime, local_tz) for node in dirs]
+        file_times = [dt.datetime.fromtimestamp(node.stat().st_mtime, local_tz) for node in files]
+        for idx, dir in enumerate(dirs):
+            print(f'{dir_times[idx].isoformat()} {dir.name}')
+        for idx, file in enumerate(files):
+            print(f'{file_times[idx].isoformat()} {file.name}')
+
     def main(self):
         """Main function
         """
@@ -230,6 +244,10 @@ class DataMangerCLI:
         arg_dict.pop('func')
 
         arg_fn(**arg_dict)
+
+    def __configure_ls_parser(self, parser: argparse.ArgumentParser):
+        parser.add_argument('path', type=Path, default=Path('.'))
+        parser.set_defaults(func=self.ls_dir)
 
     def __configure_config_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('parameter',
