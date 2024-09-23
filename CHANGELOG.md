@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.1.0 (2024-09-23)
+
+### Ci
+
+* ci: Fixes validation on macos ([`935ad65`](https://github.com/UCSD-E4E/e4e-data-management/commit/935ad651da4298029a315a142f5fbf92a7624324))
+
+* ci: Switches to os ([`80f417b`](https://github.com/UCSD-E4E/e4e-data-management/commit/80f417b2c6165e06e49ca8a95437580c4e58e2e1))
+
+* ci: pytest only run under latest python ([`38c3def`](https://github.com/UCSD-E4E/e4e-data-management/commit/38c3defd65d96644b3ea55740e24a8247807112b))
+
+* ci: Upgrades workflows ([`9177b63`](https://github.com/UCSD-E4E/e4e-data-management/commit/9177b63b80433c4ab5ff25590d212056c87c678b))
+
+### Feature
+
+* feat: Adds e4edm ls ([`d302d46`](https://github.com/UCSD-E4E/e4e-data-management/commit/d302d46701ae43a46db57cfe2731183884fe3eb0))
+
+### Fix
+
+* fix: Makes time comparison logic neater ([`bd54905`](https://github.com/UCSD-E4E/e4e-data-management/commit/bd549057fa3032bf58ad968ebeabac803ff7743c))
+
+### Unknown
+
+* Merge branch &#39;workflow_upgrade&#39; ([`05e33eb`](https://github.com/UCSD-E4E/e4e-data-management/commit/05e33ebcc920f1c8091d630081a93060aadc996b))
+
+* Merge pull request #89 from UCSD-E4E/workflow_upgrade
+
+ci: Upgrades workflows ([`ae66cad`](https://github.com/UCSD-E4E/e4e-data-management/commit/ae66cad917928c50af9bf5748b52d1d05dead0b6))
+
 ## v0.0.1 (2024-08-22)
 
 ### Chore
