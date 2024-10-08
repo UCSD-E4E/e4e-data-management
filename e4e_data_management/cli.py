@@ -240,6 +240,14 @@ class DataMangerCLI:
         for idx, file in enumerate(files):
             print(f'{file_times[idx].isoformat()} {file.name}')
 
+    def prune_cmd(self):
+        """Prunes old datasets
+        """
+        pruned_datasets = self.app.prune()
+        print('Removed: ')
+        for dataset in pruned_datasets:
+            print(dataset)
+
     def main(self):
         """Main function
         """
@@ -290,7 +298,7 @@ class DataMangerCLI:
         parser.set_defaults(func=self.app.activate)
 
     def __configure_prune_parser(self, parser: argparse.ArgumentParser):
-        parser.set_defaults(func=self.app.prune)
+        parser.set_defaults(func=self.prune_cmd)
 
     def __configure_push_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('path', type=Path)
