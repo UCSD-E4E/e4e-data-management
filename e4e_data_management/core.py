@@ -8,7 +8,7 @@ import logging
 import pickle
 import re
 from pathlib import Path
-from shutil import copy2
+from shutil import copy2, rmtree
 from typing import Dict, Iterable, List, Optional, Set
 
 import appdirs
@@ -333,7 +333,7 @@ class DataManager:
         """
         return list(self.datasets.keys())
 
-    def prune(self) -> None:
+    def prune(self) -> Set[str]:
         """Prunes missing datasets
         """
         items_to_remove: Set[str] = set()
@@ -344,6 +344,9 @@ class DataManager:
                 items_to_remove.add(name)
         if self.active_dataset.name in items_to_remove:
             self.active_dataset = None
+
         for remove in items_to_remove:
-            self.datasets.pop(remove)
+            dataset = self.datasets.pop(remove)
+            rmtree(dataset.root)
         self.save()
+        return items_to_remove
