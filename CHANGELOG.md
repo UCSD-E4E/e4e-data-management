@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.1.1 (2024-10-08)
+
+### Documentation
+
+* docs: Updates README ([`836f742`](https://github.com/UCSD-E4E/e4e-data-management/commit/836f742570e75dffd1194c15371ffba552e238c6))
+
+### Fix
+
+* fix: Updates prune to actually remove old data ([`0156781`](https://github.com/UCSD-E4E/e4e-data-management/commit/0156781a632747b4fb3bdd70d944007c23b36cdd))
+
+### Style
+
+* style: Fixes style ([`5e0917e`](https://github.com/UCSD-E4E/e4e-data-management/commit/5e0917e71af43712ad9a36297f4d380faaa0a951))
+
 ## v0.1.0 (2024-09-23)
 
 ### Ci
