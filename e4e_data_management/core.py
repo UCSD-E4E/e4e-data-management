@@ -347,6 +347,7 @@ class DataManager:
 
         for remove in items_to_remove:
             dataset = self.datasets.pop(remove)
-            rmtree(dataset.root)
+            if dataset.root.exists():
+                rmtree(dataset.root)
         self.save()
         return items_to_remove
