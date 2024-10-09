@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.1.2 (2024-10-09)
+
+### Fix
+
+* fix: Fixes prune fail on deleted datasets ([`54007ec`](https://github.com/UCSD-E4E/e4e-data-management/commit/54007ec25aa5fdd7e21473bff5520c025fbf80dd))
+
 ## v0.1.1 (2024-10-08)
 
 ### Documentation
