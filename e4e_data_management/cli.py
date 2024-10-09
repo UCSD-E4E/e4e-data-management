@@ -168,12 +168,12 @@ class DataMangerCLI:
         Args:
             args (List[str]): Arguments
         """
-        datasets = self.app.list_datasets()
-        if len(datasets) == 0:
-            print('No datasets found')
-        else:
-            for dataset in datasets:
-                print(dataset)
+        for dataset_name, dataset in self.app.datasets.items():
+            if dataset.pushed:
+                pushed_str = '*'
+            else:
+                pushed_str = ' '
+            print(f'{dataset_name} {pushed_str}')
 
     def add_files_cmd(self,
                     paths: List[str],
@@ -221,7 +221,9 @@ class DataMangerCLI:
         Args:
             app (DataManager): DataManager app
         """
-        print(self.app.status())
+        status_message = self.app.status()
+        for line in status_message.splitlines():
+            print(line)
 
     def ls_dir(self, path: Path):
         """Lists the files in the given directory with information relevant to e4edm
