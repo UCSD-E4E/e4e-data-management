@@ -1,8 +1,18 @@
 # CHANGELOG
 
+## v0.1.3 (2024-10-09)
+
+### Unknown
+
+* Merge branch &#39;main&#39; of github.com:UCSD-E4E/e4e-data-management ([`fdde57a`](https://github.com/UCSD-E4E/e4e-data-management/commit/fdde57a3e7d7c1ddc8dc2ddf5f8112842dad9b8d))
+
 ## v0.1.2 (2024-10-09)
 
 ### Fix
+
+* fix: updates list datasets to display push flag ([`14d867c`](https://github.com/UCSD-E4E/e4e-data-management/commit/14d867c54e6f3ec98b338c580a8a72cb0c4c688a))
+
+* fix: Fixes push not setting flag ([`1d534c5`](https://github.com/UCSD-E4E/e4e-data-management/commit/1d534c518a7e6537077ae1d72ab51d00820e9cb3))
 
 * fix: Fixes prune fail on deleted datasets ([`54007ec`](https://github.com/UCSD-E4E/e4e-data-management/commit/54007ec25aa5fdd7e21473bff5520c025fbf80dd))
 
