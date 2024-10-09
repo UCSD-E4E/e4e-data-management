@@ -309,6 +309,7 @@ class DataManager:
         # set pushed flag
         self.active_dataset.pushed = True
         self.active_dataset.save()
+        self.save()
 
     def zip(self, output_path: Path) -> None:
         """This will zip the active and completed dataset to the specified path
