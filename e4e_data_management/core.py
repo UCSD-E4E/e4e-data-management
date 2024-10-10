@@ -21,14 +21,13 @@ class DataManager:
     """Data Manager Application Core
     """
     __CONFIG_NAME = 'config.pkl'
-    __VERSION = 2
+    __VERSION = 3
 
     dirs = appdirs.AppDirs(
         appname='E4EDataManagement',
         appauthor='Engineers for Exploration'
     )
     def __init__(self, *, app_config_dir: Optional[Path] = None):
-        self.__log = logging.getLogger('e4edm')
         self.config_path = Path(app_config_dir)
         self.active_dataset: Optional[Dataset] = None
         self.active_mission: Optional[Mission] = None
@@ -37,13 +36,17 @@ class DataManager:
         self.dataset_dir = Path(self.dirs.user_data_dir)
         self.save()
 
+    @property
+    def __log(self) -> logging.Logger:
+        return logging.getLogger('e4edm')
+
     def upgrade(self):
         """Upgrades self to current version
         """
         self.__log.warning('Upgrading to version 2 from version %d', self.version)
         if self.version < 2:
             self.dataset_dir = Path(self.dirs.user_data_dir)
-        self.version = 2
+        self.version = 3
 
     @classmethod
     def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
