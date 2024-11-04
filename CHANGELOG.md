@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.1.4 (2024-11-04)
+
+### Fix
+
+* fix: Fixes readme extension heuristic ([`02b8f13`](https://github.com/UCSD-E4E/e4e-data-management/commit/02b8f13713b60f8110f1f5cbeef9e9ac31f03e70))
+
 ## v0.1.3 (2024-10-09)
 
 ### Unknown
