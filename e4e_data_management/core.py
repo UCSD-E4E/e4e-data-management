@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import datetime as dt
-import fnmatch
 import logging
 import pickle
-import re
 from pathlib import Path
 from shutil import copy2, rmtree
 from typing import Dict, Iterable, List, Optional, Set
