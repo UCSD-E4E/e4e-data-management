@@ -7,7 +7,9 @@ from e4e_data_management.progress import (ProgressTrackerEvent,
                                           ProgressTrackerService, Tracker)
 
 ProgressServiceFixture = Tuple[ProgressTrackerService, Dict[ProgressTrackerEvent, Mock]]
-def test_basic_icrements(progress_tracker_service: ProgressServiceFixture):
+
+
+def test_basic_increments(progress_tracker_service: ProgressServiceFixture):
     """Tests basic increments
 
     Args:
