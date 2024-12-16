@@ -8,7 +8,7 @@ import logging
 import pickle
 import re
 from pathlib import Path
-from shutil import copy2
+from shutil import copy2, rmtree
 from typing import Dict, Iterable, List, Optional, Set
 
 import appdirs
@@ -198,6 +198,8 @@ class DataManager:
         else:
             self.active_mission = None
 
+        self.save()
+
     def add(self, paths: Iterable[Path],
             readme: bool = False,
             destination: Optional[Path] = None) -> None:
@@ -307,6 +309,7 @@ class DataManager:
         # set pushed flag
         self.active_dataset.pushed = True
         self.active_dataset.save()
+        self.save()
 
     def zip(self, output_path: Path) -> None:
         """This will zip the active and completed dataset to the specified path
@@ -331,7 +334,7 @@ class DataManager:
         """
         return list(self.datasets.keys())
 
-    def prune(self) -> None:
+    def prune(self) -> Set[str]:
         """Prunes missing datasets
         """
         items_to_remove: Set[str] = set()
@@ -342,6 +345,10 @@ class DataManager:
                 items_to_remove.add(name)
         if self.active_dataset.name in items_to_remove:
             self.active_dataset = None
+
         for remove in items_to_remove:
-            self.datasets.pop(remove)
+            dataset = self.datasets.pop(remove)
+            if dataset.root.exists():
+                rmtree(dataset.root)
         self.save()
+        return items_to_remove
