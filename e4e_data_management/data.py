@@ -1,12 +1,13 @@
 '''Data classes
 '''
 from __future__ import annotations
-import re
-import fnmatch
+
 import datetime as dt
+import fnmatch
 import json
 import logging
 import pickle
+import re
 import zipfile
 from dataclasses import dataclass
 from hashlib import sha256
@@ -15,8 +16,12 @@ from shutil import copy2
 from typing import (Callable, Dict, Generator, Iterable, List, Optional, Set,
                     Union)
 
+from e4e_data_management.exception import (CorruptedDataset,
+                                           MissionFilesInStaging,
+                                           ReadmeFilesInStaging,
+                                           ReadmeNotFound)
 from e4e_data_management.metadata import Metadata
-from e4e_data_management.exception import MissionFilesInStaging, ReadmeFilesInStaging, ReadmeNotFound, CorruptedDataset
+
 
 @dataclass
 class StagedFile:
