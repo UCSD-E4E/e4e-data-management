@@ -13,7 +13,8 @@ def test_purge(single_mission_data: Tuple[Tuple[Mock, DataManager, Path], Tuple[
     """Tests purging data
 
     Args:
-        single_mission_data (Tuple[Tuple[Mock, DataManager, Path], Tuple[Path, int, int]]): Test Data
+        single_mission_data (Tuple[Tuple[Mock, DataManager, Path], Tuple[Path, int, int]]): Test
+        Data
         test_readme (Path): Test Readme
     """
     app_fixture, _ = single_mission_data
