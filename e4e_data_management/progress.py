@@ -144,7 +144,7 @@ class TrackerInterrupt (KeyboardInterrupt):
 class Tracker:
     """Progress Tracker
     """
-    def __init__(self, name: Path, total: int) -> None:
+    def __init__(self, name: Path, total: Optional[int]) -> None:
         self.__name = Path(name)
         self.__total = total
         self.__idx = 0
@@ -163,11 +163,11 @@ class Tracker:
         return self.__name
 
     @property
-    def total(self) -> int:
+    def total(self) -> Optional[int]:
         """Total iterations that this progress tracker is tracking
 
         Returns:
-            int: Total iterations at completion
+            Optional[int]: Total iterations at completion, if available
         """
         return self.__total
 
@@ -210,11 +210,12 @@ class Tracker:
         service = ProgressTrackerService.get_instance()
         service.execute_event(ProgressTrackerEvent.UPDATE, self)
 
-    def increment(self, msg: Optional[str] = None) -> None:
+    def increment(self, msg: Optional[str] = None, inc: int = 1) -> None:
         """Increments the current progress
 
         Args:
             msg (Optional[str], optional): Optional iteration message. Defaults to None.
+            inc (int, optional): Optional increment value.  Defaults to None.
 
         Raises:
             TrackerInterrupt: Raised if the progress trackeer has indicated that this task should be
@@ -222,7 +223,7 @@ class Tracker:
         """
         if self.__cancel_event.is_set():
             raise TrackerInterrupt
-        self.__idx += 1
+        self.__idx += inc
         self.__msg = msg
         service = ProgressTrackerService.get_instance()
         service.execute_event(ProgressTrackerEvent.UPDATE, self)
@@ -239,12 +240,12 @@ class Tracker:
         service = ProgressTrackerService.get_instance()
         service.close_tracker(self.__name)
 
-    def get_sub_trackere(self, name: Union[str, Path], total: int) -> Tracker:
+    def get_sub_trackere(self, name: Union[str, Path], total: Optional[int] = None) -> Tracker:
         """Creates a nested tracker
 
         Args:
             name (Union[str, Path]): Child name
-            total (int): Total iterations to be tracked
+            total (Optional[int]): Total iterations to be tracked if available
 
         Returns:
             Tracker: Nested tracker
@@ -264,7 +265,11 @@ class IterableTracker (Tracker, Iterable):
     """Iterable Tracker for wrapping iterables
     """
     def __init__(self, iterable: Iterable[T], name: Path) -> None:
-        total = len(iterable)
+        total = None
+        try:
+            total = len(iterable)
+        except TypeError:
+            pass
         self.__iterable = iterable
         super().__init__(name, total)
 
