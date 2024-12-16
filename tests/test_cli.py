@@ -296,6 +296,7 @@ def test_status(test_app: Tuple[Mock, DataManager, Path]):
     mock, _,_ = test_app
 
     args = split('e4edm status')
+    mock.status.return_value = 'status_msg'
     with patch('sys.argv', args):
         main()
         mock.status.assert_called_once_with()
@@ -308,11 +309,10 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
     """
     mock, app, _ = single_mission
 
-    mock.list_datasets.return_value = app.list_datasets()
+    mock.datasets = app.datasets
     args = split('e4edm list')
     with patch('sys.argv', args):
         main()
-        mock.list_datasets.assert_called_once_with()
 
 def test_inactive_commands(test_app):
     """Tests that inactive environment doesn't break --help
@@ -346,28 +346,28 @@ def test_activate(single_mission: Tuple[Mock, DataManager, Path]):
         )
     )
 
-    args = split('e4edm activate "2023.03.Test.San Diego"')
+    args = split('e4edm activate "2023.03.03.test_cli_activate.Location1"')
     with patch('sys.argv', args):
         main()
         mock.activate.assert_called_once_with(
-            dataset="2023.03.Test.San Diego",
+            dataset="2023.03.03.test_cli_activate.Location1",
             day=None,
             mission=None,
             root_dir=None,
         )
 
     app.activate(
-        dataset="2023.03.Test.San Diego",
+        dataset="2023.03.03.test_cli_activate.Location1",
         day=None,
         mission=None,
         root_dir=None,
     )
 
-    args = split('e4edm activate "2023.03.Test.Location1" --day 0 --mission mission1')
+    args = split('e4edm activate "2023.03.03.Test.Location1" --day 0 --mission mission1')
     with patch('sys.argv', args):
         main()
         mock.activate.assert_called_with(
-            dataset='2023.03.Test.Location1',
+            dataset='2023.03.03.Test.Location1',
             day=0,
             mission='mission1',
             root_dir=None

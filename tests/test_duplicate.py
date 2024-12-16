@@ -24,7 +24,7 @@ def test_duplicate(
         target = Path(duplication_dir)
         app.duplicate([target])
 
-        dataset_dir = root_dir.joinpath('2023.03.Test.San Diego')
+        dataset_dir = root_dir.joinpath('2023.03.02.Test.San Diego')
         original_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')
                                  if file.name not in ['.e4edm.pkl']])
 
