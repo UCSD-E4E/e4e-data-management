@@ -516,7 +516,7 @@ class Dataset:
             committed_files.extend(new_files)
         self.staged_files = []
         return committed_files
-    
+
     def create_zip(self, zip_path: Path) -> None:
         """Creates a .zip archive of this Dataset at the specified location
 
@@ -525,6 +525,6 @@ class Dataset:
         """
         if zip_path.suffix.lower() != '.zip':
             raise RuntimeError('Invalid suffix')
-        
-        with zipfile.ZipFile(file=zip_path, mode='w') as handle:
+
+        with zipfile.ZipFile(file=zip_path, mode='w') as _:
             pass
