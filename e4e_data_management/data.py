@@ -14,7 +14,7 @@ from typing import (Callable, Dict, Generator, Iterable, List, Optional, Set,
                     Union)
 
 from e4e_data_management.metadata import Metadata
-
+from e4e_data_management.progress import ProgressTrackerService
 
 @dataclass
 class StagedFile:
@@ -58,7 +58,8 @@ class Manifest:
         """
         if root is None:
             root = self.__root
-        for file in files:
+        service = ProgressTrackerService.get_instance()
+        for file in service.wrap(files, name='Validating Manifest'):
             file_key = file.relative_to(root).as_posix()
             if file_key not in manifest:
                 return False
@@ -144,7 +145,8 @@ class Manifest:
         if not hash_fn:
             hash_fn = self.compute_file_hash
         data: Dict[str, Dict[str, Union[str, int]]] = {}
-        for file in files:
+        service = ProgressTrackerService.get_instance()
+        for file in service.wrap(files, name="Computing Hashes"):
             rel_path = file.relative_to(root).as_posix()
             cksum = hash_fn(file)
             file_size = file.lstat().st_size
@@ -238,7 +240,8 @@ class Mission:
         if not destination:
             destination = Path('.')
         dst = self.path.joinpath(destination)
-        for path in paths:
+        service = ProgressTrackerService.get_instance()
+        for path in service.wrap(paths, name='Staging Files'):
             origin_path = path.resolve()
             if origin_path.is_file():
                 file_hash = Manifest.compute_file_hash(origin_path.resolve())
@@ -287,7 +290,8 @@ class Mission:
             RuntimeError: Copy fail
         """
         committed_files: List[Path] = []
-        for staged_file in self.staged_files:
+        service = ProgressTrackerService.get_instance()
+        for staged_file in service.wrap(self.staged_files, name='Committing files'):
             staged_file.target_path.parent.mkdir(parents=True, exist_ok=True)
             copy2(src=staged_file.origin_path, dst=staged_file.target_path)
             if Manifest.compute_file_hash(staged_file.target_path) != staged_file.hash:
@@ -470,7 +474,8 @@ class Dataset:
             paths (Iterable[Path]): Paths to stage
         """
         self.staged_files.extend(paths)
-        for path in paths:
+        service = ProgressTrackerService.get_instance()
+        for path in service.wrap(paths, name='Staging Files'):
             self.__log.info('Staged %s', path.as_posix())
 
     def commit(self) -> List[Path]:
@@ -481,7 +486,8 @@ class Dataset:
         """
         # Discover files
         committed_files: List[Path] = []
-        for path in self.staged_files:
+        service = ProgressTrackerService.get_instance()
+        for path in service.wrap(self.staged_files, name="Committing Files"):
             added_files: List[Path] = []
             if path.is_file():
                 # this goes into the root
