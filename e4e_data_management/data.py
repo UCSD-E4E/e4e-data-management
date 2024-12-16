@@ -500,6 +500,8 @@ class Dataset:
                         continue
                     added_files.append(file)
                 root = path
+            else:
+                raise NotImplementedError(f'{path} is neither file nor dir!')
             original_manifest = self.manifest.compute_hashes(
                 root=root,
                 files=added_files
