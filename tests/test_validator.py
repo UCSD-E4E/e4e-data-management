@@ -41,6 +41,9 @@ def test_validation():
                     cksum = output.decode().splitlines()[1].strip()
                 else:
                     cksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+            elif sys.platform == 'darwin':
+                output = subprocess.check_output(['shasum', '-a', '256', file.as_posix()])
+                cksum = output.decode().splitlines()[0].split()[0]
             else:
                 raise NotImplementedError
 
