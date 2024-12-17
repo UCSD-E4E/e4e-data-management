@@ -50,7 +50,8 @@ class DataMangerCLI:
             'push',
             'zip',
             'unzip',
-            'prune'
+            'prune',
+            'ls',
         ]
         self.parameters = [
             Parameter(
@@ -85,6 +86,7 @@ class DataMangerCLI:
         self.__configure_prune_parser(parsers['prune'])
         self.__configure_config_parser(parsers['config'])
         self.__configure_activate_parser(parsers['activate'])
+        self.__configure_ls_parser(parsers['ls'])
         self.__configure_validate_parser(parsers['validate'])
         # self.__configure_zip_parser(parsers['zip'])
         # self.__configure_unzip_parser(parsers['unzip'])
@@ -181,12 +183,12 @@ class DataMangerCLI:
         Args:
             args (List[str]): Arguments
         """
-        datasets = self.app.list_datasets()
-        if len(datasets) == 0:
-            print('No datasets found')
-        else:
-            for dataset in datasets:
-                print(dataset)
+        for dataset_name, dataset in self.app.datasets.items():
+            if dataset.pushed:
+                pushed_str = '*'
+            else:
+                pushed_str = ' '
+            print(f'{dataset_name} {pushed_str}')
 
     def add_files_cmd(self,
                     paths: List[str],
@@ -212,18 +214,20 @@ class DataMangerCLI:
         resolved_paths: List[Path] = []
         for path in paths:
             resolved_paths.extend(Path(file) for file in glob(path))
-        if start:
-            if start.tzinfo is None:
-                start = start.replace(tzinfo=local_tz)
-            resolved_paths = [path
-                            for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) >= start]
-        if end:
-            if end.tzinfo is None:
-                end = end.replace(tzinfo=local_tz)
-            resolved_paths = [path
-                            for path in resolved_paths
-                            if dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) <= end]
+        if not start:
+            start = dt.datetime.min
+        if not end:
+            end = dt.datetime.max
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=local_tz)
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=local_tz)
+        if end < start:
+            raise RuntimeError('end before start')
+        resolved_paths = [path
+                        for path in resolved_paths
+                        if start <= dt.datetime.fromtimestamp(path.stat().st_mtime, local_tz) \
+                              <= end]
         self.app.add(paths=resolved_paths, readme=readme, destination=destination)
 
     def status_cmd(self):
@@ -232,7 +236,34 @@ class DataMangerCLI:
         Args:
             app (DataManager): DataManager app
         """
-        print(self.app.status())
+        status_message = self.app.status()
+        for line in status_message.splitlines():
+            print(line)
+
+    def ls_dir(self, path: Path):
+        """Lists the files in the given directory with information relevant to e4edm
+
+        Args:
+            path (Path): Path to ls
+        """
+        local_tz = dt.datetime.now().astimezone().tzinfo
+        print(path.as_posix())
+        dirs = sorted([node for node in path.glob('*') if node.is_dir()])
+        files = sorted([node for node in path.glob('*') if node.is_file()])
+        dir_times = [dt.datetime.fromtimestamp(node.stat().st_mtime, local_tz) for node in dirs]
+        file_times = [dt.datetime.fromtimestamp(node.stat().st_mtime, local_tz) for node in files]
+        for idx, dir_path in enumerate(dirs):
+            print(f'{dir_times[idx].isoformat()} {dir_path.name}')
+        for idx, file in enumerate(files):
+            print(f'{file_times[idx].isoformat()} {file.name}')
+
+    def prune_cmd(self):
+        """Prunes old datasets
+        """
+        pruned_datasets = self.app.prune()
+        print('Removed: ')
+        for dataset in pruned_datasets:
+            print(dataset)
 
     def main(self):
         """Main function
@@ -245,6 +276,10 @@ class DataMangerCLI:
         arg_dict.pop('func')
 
         arg_fn(**arg_dict)
+
+    def __configure_ls_parser(self, parser: argparse.ArgumentParser):
+        parser.add_argument('path', type=Path, default=Path('.'))
+        parser.set_defaults(func=self.ls_dir)
 
     def __configure_config_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('parameter',
@@ -280,7 +315,7 @@ class DataMangerCLI:
         parser.set_defaults(func=self.app.activate)
 
     def __configure_prune_parser(self, parser: argparse.ArgumentParser):
-        parser.set_defaults(func=self.app.prune)
+        parser.set_defaults(func=self.prune_cmd)
 
     def __configure_push_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('path', type=Path)
