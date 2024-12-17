@@ -395,6 +395,21 @@ files = [
 colors = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "jeepney"
+version = "0.8.0"
+description = "Low-level, pure Python DBus protocol wrapper."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "jeepney-0.8.0-py3-none-any.whl", hash = "sha256:c0a454ad016ca575060802ee4d590dd912e35c122fa04e70306de3d076cce755"},
+    {file = "jeepney-0.8.0.tar.gz", hash = "sha256:5efe48d255973902f6badc3ce55e2aa6c5c3b3bc642059ef3a91247bcfcc5806"},
+]
+
+[package.extras]
+test = ["async-timeout", "pytest", "pytest-asyncio (>=0.17)", "pytest-trio", "testpath", "trio"]
+trio = ["async_generator", "trio"]
+
+[[package]]
 name = "jinja2"
 version = "3.1.4"
 description = "A very fast and expressive template engine."
@@ -940,6 +955,20 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
+name = "wakepy"
+version = "0.10.1"
+description = "wakelock / keep-awake / stay-awake"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "wakepy-0.10.1-py3-none-any.whl", hash = "sha256:a3c43e6b580759732bf96606ae015bfb98e528d5872a25a9bc8457bc70055fac"},
+    {file = "wakepy-0.10.1.tar.gz", hash = "sha256:8c124e6bec03fd5afe8aff7a6c529d8ce90de976a82f0abc432fe30e5862838e"},
+]
+
+[package.dependencies]
+jeepney = {version = ">=0.7.1", markers = "platform_system == \"Linux\" or platform_system == \"FreeBSD\" or platform_system == \"OpenBSD\" or platform_system == \"NetBSD\" or platform_system == \"DragonFly\" or platform_system == \"SunOS\" or platform_system == \"AIX\" or platform_system == \"Minix\""}
+
+[[package]]
 name = "wheel"
 version = "0.44.0"
 description = "A built-package format for Python"
@@ -956,4 +985,4 @@ test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "6b30e464c1dc8959f51c1f197557e04615bd7c3ddbf5573b44b2d3aef6d06ed8"
+content-hash = "a857fb0febffd3209cc07fbbe11c10ced7c0468f310b708230e13a40ffad5ada"
