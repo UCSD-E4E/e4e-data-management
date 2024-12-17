@@ -294,7 +294,7 @@ class DataManager:
 
         if len(readmes) == 0:
             raise RuntimeError('Readme not found')
-        acceptable_exts = ['.md', '.docx']
+        acceptable_exts = ['.md', '.docx', '.pdf']
         if not any(readme.suffix.lower() in acceptable_exts for readme in readmes):
             raise RuntimeError('Illegal README format')
 
