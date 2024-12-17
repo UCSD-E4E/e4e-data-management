@@ -296,6 +296,7 @@ def test_status(test_app: Tuple[Mock, DataManager, Path]):
     mock, _,_ = test_app
 
     args = split('e4edm status')
+    mock.status.return_value = 'status_msg'
     with patch('sys.argv', args):
         main()
         mock.status.assert_called_once_with()
@@ -308,11 +309,10 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
     """
     mock, app, _ = single_mission
 
-    mock.list_datasets.return_value = app.list_datasets()
+    mock.datasets = app.datasets
     args = split('e4edm list')
     with patch('sys.argv', args):
         main()
-        mock.list_datasets.assert_called_once_with()
 
 def test_inactive_commands(test_app):
     """Tests that inactive environment doesn't break --help
