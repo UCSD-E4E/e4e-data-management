@@ -33,17 +33,17 @@ This suite should be used to manage data in the field, duplicate data across mul
     6. Temporal range of files: `e4edm add --start 2023-03-13T15:00 --end 2023-03-13T16:00 C:\Users\e4e\example_data` will add any file in `C:\Users\e4e\example_data` with a last modified time between 13 Mar 2023 at 3:00 PM local and 13 Mar 2023 at 4:00 PM local directly into `${DATASET}\${DAY}\${MISSION}\`
 7. Once a file is staged, you can see the staged file using `e4edm status`.
 8. Once files are staged, you can commit the staged files using `e4edm commit [-h]`.  This will copy all of the staged files into the dataset directory and verify the copy.
-9. Once files are staged, you can duplicate the dataset using `e4edm duplicate [-h] paths [paths ...]`.  This will copy the dataset to the specified paths and verify each copy.
 10. Once all mission files are committed, you must add and commit a suitable readme file.  This must be either a MarkDown or docx file.  You can add and commit using `e4edm add --readme path` and `e4edm commit --readme`.
 11. Once all files are committed, you can push the dataset to the final directory using `e4edm push [-h] path`.  This will verify all files and completion criteria, the copy the dataset into the final directory.
 
 ## Development
-1. Open `e4e-data-management.code-workspace` in VS Code
+1. Open the repository root in VS Code
 2. Create a terminal
 3. Run `python -m venv .venv`
 4. Select the new virtual environment for the workspace
 5. Create a new Python terminal
-6. Run `python -m pip install -e .[dev]`
+6. Run `python -m pip install --upgrade pip poetry`
+7. Run `poetry install`
 
 
 # Developer Notes
