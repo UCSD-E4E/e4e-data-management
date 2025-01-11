@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v0.1.5 (2025-01-11)
+
+### Ci
+
+* ci: Tests for prune behavior ([`31173a1`](https://github.com/UCSD-E4E/e4e-data-management/commit/31173a1ad25897de965548767d7cbbf42fb85f36))
+
+* ci: Fixes failing tests ([`3810a02`](https://github.com/UCSD-E4E/e4e-data-management/commit/3810a029971cf5e146765d57fed36eb9bed5d12a))
+
+### Documentation
+
+* docs: Documents fixture ([`a98cfea`](https://github.com/UCSD-E4E/e4e-data-management/commit/a98cfead653cc847af04ae90ee23371062e91347))
+
+### Fix
+
+* fix: Adds exception logging to main invocation ([`9f0aa7f`](https://github.com/UCSD-E4E/e4e-data-management/commit/9f0aa7f21ccc75bc7e031bc7443ac148ada70d98))
+
+### Style
+
+* style: Fixes long line ([`0d795f7`](https://github.com/UCSD-E4E/e4e-data-management/commit/0d795f73b470b4824cbe9cac06dd52eb879ba1a3))
+
+### Unknown
+
+* Merge pull request #57 from UCSD-E4E/44-add-exception-and-traceback-to-logs
+
+fix: Adds exception logging to main invocation ([`cb9c732`](https://github.com/UCSD-E4E/e4e-data-management/commit/cb9c732cd6e8426513615b36aad287493e21ebbc))
+
+* Merge branch &#39;main&#39; into 44-add-exception-and-traceback-to-logs ([`de9e0d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/de9e0d5bbacd41a9ef8fcd7cce0e8ba5cd3f942c))
+
+* Merge pull request #91 from UCSD-E4E/34-remove-dataset-after-pushing-to-server
+
+34 remove dataset after pushing to server ([`8a811be`](https://github.com/UCSD-E4E/e4e-data-management/commit/8a811bec27556f1dfba5044f3875cbecdc9b38e4))
+
 ## v0.1.4 (2024-11-04)
 
 ### Fix
