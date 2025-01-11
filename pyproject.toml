@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "e4e-data-management"
-version = "0.1.5"
+version = "0.2.0"
 description = "E4E Data Management Tool (Python)"
 authors = [
     "Nathan Hui <nthui@ucsd.edu>",

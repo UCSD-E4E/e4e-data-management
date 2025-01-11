@@ -16,7 +16,7 @@ from wakepy import keep
 from e4e_data_management import __version__
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
-
+from e4e_data_management.data import Dataset
 T = TypeVar('T')
 @dataclass
 class Parameter:
@@ -90,7 +90,7 @@ class DataManagerCLI:
             self.__configure_config_parser(parsers['config'])
             self.__configure_activate_parser(parsers['activate'])
             self.__configure_ls_parser(parsers['ls'])
-            # self.__configure_validate_parser(parsers['validate'])
+            self.__configure_validate_parser(parsers['validate'])
             # self.__configure_zip_parser(parsers['zip'])
             # self.__configure_unzip_parser(parsers['unzip'])
 
@@ -99,6 +99,21 @@ class DataManagerCLI:
         except Exception as exc:
             self._log.exception('Exception during application load/configuration')
             raise exc
+
+    def __configure_validate_parser(self, parser: argparse.ArgumentParser):
+        parser.add_argument('root_dir', nargs='?', default=None, type=Path)
+        parser.set_defaults(func=self.__external_validate)
+
+    def __external_validate(self, root_dir: Optional[Path]):
+        if root_dir is None:
+            dataset = self.app.active_dataset
+        else:
+            dataset = Dataset.load(path=root_dir)
+
+        if not dataset.validate():
+            print('Dataset validation failed')
+        else:
+            print('Dataset valid')
 
     def __configure_logging(self) -> None:
         log_dir = Path(DataManager.dirs.user_log_dir).resolve()

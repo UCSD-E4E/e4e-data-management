@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import datetime as dt
+import fnmatch
 import json
 import logging
 import pickle
+import re
+import zipfile
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
@@ -13,6 +16,10 @@ from shutil import copy2
 from typing import (Callable, Dict, Generator, Iterable, List, Optional, Set,
                     Union)
 
+from e4e_data_management.exception import (CorruptedDataset,
+                                           MissionFilesInStaging,
+                                           ReadmeFilesInStaging,
+                                           ReadmeNotFound)
 from e4e_data_management.metadata import Metadata
 
 
@@ -515,3 +522,48 @@ class Dataset:
             committed_files.extend(new_files)
         self.staged_files = []
         return committed_files
+
+    def create_zip(self, zip_path: Path) -> None:
+        """Creates a .zip archive of this Dataset at the specified location
+
+        Args:
+            zip_path (Path): Path to .zip archive
+        """
+        if zip_path.suffix.lower() != '.zip':
+            raise RuntimeError('Invalid suffix')
+
+        with zipfile.ZipFile(file=zip_path, mode='w') as handle:
+            manifest = self.manifest.get_dict()
+            for file in manifest:
+                src_path = self.root.joinpath(file)
+                dest = Path(self.name) / file
+                handle.write(filename=src_path, arcname=dest)
+
+    def check_complete(self) -> None:
+        """Checks if the dataset is complete
+
+        Raises:
+            MissionFilesInStaging: Mission files remain in staging
+            ReadmeFilesInStaging: Readme files remain in staging
+            ReadmeNotFound: Readme files not found
+            ReadmeNotFound: Readme files with acceptable extension not found
+            CorruptedDataset: Dataset checksum validation failed
+        """
+        staged_mission_files = (mission.staged_files
+                                for mission in self.missions.values())
+        if any(len(staged) for staged in staged_mission_files):
+            raise MissionFilesInStaging
+        if len(self.staged_files) != 0:
+            raise ReadmeFilesInStaging
+
+        readmes = [file for file in self.root.glob('*')
+                   if re.match(fnmatch.translate('readme.*'), file.name, re.IGNORECASE)]
+        if len(readmes) == 0:
+            raise ReadmeNotFound
+
+        acceptable_exts = ['.md', '.docx']
+        if not any(readme.suffix.lower() in acceptable_exts for readme in readmes):
+            raise ReadmeNotFound('Acceptable extension not found')
+
+        if not self.validate():
+            raise CorruptedDataset
