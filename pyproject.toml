@@ -23,6 +23,7 @@ wheel = "^0.44.0"
 python-semantic-release = "^9.8.7"
 autopep8 = "^2.3.1"
 isort = "^5.13.2"
+pytest-cov = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]

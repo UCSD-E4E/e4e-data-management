@@ -5,13 +5,14 @@ import random
 from collections import namedtuple
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Tuple
+from typing import Tuple, Dict
 from unittest.mock import Mock, patch
 
 import pytest
 
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
+from e4e_data_management.progress import ProgressTrackerService, ProgressTrackerEvent
 
 AppFixture = namedtuple('AppFixture', ['app', 'root'])
 MockAppFixture = namedtuple('MockAppFixture', ['mock', 'app', 'root'])
@@ -140,3 +141,18 @@ def create_single_mission_data(single_mission: Tuple[Mock, DataManager, Path],
     app.commit()
 
     return single_mission, test_data
+
+@pytest.fixture(name='progress_tracker_service')
+def get_progress_tracker() -> Tuple[ProgressTrackerService, Dict[ProgressTrackerEvent, Mock]]:
+    """Creates the progress tracker service
+
+    Returns:
+        Tuple[ProgressTrackerService, Dict[ProgressTrackerEvent, Mock]]: Progress Tracker service
+        and mocked event handlers
+    """
+    service = ProgressTrackerService.get_instance()
+    mock_handlers = {evt: Mock(name=evt.name) for evt in ProgressTrackerEvent}
+    for evt in ProgressTrackerEvent:
+        service.register_handler(evt, mock_handlers[evt])
+
+    return service, mock_handlers
