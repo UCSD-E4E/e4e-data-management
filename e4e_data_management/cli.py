@@ -11,6 +11,8 @@ from glob import glob
 from pathlib import Path
 from typing import Callable, List, Optional, TypeVar
 
+from wakepy import keep
+
 from e4e_data_management import __version__
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
@@ -280,7 +282,8 @@ class DataManagerCLI:
             arg_fn = args.func
             arg_dict.pop('func')
 
-            arg_fn(**arg_dict)
+            with keep.running():
+                arg_fn(**arg_dict)
         except Exception as exc:
             self._log.exception('Exception during main execution')
             raise exc
