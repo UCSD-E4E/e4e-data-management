@@ -154,7 +154,8 @@ def create_single_mission_data(single_mission: Tuple[Mock, DataManager, Path],
         test_data (Tuple[Path, int, int]): Test Data
 
     Returns:
-        Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]: test app, test data
+        Tuple[Tuple[DataManager, Path], Tuple[Path, int, int]]: ((mocked application, data manager,
+        root directory), (data path, number of files, file size))
     """
     _, app, _ = single_mission
     data_dir, _, _ = test_data
