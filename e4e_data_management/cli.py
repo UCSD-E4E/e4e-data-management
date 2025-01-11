@@ -30,7 +30,7 @@ class Parameter:
     validator: Callable[[T], bool]
 
 
-class DataMangerCLI:
+class DataManagerCLI:
     """Data Manager Command Line Interface
     """
     def __init__(self):
@@ -409,7 +409,7 @@ class DataMangerCLI:
 def main():
     """Main bootstrap
     """
-    DataMangerCLI().main()
+    DataManagerCLI().main()
 
 if __name__ == '__main__':
     main()
