@@ -33,7 +33,6 @@ class DataManagerCLI:
     """
     def __init__(self):
         self.__configure_logging()
-        self._log = logging.getLogger('e4edm.cli')
         self._log.debug('Invoking version %s from %s', __version__, __file__)
         try:
             self.app = DataManager.load()
@@ -97,6 +96,10 @@ class DataManagerCLI:
         except Exception as exc:
             self._log.exception('Exception during application load/configuration')
             raise exc
+
+    @property
+    def _log(self) -> logging.Logger:
+        return logging.getLogger('e4edm.cli')
 
     def __configure_logging(self) -> None:
         log_dir = Path(DataManager.dirs.user_log_dir).resolve()
