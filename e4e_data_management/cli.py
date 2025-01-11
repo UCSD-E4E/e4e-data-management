@@ -14,7 +14,7 @@ from typing import Callable, List, Optional, TypeVar
 from e4e_data_management import __version__
 from e4e_data_management.core import DataManager
 from e4e_data_management.metadata import Metadata
-
+from e4e_data_management.data import Dataset
 T = TypeVar('T')
 @dataclass
 class Parameter:
@@ -28,71 +28,90 @@ class Parameter:
     validator: Callable[[T], bool]
 
 
-class DataMangerCLI:
+class DataManagerCLI:
     """Data Manager Command Line Interface
     """
     def __init__(self):
         self.__configure_logging()
         self._log = logging.getLogger('e4edm.cli')
         self._log.debug('Invoking version %s from %s', __version__, __file__)
-        self.app = DataManager.load()
-        commands = [
-            'init_dataset',
-            'init_mission',
-            'status',
-            'list',
-            'config',
-            'activate',
-            'add',
-            'commit',
-            'duplicate',
-            'validate',
-            'push',
-            'zip',
-            'unzip',
-            'prune',
-            'ls',
-        ]
-        self.parameters = [
-            Parameter(
-            name='dataset_dir',
-            getter=lambda: getattr(self.app, 'dataset_dir'),
-            setter=lambda x: setattr(self.app, 'dataset_dir', x),
-            parser=Path,
-            formatter=Path.as_posix,
-            validator=Path.is_dir
-            ),
-            Parameter(
-            name='version',
-            getter=lambda: getattr(self.app, 'version'),
-            setter=None,
-            parser=int,
-            formatter=str,
-            validator=None
-            )
-        ]
-        self.parser = argparse.ArgumentParser()
-        subparsers = self.parser.add_subparsers()
-        parsers = {cmd:subparsers.add_parser(cmd) for cmd in commands}
+        try:
+            self.app = DataManager.load()
+            commands = [
+                'init_dataset',
+                'init_mission',
+                'status',
+                'list',
+                'config',
+                'activate',
+                'add',
+                'commit',
+                'duplicate',
+                'validate',
+                'push',
+                'zip',
+                'unzip',
+                'prune',
+                'ls',
+            ]
+            self.parameters = [
+                Parameter(
+                name='dataset_dir',
+                getter=lambda: getattr(self.app, 'dataset_dir'),
+                setter=lambda x: setattr(self.app, 'dataset_dir', x),
+                parser=Path,
+                formatter=Path.as_posix,
+                validator=Path.is_dir
+                ),
+                Parameter(
+                name='version',
+                getter=lambda: getattr(self.app, 'version'),
+                setter=None,
+                parser=int,
+                formatter=str,
+                validator=None
+                )
+            ]
+            self.parser = argparse.ArgumentParser()
+            subparsers = self.parser.add_subparsers()
+            parsers = {cmd:subparsers.add_parser(cmd) for cmd in commands}
 
-        self.__configure_init_dataset_parser(parsers['init_dataset'])
-        self.__configure_init_mission_parser(parsers['init_mission'])
-        self.__configure_status_parser(parsers['status'])
-        self.__configure_list_parser(parsers['list'])
-        self.__configure_add_parser(parsers['add'])
-        self.__configure_commit_parser(parsers['commit'])
-        self.__configure_duplicate_parser(parsers['duplicate'])
-        self.__configure_push_parser(parsers['push'])
-        self.__configure_prune_parser(parsers['prune'])
-        self.__configure_config_parser(parsers['config'])
-        self.__configure_activate_parser(parsers['activate'])
-        self.__configure_ls_parser(parsers['ls'])
-        # self.__configure_validate_parser(parsers['validate'])
-        # self.__configure_zip_parser(parsers['zip'])
-        # self.__configure_unzip_parser(parsers['unzip'])
+            self.__configure_init_dataset_parser(parsers['init_dataset'])
+            self.__configure_init_mission_parser(parsers['init_mission'])
+            self.__configure_status_parser(parsers['status'])
+            self.__configure_list_parser(parsers['list'])
+            self.__configure_add_parser(parsers['add'])
+            self.__configure_commit_parser(parsers['commit'])
+            self.__configure_duplicate_parser(parsers['duplicate'])
+            self.__configure_push_parser(parsers['push'])
+            self.__configure_prune_parser(parsers['prune'])
+            self.__configure_config_parser(parsers['config'])
+            self.__configure_activate_parser(parsers['activate'])
+            self.__configure_ls_parser(parsers['ls'])
+            self.__configure_validate_parser(parsers['validate'])
+            # self.__configure_zip_parser(parsers['zip'])
+            # self.__configure_unzip_parser(parsers['unzip'])
 
-        self.parser.add_argument('--version', action='version', version=f'e4edm {__version__}')
-        self.parser.set_defaults(func=self.parser.print_help)
+            self.parser.add_argument('--version', action='version', version=f'e4edm {__version__}')
+            self.parser.set_defaults(func=self.parser.print_help)
+        except Exception as exc:
+            self._log.exception('Exception during application load/configuration')
+            raise exc
+
+    def __configure_validate_parser(self, parser: argparse.ArgumentParser):
+        parser.add_argument('root_dir', nargs='?', default=None, type=Path)
+        parser.set_defaults(func=self.__external_validate)
+
+    def __external_validate(self, root_dir: Optional[Path]):
+        if root_dir is None:
+            dataset = self.app.active_dataset
+        else:
+            dataset = Dataset.load(path=root_dir)
+
+        if not dataset.validate():
+            print('Dataset validation failed')
+        else:
+            print('Dataset valid')
 
     def __configure_logging(self) -> None:
         log_dir = Path(DataManager.dirs.user_log_dir).resolve()
@@ -253,14 +272,18 @@ class DataMangerCLI:
     def main(self):
         """Main function
         """
-        self._log.info("Invoked with %s", ' '.join(sys.argv))
-        args = self.parser.parse_args()
-        arg_dict = vars(args)
+        try:
+            self._log.info("Invoked with %s", ' '.join(sys.argv))
+            args = self.parser.parse_args()
+            arg_dict = vars(args)
 
-        arg_fn = args.func
-        arg_dict.pop('func')
+            arg_fn = args.func
+            arg_dict.pop('func')
 
-        arg_fn(**arg_dict)
+            arg_fn(**arg_dict)
+        except Exception as exc:
+            self._log.exception('Exception during main execution')
+            raise exc
 
     def __configure_ls_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('path', type=Path, default=Path('.'))
@@ -398,7 +421,7 @@ class DataMangerCLI:
 def main():
     """Main bootstrap
     """
-    DataMangerCLI().main()
+    DataManagerCLI().main()
 
 if __name__ == '__main__':
     main()
