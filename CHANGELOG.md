@@ -1,5 +1,87 @@
 # CHANGELOG
 
+## v0.2.0 (2025-01-11)
+
+### Chore
+
+* chore: Fixes naming ([`379e0a1`](https://github.com/UCSD-E4E/e4e-data-management/commit/379e0a157375a3bc25765cb3fbae50fc2bb2c85d))
+
+### Feature
+
+* feat: Adds zip ([`6cdc42b`](https://github.com/UCSD-E4E/e4e-data-management/commit/6cdc42b7e60853efa9a50aa2fc383bb043740279))
+
+### Style
+
+* style: Fixes styling ([`c3bead9`](https://github.com/UCSD-E4E/e4e-data-management/commit/c3bead9a2cec33096e4f593b37611da35aceb727))
+
+* style: Fixes spaces and unused variables ([`7c920b1`](https://github.com/UCSD-E4E/e4e-data-management/commit/7c920b1fc836cb04455f5567fb6436fd3d777f86))
+
+### Unknown
+
+* Merge pull request #92 from UCSD-E4E/37-zip-command
+
+37 zip command ([`24b24d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/24b24d53d3985147f1d71278d80b0c683aeba620))
+
+* Merge branch &#39;main&#39; into 37-zip-command ([`1b573b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/1b573b59113fc1f2d89d1a3c1f1c990fd4e9b879))
+
+* Merge branch &#39;main&#39; into 37-zip-command ([`f49afac`](https://github.com/UCSD-E4E/e4e-data-management/commit/f49afac204ce134df63b3def37d9e19a21e0fa9a))
+
+* Merge branch &#39;34-remove-dataset-after-pushing-to-server&#39; into 37-zip-command ([`751363a`](https://github.com/UCSD-E4E/e4e-data-management/commit/751363a888875952b7903b265855a055f2e4a0c3))
+
+* Merge branch &#39;main&#39; into 37-zip-command ([`6bb26e7`](https://github.com/UCSD-E4E/e4e-data-management/commit/6bb26e7463fb440bb7a130236f0706258b529453))
+
+* wip: Creates zip file ([`705346f`](https://github.com/UCSD-E4E/e4e-data-management/commit/705346f284b00954536212dc57f184aaf0915068))
+
+* Merge pull request #47 from UCSD-E4E/42-implement-e4edm-validate
+
+42 implement e4edm validate ([`e5b4340`](https://github.com/UCSD-E4E/e4e-data-management/commit/e5b43401462353d02a0928cd0c5111ba5ab609ff))
+
+* Merge branch &#39;main&#39; into 42-implement-e4edm-validate ([`b114488`](https://github.com/UCSD-E4E/e4e-data-management/commit/b1144886ed295299613a75bd4d6c0130533f7e88))
+
+* Merge pull request #83 from UCSD-E4E/60-chore-datamangercli-vs-datamanagercli
+
+chore: Fixes naming ([`95533b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/95533b56a7068b682d63bb3e89d38daa0603d668))
+
+* Merge branch &#39;main&#39; into 60-chore-datamangercli-vs-datamanagercli ([`1500fca`](https://github.com/UCSD-E4E/e4e-data-management/commit/1500fca5d06f3eeeca290539b11ea0417464c3da))
+
+* Merge branch &#39;main&#39; into 60-chore-datamangercli-vs-datamanagercli ([`6aa2b72`](https://github.com/UCSD-E4E/e4e-data-management/commit/6aa2b72bdfb17d68635f7fa2f3f6ad522bc377db))
+
+* Merge remote-tracking branch &#39;origin/main&#39; into 42-implement-e4edm-validate ([`836df5a`](https://github.com/UCSD-E4E/e4e-data-management/commit/836df5adbe135b0f28ed4f5cabed4e25a972618c))
+
+## v0.1.5 (2025-01-11)
+
+### Ci
+
+* ci: Tests for prune behavior ([`31173a1`](https://github.com/UCSD-E4E/e4e-data-management/commit/31173a1ad25897de965548767d7cbbf42fb85f36))
+
+* ci: Fixes failing tests ([`3810a02`](https://github.com/UCSD-E4E/e4e-data-management/commit/3810a029971cf5e146765d57fed36eb9bed5d12a))
+
+### Documentation
+
+* docs: Documents fixture ([`a98cfea`](https://github.com/UCSD-E4E/e4e-data-management/commit/a98cfead653cc847af04ae90ee23371062e91347))
+
+### Fix
+
+* fix: Adds exception logging to main invocation ([`9f0aa7f`](https://github.com/UCSD-E4E/e4e-data-management/commit/9f0aa7f21ccc75bc7e031bc7443ac148ada70d98))
+
+### Style
+
+* style: Fixes long line ([`0d795f7`](https://github.com/UCSD-E4E/e4e-data-management/commit/0d795f73b470b4824cbe9cac06dd52eb879ba1a3))
+
+### Unknown
+
+* Merge pull request #57 from UCSD-E4E/44-add-exception-and-traceback-to-logs
+
+fix: Adds exception logging to main invocation ([`cb9c732`](https://github.com/UCSD-E4E/e4e-data-management/commit/cb9c732cd6e8426513615b36aad287493e21ebbc))
+
+* Merge branch &#39;main&#39; into 44-add-exception-and-traceback-to-logs ([`de9e0d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/de9e0d5bbacd41a9ef8fcd7cce0e8ba5cd3f942c))
+
+* Merge pull request #91 from UCSD-E4E/34-remove-dataset-after-pushing-to-server
+
+34 remove dataset after pushing to server ([`8a811be`](https://github.com/UCSD-E4E/e4e-data-management/commit/8a811bec27556f1dfba5044f3875cbecdc9b38e4))
+
+* Merge branch &#39;main&#39; into 42-implement-e4edm-validate ([`e09c335`](https://github.com/UCSD-E4E/e4e-data-management/commit/e09c3353ae6ce15f3161dcd644ba17d13bc7ff03))
+
 ## v0.1.4 (2024-11-04)
 
 ### Fix
@@ -108,6 +190,10 @@ Added self.save() call to dataset activation ([`cb5168d`](https://github.com/UCS
 
 * added save ([`f9fddfb`](https://github.com/UCSD-E4E/e4e-data-management/commit/f9fddfb44911be81afab8ed8697f0d5d91cc7c15))
 
+* Update version ([`7e0e9fb`](https://github.com/UCSD-E4E/e4e-data-management/commit/7e0e9fb88a7e097389e0ef9b532e83725c002879))
+
+* Merge remote-tracking branch &#39;origin/main&#39; into 42-implement-e4edm-validate ([`23a95b9`](https://github.com/UCSD-E4E/e4e-data-management/commit/23a95b96eeb332a6365ead70e4f3451aefe50de4))
+
 * Merge pull request #46 from UCSD-E4E/43-include-full-date-in-dataset
 
 43 include full date in dataset ([`e034866`](https://github.com/UCSD-E4E/e4e-data-management/commit/e03486620bfa968b6d5604ea677a2aa6858e6d3c))
@@ -121,6 +207,10 @@ Added self.save() call to dataset activation ([`cb5168d`](https://github.com/UCS
 * Updated documentation ([`a30e841`](https://github.com/UCSD-E4E/e4e-data-management/commit/a30e841608cf68e9db20a65044ab2ce7c5400a53))
 
 * Updated Tests ([`b0663e6`](https://github.com/UCSD-E4E/e4e-data-management/commit/b0663e6a544a85c1ef885424f5e4bb231875b640))
+
+* Added remaining logic ([`3223992`](https://github.com/UCSD-E4E/e4e-data-management/commit/32239925c01f1ad06714528d2f741170911df7b9))
+
+* Adding command changes ([`bc12b34`](https://github.com/UCSD-E4E/e4e-data-management/commit/bc12b34fa0a5803087f6d033e7c5c9d572dcff48))
 
 * Merge pull request #36 from UCSD-E4E/34-remove-dataset-after-pushing-to-server
 
