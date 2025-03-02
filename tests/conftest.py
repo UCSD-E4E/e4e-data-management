@@ -33,7 +33,7 @@ def create_test_reloaded_app() -> MockAppFixture:
 
         original_app.save()
 
-        reloaded_app = DataManager.load()
+        reloaded_app = DataManager.load(config_dir=root_dir)
 
         mock = Mock(reloaded_app)
         mock.load.return_value = mock
