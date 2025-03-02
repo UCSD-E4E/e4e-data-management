@@ -282,17 +282,6 @@ class DataManager:
         """
         self.active_dataset.check_complete()
 
-        # Check that the README is present
-        readmes = [file
-                   for file in list(self.active_dataset.root.glob('*'))
-                   if re.match(fnmatch.translate('readme.*'), file.name, re.IGNORECASE)]
-
-        if len(readmes) == 0:
-            raise RuntimeError('Readme not found')
-        acceptable_exts = ['.md', '.docx', '.pdf']
-        if not any(readme.suffix.lower() in acceptable_exts for readme in readmes):
-            raise RuntimeError('Illegal README format')
-
         # validate self
         self.active_dataset.validate()
 
