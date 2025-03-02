@@ -282,6 +282,9 @@ class DataManager:
         """
         self.active_dataset.check_complete()
 
+        # validate self
+        self.active_dataset.validate()
+
         # Duplicate to destination
         destination = path.joinpath(self.active_dataset.name)
         destination.mkdir(parents=True, exist_ok=False)

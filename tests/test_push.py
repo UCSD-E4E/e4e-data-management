@@ -38,7 +38,8 @@ def test_push(single_mission_data: Tuple[Tuple[Mock, DataManager, Path], Tuple[P
     'README.MD',
     'readme.docx',
     'readme.DOCX',
-    'Readme.docx'
+    'Readme.docx',
+    'readme.pdf'
 ])
 def test_valid_readme_names(single_mission: Tuple[Mock, DataManager, Path], readme_name: str):
     """Tests valid readme names
