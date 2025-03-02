@@ -1,5 +1,58 @@
 # CHANGELOG
 
+## v0.2.1 (2025-03-02)
+
+### Chore
+
+* chore: Re-adds project ignores ([`bd09ff8`](https://github.com/UCSD-E4E/e4e-data-management/commit/bd09ff85296e7e8e734fcff3d774eb7dcaa665a9))
+
+* chore: Updates gitignore ([`5df6ff6`](https://github.com/UCSD-E4E/e4e-data-management/commit/5df6ff6b7339e6ec94c8dc05e03000941d8f345f))
+
+* chore(deps-dev): bump jinja2 from 3.1.4 to 3.1.5
+
+Bumps [jinja2](https://github.com/pallets/jinja) from 3.1.4 to 3.1.5.
+- [Release notes](https://github.com/pallets/jinja/releases)
+- [Changelog](https://github.com/pallets/jinja/blob/main/CHANGES.rst)
+- [Commits](https://github.com/pallets/jinja/compare/3.1.4...3.1.5)
+
+---
+updated-dependencies:
+- dependency-name: jinja2
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] &lt;support@github.com&gt; ([`fc7f384`](https://github.com/UCSD-E4E/e4e-data-management/commit/fc7f3844ddc136c823198e024a49eac4d0c3b910))
+
+### Fix
+
+* fix: Adds wakepy ([`f23b4d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/f23b4d5904d97d98761db59495efceb697e48fc0))
+
+* fix: Adds sleep hold ([`4434ead`](https://github.com/UCSD-E4E/e4e-data-management/commit/4434eadac7068bb78d90746dddf8e3da50a2c9d5))
+
+### Unknown
+
+* Merge pull request #81 from UCSD-E4E/45-sleep-hold
+
+fix: Adds sleep hold ([`38fe5bd`](https://github.com/UCSD-E4E/e4e-data-management/commit/38fe5bd394b77373f936a2c3627e6b09b53b2f6d))
+
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`9fff671`](https://github.com/UCSD-E4E/e4e-data-management/commit/9fff6710e082ba035412effff48007003b6d071e))
+
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`22878fd`](https://github.com/UCSD-E4E/e4e-data-management/commit/22878fd17c6d04b4c23f1064923dec8d6505df41))
+
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`c7814d2`](https://github.com/UCSD-E4E/e4e-data-management/commit/c7814d2326fc23e34e48795d24b685a7421a44f1))
+
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`e1148f0`](https://github.com/UCSD-E4E/e4e-data-management/commit/e1148f0f51257ec7b37eae41dfff8dae3c067a2c))
+
+* Merge pull request #101 from UCSD-E4E/58-bug-missing-ds_store
+
+chore: Updates gitignore ([`1debbf9`](https://github.com/UCSD-E4E/e4e-data-management/commit/1debbf98b23b8ce5642e54ba41683c6d8b464f94))
+
+* Merge pull request #94 from UCSD-E4E/dependabot/pip/jinja2-3.1.5
+
+chore(deps-dev): bump jinja2 from 3.1.4 to 3.1.5 ([`dd9a076`](https://github.com/UCSD-E4E/e4e-data-management/commit/dd9a0769c502e82c6643aea30b6b271113f60d0e))
+
+* Merge branch &#39;main&#39; into dependabot/pip/jinja2-3.1.5 ([`f93b640`](https://github.com/UCSD-E4E/e4e-data-management/commit/f93b6404b2fa478eb4d2379693940dfcbbda636e))
+
 ## v0.2.0 (2025-01-11)
 
 ### Chore
