@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import datetime as dt
-import fnmatch
 import logging
 import pickle
-import re
 from pathlib import Path
 from shutil import copy2, rmtree
 from typing import Dict, Iterable, List, Optional, Set
@@ -285,24 +283,7 @@ class DataManager:
         Args:
             path (Path): Destination to push completed dataset to
         """
-        if any(len(mission.staged_files) != 0
-               for mission in self.active_dataset.missions.values()) or \
-            len(self.active_dataset.staged_files) != 0:
-            raise RuntimeError('Files still in staging')
-
-        # Check that the README is present
-        readmes = [file
-                   for file in list(self.active_dataset.root.glob('*'))
-                   if re.match(fnmatch.translate('readme.*'), file.name, re.IGNORECASE)]
-
-        if len(readmes) == 0:
-            raise RuntimeError('Readme not found')
-        acceptable_exts = ['.md', '.docx']
-        if not any(readme.suffix.lower() in acceptable_exts for readme in readmes):
-            raise RuntimeError('Illegal README format')
-
-        # validate self
-        self.active_dataset.validate()
+        self.active_dataset.check_complete()
 
         # Duplicate to destination
         destination = path.joinpath(self.active_dataset.name)
@@ -320,6 +301,14 @@ class DataManager:
         Args:
             output_path (Path): Output path
         """
+        if output_path.suffix.lower() != '.zip':
+            output_path = output_path.joinpath(
+                self.active_dataset.name + '.zip')
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.active_dataset.check_complete()
+
+        self.active_dataset.create_zip(output_path)
 
     def unzip(self, input_file: Path, output_path: Path) -> None:
         """This will unzip the archived dataset to the specified root
