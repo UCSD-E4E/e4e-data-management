@@ -343,6 +343,8 @@ class DataManager:
         return items_to_remove
 
     def reset(self) -> None:
+        """Resets the active mission
+        """
         if self.active_mission:
             self.active_mission.reset()
             self.save()

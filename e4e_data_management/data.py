@@ -309,6 +309,8 @@ class Mission:
         return committed_files
 
     def reset(self) -> None:
+        """Resets the mission
+        """
         self.staged_files = set()
 
 
