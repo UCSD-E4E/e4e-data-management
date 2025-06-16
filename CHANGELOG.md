@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.3.0 (2025-06-16)
+
+### Feature
+
+* feat: introduce &#39;e4edm reset&#39; ([`162e826`](https://github.com/UCSD-E4E/e4e-data-management/commit/162e826ae583f826b2768e92dfc860aa0dd8b5fe))
+
 ## v0.2.1 (2025-03-02)
 
 ### Chore
