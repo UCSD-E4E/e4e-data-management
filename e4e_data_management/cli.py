@@ -55,6 +55,7 @@ class DataManagerCLI:
                 'unzip',
                 'prune',
                 'ls',
+                'reset'
             ]
             self.parameters = [
                 Parameter(
@@ -91,6 +92,7 @@ class DataManagerCLI:
             self.__configure_activate_parser(parsers['activate'])
             self.__configure_ls_parser(parsers['ls'])
             self.__configure_validate_parser(parsers['validate'])
+            self.__configure_reset_parser(parsers['reset'])
             # self.__configure_zip_parser(parsers['zip'])
             # self.__configure_unzip_parser(parsers['unzip'])
 
@@ -420,6 +422,9 @@ class DataManagerCLI:
                             help=f'Dataset location, defaults to {data_dir.as_posix()}',
                             dest='directory')
         parser.set_defaults(func=self.app.initialize_dataset)
+
+    def __configure_reset_parser(self, parser: argparse.ArgumentParser):
+        parser.set_defaults(func=self.app.reset)
 
 def main():
     """Main bootstrap

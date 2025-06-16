@@ -308,6 +308,10 @@ class Mission:
         self.staged_files = set()
         return committed_files
 
+    def reset(self) -> None:
+        self.staged_files = set()
+
+
 class Dataset:
     """Dataset
     """

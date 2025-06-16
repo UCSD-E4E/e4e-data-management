@@ -341,3 +341,8 @@ class DataManager:
                 rmtree(dataset.root)
         self.save()
         return items_to_remove
+
+    def reset(self) -> None:
+        if self.active_mission:
+            self.active_mission.reset()
+            self.save()
