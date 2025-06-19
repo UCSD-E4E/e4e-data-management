@@ -10,11 +10,12 @@ import pytest
 
 from e4e_data_management.core import DataManager
 
-
-def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
+@pytest.mark.parametrize('app_fixture_name', ['test_app', 'test_reloaded_app'])
+def test_init_dataset(app_fixture_name: str, request: pytest.FixtureRequest):
     """Tests creating the dataset
     """
-    _, app, root_dir = test_app
+    app_fixture = request.getfixturevalue(app_fixture_name)
+    _, app, root_dir = app_fixture
     date = dt.date(2023, 2, 28)
     project = 'TEST'
     location = 'San Diego'

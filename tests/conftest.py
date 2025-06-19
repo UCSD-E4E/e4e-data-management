@@ -17,6 +17,30 @@ AppFixture = namedtuple('AppFixture', ['app', 'root'])
 MockAppFixture = namedtuple('MockAppFixture', ['mock', 'app', 'root'])
 DataFixture = namedtuple('DataFixture', ['path', 'n_files', 'file_size'])
 
+@pytest.fixture(name='test_reloaded_app')
+def create_test_reloaded_app() -> MockAppFixture:
+    """Creates a mock test app reloaded from disk
+
+    Returns:
+        MockAppFixture: Mock reloaded app
+    """
+    with TemporaryDirectory() as temp_dir:
+        root_dir = Path(temp_dir).resolve()
+        DataManager.config_dir = root_dir
+        original_app = DataManager(
+            app_config_dir=root_dir
+        )
+
+        original_app.save()
+
+        reloaded_app = DataManager.load(config_dir=root_dir)
+
+        mock = Mock(reloaded_app)
+        mock.load.return_value = mock
+        mock.dirs = reloaded_app.dirs
+        mock.dataset_dir = reloaded_app.dataset_dir
+        with patch('e4e_data_management.cli.DataManager', mock):
+            yield MockAppFixture(mock, reloaded_app, root_dir)
 
 @pytest.fixture(name='test_bare_app')
 def create_test_bare_app() -> MockAppFixture:
