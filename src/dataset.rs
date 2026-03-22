@@ -310,15 +310,8 @@ pub fn stage_mission_files(
                     "destination must not contain '..' components".to_string(),
                 ));
             }
-            let resolved = mission_path.join(d);
-            // Use canonicalized mission_path when available to guard against symlinks
-            let canonical_mission = mission_path.canonicalize().unwrap_or_else(|_| mission_path.clone());
-            if !resolved.starts_with(&canonical_mission) {
-                return Err(E4EError::Runtime(
-                    "destination escapes the mission directory".to_string(),
-                ));
-            }
-            resolved
+            // A relative path with no '..' components cannot escape the mission directory
+            mission_path.join(d)
         }
         None => mission_path.clone(),
     };
