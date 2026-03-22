@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 use crate::errors::Result;
+use crate::utils::convert_to_4space_indent;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ManifestEntry {
@@ -69,25 +70,6 @@ pub fn write_manifest(path: &Path, data: &ManifestData) -> Result<()> {
     let content4 = convert_to_4space_indent(&content);
     fs::write(path, content4)?;
     Ok(())
-}
-
-/// Convert 2-space JSON indentation to 4-space.
-fn convert_to_4space_indent(s: &str) -> String {
-    let mut result = String::with_capacity(s.len() * 2);
-    for line in s.lines() {
-        // Count leading spaces
-        let leading = line.len() - line.trim_start_matches(' ').len();
-        // Each 2 leading spaces becomes 4
-        let new_leading = leading * 2;
-        result.push_str(&" ".repeat(new_leading));
-        result.push_str(line.trim_start());
-        result.push('\n');
-    }
-    // Remove trailing newline if original didn't have one
-    if !s.ends_with('\n') && result.ends_with('\n') {
-        result.pop();
-    }
-    result
 }
 
 /// Read existing manifest, add new entries, write back.
@@ -349,7 +331,7 @@ mod tests {
         assert!(validate_manifest(&data, dir.path(), &[file], "crc32").is_err());
     }
 
-    // ── convert_to_4space_indent (private, tested here) ─────────
+    // ── convert_to_4space_indent (shared utility, tested here) ──
 
     #[test]
     fn indent_conversion_doubles_leading_spaces() {

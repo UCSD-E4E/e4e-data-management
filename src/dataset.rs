@@ -471,6 +471,15 @@ pub fn commit_dataset_files(state: &mut DatasetState) -> Result<Vec<PathBuf>> {
                     fs::create_dir_all(parent)?;
                 }
                 fs::copy(&file, &dst)?;
+                // Verify copy integrity using size
+                let src_size = fs::metadata(&file)?.len();
+                let dst_size = fs::metadata(&dst)?.len();
+                if src_size != dst_size {
+                    return Err(E4EError::Runtime(format!(
+                        "Copy size mismatch: {}",
+                        file.display()
+                    )));
+                }
                 committed.push(dst);
             }
         }
