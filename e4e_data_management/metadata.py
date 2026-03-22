@@ -8,8 +8,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict
 
-import schema
-
 
 @dataclass
 class Metadata:
@@ -68,26 +66,20 @@ class Metadata:
         Returns:
             Metadata: Loaded metadata file
         """
-        metadata_schema = schema.Schema({
-            'timestamp': str,
-            'device': str,
-            'country': str,
-            'region': str,
-            'site': str,
-            'mission': str,
-            'properties': dict,
-            'notes': str
-        })
+        required_keys = {'timestamp', 'device', 'country', 'region', 'site', 'mission',
+                         'properties', 'notes'}
         with open(directory.joinpath('metadata.json'), 'r', encoding='ascii') as handle:
             data = json.load(handle)
-        metadata = metadata_schema.validate(data)
+        missing = required_keys - set(data.keys())
+        if missing:
+            raise ValueError(f'metadata.json missing keys: {missing}')
         return Metadata(
-            timestamp=dt.datetime.fromisoformat(metadata['timestamp']),
-            device=metadata['device'],
-            country=metadata['country'],
-            region=metadata['region'],
-            site=metadata['site'],
-            mission=metadata['mission'],
-            properties=metadata['properties'],
-            notes=metadata['notes']
+            timestamp=dt.datetime.fromisoformat(data['timestamp']),
+            device=data['device'],
+            country=data['country'],
+            region=data['region'],
+            site=data['site'],
+            mission=data['mission'],
+            properties=data['properties'],
+            notes=data['notes']
         )

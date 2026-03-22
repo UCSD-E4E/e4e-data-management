@@ -56,7 +56,7 @@ def test_create_multiple_missions(test_app: Tuple[Mock, DataManager, Path]):
     dataset_dir = root.joinpath('2023.03.01.TEST.San Diego')
     current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
     expected_files = sorted([
-        Path('.e4edm.pkl'),
+        Path('.e4edm.db'),
         Path('manifest.json'),
         Path('ED-00'),
         Path('ED-00', 'TCMM001'),
@@ -112,7 +112,7 @@ def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
     dataset_dir = root.joinpath('2023.03.01.TEST.San Diego')
     current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
     expected_files = sorted([
-        Path('.e4edm.pkl'),
+        Path('.e4edm.db'),
         Path('manifest.json'),
         Path('ED-00'),
         Path('ED-00', 'TCM001'),
@@ -128,7 +128,7 @@ def test_create_mission(test_app: Tuple[Mock, DataManager, Path]):
     metadata = root.joinpath('2023.03.01.TEST.San Diego', 'ED-00', 'TCM001', 'metadata.json')
     assert metadata.relative_to(root.joinpath('2023.03.01.TEST.San Diego')).as_posix() in manifest
 
-    config = root.joinpath('2023.03.01.TEST.San Diego', '.e4edm.pkl')
+    config = root.joinpath('2023.03.01.TEST.San Diego', '.e4edm.db')
     config_entry = config.relative_to(root.joinpath('2023.03.01.TEST.San Diego')).as_posix()
     assert config_entry not in manifest
 
