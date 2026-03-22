@@ -202,30 +202,6 @@ impl DatasetDb {
         Ok(missions)
     }
 
-    pub fn get_mission(&self, name: &str) -> Result<MissionRecord> {
-        let row = self.conn.query_row(
-            "SELECT name, path, timestamp, device, country, region, site, mission_name, properties, notes \
-             FROM missions WHERE name=?1",
-            params![name],
-            |row| {
-                Ok(MissionRecord {
-                    name: row.get(0)?,
-                    path: row.get(1)?,
-                    metadata: MetadataRecord {
-                        timestamp: row.get(2)?,
-                        device: row.get(3)?,
-                        country: row.get(4)?,
-                        region: row.get(5)?,
-                        site: row.get(6)?,
-                        mission_name: row.get(7)?,
-                        properties: row.get(8)?,
-                        notes: row.get(9)?,
-                    },
-                })
-            },
-        )?;
-        Ok(row)
-    }
 
     // ── mission staged files ───────────────────────────────────
 

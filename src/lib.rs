@@ -436,6 +436,7 @@ impl PyDataManager {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn initialize_mission(
         &mut self,
         timestamp: &str,
@@ -587,6 +588,7 @@ impl PyDataManager {
         Ok(output)
     }
 
+    #[pyo3(signature = (dataset, day=None, mission=None, root_dir=None))]
     fn activate(
         &mut self,
         dataset: &str,
@@ -597,8 +599,7 @@ impl PyDataManager {
         // Find or load the dataset
         let ds_state = if self.inner.find_dataset(dataset).is_some() {
             let info = self.inner.find_dataset(dataset).cloned().unwrap();
-            let state = dataset::load_dataset_state(&PathBuf::from(&info.root_path))?;
-            state
+            dataset::load_dataset_state(&PathBuf::from(&info.root_path))?
         } else if let Some(ref rdir) = root_dir {
             let dataset_path = PathBuf::from(rdir).join(dataset);
             if !dataset_path.is_dir() {
@@ -658,6 +659,7 @@ impl PyDataManager {
         Ok(())
     }
 
+    #[pyo3(signature = (paths, readme, destination=None))]
     fn add(
         &mut self,
         paths: Vec<String>,

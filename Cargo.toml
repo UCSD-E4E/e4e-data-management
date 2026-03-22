@@ -20,3 +20,11 @@ thiserror = "2"
 
 [dev-dependencies]
 tempfile = "3"
+
+[lints.rust]
+# create_exception! internally uses #[cfg(feature = "gil-refs")] in pyo3 0.22
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("gil-refs"))'] }
+
+[lints.clippy]
+# PyO3 #[pymethods] PyResult<T> return types trigger a false positive
+useless_conversion = "allow"

@@ -1,0 +1,18 @@
+name: Cargo Test
+
+on: [push, workflow_dispatch]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: astral-sh/setup-uv@v5
+      with:
+        python-version: "3.12"
+    - name: Run Rust unit tests
+      run: uv run cargo test --lib
