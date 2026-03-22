@@ -59,6 +59,8 @@ class Manifest:
             elif method == 'size':
                 if file.lstat().st_size != manifest[file_key]['size']:
                     return False
+            else:
+                raise NotImplementedError(f'Unknown validation method: {method}')
         return True
 
     @staticmethod

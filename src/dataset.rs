@@ -298,7 +298,28 @@ pub fn stage_mission_files(
 
     let mission_path = PathBuf::from(&state.missions[mission_idx].record.path);
     let dst = match destination {
-        Some(d) => mission_path.join(d),
+        Some(d) => {
+            // Reject absolute paths and path components that would escape the mission directory
+            if d.is_absolute() {
+                return Err(E4EError::Runtime(
+                    "destination must be a relative path".to_string(),
+                ));
+            }
+            if d.components().any(|c| c == std::path::Component::ParentDir) {
+                return Err(E4EError::Runtime(
+                    "destination must not contain '..' components".to_string(),
+                ));
+            }
+            let resolved = mission_path.join(d);
+            // Use canonicalized mission_path when available to guard against symlinks
+            let canonical_mission = mission_path.canonicalize().unwrap_or_else(|_| mission_path.clone());
+            if !resolved.starts_with(&canonical_mission) {
+                return Err(E4EError::Runtime(
+                    "destination escapes the mission directory".to_string(),
+                ));
+            }
+            resolved
+        }
         None => mission_path.clone(),
     };
 
@@ -338,10 +359,13 @@ pub fn stage_mission_files(
         }
     }
 
-    // Merge new staged files with existing ones (dedup on target_path)
+    // Merge new staged files with existing ones (replace on matching target_path)
     let existing = &mut state.missions[mission_idx].staged_files;
     for sf in &new_staged {
-        if !existing.iter().any(|e| e.target_path == sf.target_path) {
+        if let Some(pos) = existing.iter().position(|e| e.target_path == sf.target_path) {
+            // Replace the existing entry for this target_path with the newly staged file
+            existing[pos] = sf.clone();
+        } else {
             existing.push(sf.clone());
         }
     }

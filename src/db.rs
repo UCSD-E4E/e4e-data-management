@@ -90,7 +90,8 @@ impl DatasetDb {
             CREATE TABLE IF NOT EXISTS mission_committed_files (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 mission_name    TEXT NOT NULL,
-                path            TEXT NOT NULL
+                path            TEXT NOT NULL,
+                UNIQUE(mission_name, path)
             );
 
             CREATE TABLE IF NOT EXISTS dataset_staged_files (

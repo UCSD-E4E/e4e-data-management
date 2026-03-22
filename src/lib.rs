@@ -402,9 +402,15 @@ impl PyDataManager {
                 "Invalid date string",
             ));
         }
-        let y: u32 = date_parts[0].parse().unwrap_or(0);
-        let m: u32 = date_parts[1].parse().unwrap_or(0);
-        let d: u32 = date_parts[2].parse().unwrap_or(0);
+        let y: u32 = date_parts[0].parse().map_err(|_| {
+            pyo3::exceptions::PyRuntimeError::new_err("Invalid year component in date string")
+        })?;
+        let m: u32 = date_parts[1].parse().map_err(|_| {
+            pyo3::exceptions::PyRuntimeError::new_err("Invalid month component in date string")
+        })?;
+        let d: u32 = date_parts[2].parse().map_err(|_| {
+            pyo3::exceptions::PyRuntimeError::new_err("Invalid day component in date string")
+        })?;
         let dataset_name = format!("{:04}.{:02}.{:02}.{}.{}", y, m, d, project, location);
 
         // Check duplicate
