@@ -11,6 +11,7 @@ mod errors;
 mod manifest;
 mod metadata;
 mod manager;
+mod utils;
 
 use db::{DatasetInfo, StagedFileRecord};
 use dataset::{DatasetState, MissionState};
@@ -22,9 +23,10 @@ use metadata::MetadataRecord;
 // Python exceptions
 // ─────────────────────────────────────────────────────────────
 
-create_exception!(_core, MissionFilesInStaging, pyo3::exceptions::PyException);
-create_exception!(_core, ReadmeFilesInStaging, pyo3::exceptions::PyException);
-create_exception!(_core, ReadmeNotFound, pyo3::exceptions::PyException);
+create_exception!(_core, Incomplete, pyo3::exceptions::PyException);
+create_exception!(_core, MissionFilesInStaging, Incomplete);
+create_exception!(_core, ReadmeFilesInStaging, Incomplete);
+create_exception!(_core, ReadmeNotFound, Incomplete);
 create_exception!(_core, CorruptedDataset, pyo3::exceptions::PyException);
 
 impl From<E4EError> for PyErr {
@@ -856,6 +858,7 @@ impl PyDataManager {
 
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add("Incomplete", m.py().get_type_bound::<Incomplete>())?;
     m.add(
         "MissionFilesInStaging",
         m.py().get_type_bound::<MissionFilesInStaging>(),

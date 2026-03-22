@@ -12,6 +12,9 @@ jobs:
     permissions:
       id-token: write
       contents: write
+    outputs:
+      released: ${{ steps.psr.outputs.released }}
+      tag: ${{ steps.psr.outputs.tag }}
 
     steps:
     - uses: actions/checkout@v4
