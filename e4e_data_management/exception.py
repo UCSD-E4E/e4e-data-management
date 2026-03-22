@@ -1,28 +1,12 @@
 '''E4E Data Management Exceptions
 '''
-from abc import ABC
+from e4e_data_management._core import (
+    MissionFilesInStaging,
+    ReadmeFilesInStaging,
+    ReadmeNotFound,
+    CorruptedDataset,
+)
 
 
-class Incomplete(Exception, ABC):
-    """Dataset not complete
-    """
-
-
-class MissionFilesInStaging(Incomplete):
-    """Mission files still in staging area
-    """
-
-
-class ReadmeFilesInStaging(Incomplete):
-    """Readme files still in staging area
-    """
-
-
-class ReadmeNotFound(Incomplete):
-    """Readme files not found
-    """
-
-
-class CorruptedDataset(Exception):
-    """Corrupted Dataset
-    """
+class Incomplete(Exception):
+    """Dataset not complete"""
