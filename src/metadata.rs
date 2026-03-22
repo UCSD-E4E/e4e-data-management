@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::errors::Result;
+use crate::utils::convert_to_4space_indent;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MetadataRecord {
@@ -69,22 +70,6 @@ pub fn read_metadata(dir: &Path) -> Result<MetadataRecord> {
         properties,
         notes: json_obj.notes,
     })
-}
-
-/// Convert 2-space JSON indentation to 4-space (matches Python json.dump indent=4).
-pub fn convert_to_4space_indent(s: &str) -> String {
-    let mut result = String::with_capacity(s.len() * 2);
-    for line in s.lines() {
-        let leading = line.len() - line.trim_start_matches(' ').len();
-        let new_leading = leading * 2;
-        result.push_str(&" ".repeat(new_leading));
-        result.push_str(line.trim_start());
-        result.push('\n');
-    }
-    if !s.ends_with('\n') && result.ends_with('\n') {
-        result.pop();
-    }
-    result
 }
 
 #[cfg(test)]

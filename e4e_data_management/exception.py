@@ -5,6 +5,7 @@ from e4e_data_management._core import (
     ReadmeFilesInStaging,
     ReadmeNotFound,
     CorruptedDataset,
+    Incomplete,
 )
 
 __all__ = [
@@ -14,7 +15,3 @@ __all__ = [
     'CorruptedDataset',
     'Incomplete',
 ]
-
-
-class Incomplete(Exception):
-    """Dataset not complete"""
