@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::db::{DatasetInfo, ManagerDb};
-use crate::errors::{E4EError, Result};
+use crate::errors::Result;
 
 /// Current manager schema version.
 const VERSION: i32 = 2;
@@ -110,21 +110,7 @@ impl DataManagerState {
         Ok(())
     }
 
-    /// Return the root path for an active dataset name.
-    pub fn active_dataset_root(&self) -> Result<Option<PathBuf>> {
-        match &self.active_dataset_name {
-            None => Ok(None),
-            Some(name) => {
-                match self.find_dataset(name) {
-                    Some(info) => Ok(Some(PathBuf::from(&info.root_path))),
-                    None => Err(E4EError::Runtime(format!(
-                        "Active dataset '{}' not found in registry",
-                        name
-                    ))),
-                }
-            }
-        }
-    }
+
 }
 
 

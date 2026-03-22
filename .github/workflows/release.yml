@@ -19,9 +19,46 @@ jobs:
         fetch-depth: 0
         token: ${{ secrets.RELEASER }}
 
+    - uses: dtolnay/rust-toolchain@stable
+
+    - uses: astral-sh/setup-uv@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: uv sync --dev
 
     - name: Python Semantic Release
+      id: psr
       uses: python-semantic-release/python-semantic-release@v9.8.6
       with:
         github_token: ${{ secrets.RELEASER }}
         root_options: "-vv"
+
+  build-wheels:
+    name: Build wheels (${{ matrix.os }})
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ needs.release.outputs.tag }}
+        token: ${{ secrets.RELEASER }}
+
+    - uses: PyO3/maturin-action@v1
+      with:
+        command: build
+        args: --release --out dist
+        manylinux: auto
+
+    - name: Upload wheels to release
+      env:
+        GH_TOKEN: ${{ secrets.RELEASER }}
+      run: gh release upload ${{ needs.release.outputs.tag }} dist/*.whl
