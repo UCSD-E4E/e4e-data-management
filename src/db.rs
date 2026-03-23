@@ -210,14 +210,19 @@ impl DatasetDb {
         mission_name: &str,
         files: &[StagedFileRecord],
     ) -> Result<()> {
-        self.clear_mission_staged_files(mission_name)?;
+        let tx = self.conn.unchecked_transaction()?;
+        tx.execute(
+            "DELETE FROM mission_staged_files WHERE mission_name=?1",
+            params![mission_name],
+        )?;
         for f in files {
-            self.conn.execute(
+            tx.execute(
                 "INSERT OR IGNORE INTO mission_staged_files \
                  (mission_name, origin_path, target_path, hash) VALUES (?1, ?2, ?3, ?4)",
                 params![mission_name, f.origin_path, f.target_path, f.hash],
             )?;
         }
+        tx.commit()?;
         Ok(())
     }
 
@@ -255,12 +260,14 @@ impl DatasetDb {
         mission_name: &str,
         files: &[String],
     ) -> Result<()> {
+        let tx = self.conn.unchecked_transaction()?;
         for f in files {
-            self.conn.execute(
+            tx.execute(
                 "INSERT OR IGNORE INTO mission_committed_files (mission_name, path) VALUES (?1, ?2)",
                 params![mission_name, f],
             )?;
         }
+        tx.commit()?;
         Ok(())
     }
 
@@ -279,13 +286,15 @@ impl DatasetDb {
     // ── dataset staged files ───────────────────────────────────
 
     pub fn set_dataset_staged_files(&self, files: &[String]) -> Result<()> {
-        self.clear_dataset_staged_files()?;
+        let tx = self.conn.unchecked_transaction()?;
+        tx.execute("DELETE FROM dataset_staged_files", [])?;
         for f in files {
-            self.conn.execute(
+            tx.execute(
                 "INSERT OR IGNORE INTO dataset_staged_files (path) VALUES (?1)",
                 params![f],
             )?;
         }
+        tx.commit()?;
         Ok(())
     }
 
@@ -307,12 +316,14 @@ impl DatasetDb {
     // ── dataset committed files ────────────────────────────────
 
     pub fn add_dataset_committed_files(&self, files: &[String]) -> Result<()> {
+        let tx = self.conn.unchecked_transaction()?;
         for f in files {
-            self.conn.execute(
+            tx.execute(
                 "INSERT OR IGNORE INTO dataset_committed_files (path) VALUES (?1)",
                 params![f],
             )?;
         }
+        tx.commit()?;
         Ok(())
     }
 
