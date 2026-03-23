@@ -40,8 +40,7 @@ class DataManagerCLI:
         try:
             self.app = DataManager.load()
             commands = [
-                'init_dataset',
-                'init_mission',
+                'init',
                 'status',
                 'list',
                 'config',
@@ -79,8 +78,7 @@ class DataManagerCLI:
             subparsers = self.parser.add_subparsers()
             parsers = {cmd:subparsers.add_parser(cmd) for cmd in commands}
 
-            self.__configure_init_dataset_parser(parsers['init_dataset'])
-            self.__configure_init_mission_parser(parsers['init_mission'])
+            self.__configure_init_parser(parsers['init'])
             self.__configure_status_parser(parsers['status'])
             self.__configure_list_parser(parsers['list'])
             self.__configure_add_parser(parsers['add'])
@@ -402,6 +400,12 @@ class DataManagerCLI:
                             default='',
                             dest='notes')
         parser.set_defaults(func=self.init_mission_cmd)
+
+    def __configure_init_parser(self, parser: argparse.ArgumentParser):
+        subparsers = parser.add_subparsers()
+        self.__configure_init_dataset_parser(subparsers.add_parser('dataset'))
+        self.__configure_init_mission_parser(subparsers.add_parser('mission'))
+        parser.set_defaults(func=parser.print_help)
 
     def __configure_init_dataset_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument(

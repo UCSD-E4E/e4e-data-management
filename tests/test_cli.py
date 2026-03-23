@@ -20,7 +20,7 @@ def test_init_dataset(test_bare_app: Tuple[Mock, DataManager, Path]):
     """Tests initialize dataset
     """
     mock, _, _ = test_bare_app
-    args = split('e4edm init_dataset --date 2023-03-02 --project "TEST" --location "San Diego"')
+    args = split('e4edm init dataset --date 2023-03-02 --project "TEST" --location "San Diego"')
     with patch('sys.argv', args):
         main()
         mock.initialize_dataset.assert_called_once_with(
@@ -40,7 +40,7 @@ def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
         test_app (Tuple[Mock, DataManager, Path]): Test application
     """
     mock, _, _ = test_app
-    args = split('e4edm init_dataset --date today --project TEST --location Location')
+    args = split('e4edm init dataset --date today --project TEST --location Location')
     with patch('sys.argv', args):
         main()
         mock.initialize_dataset.assert_called_once_with(
@@ -54,7 +54,7 @@ def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
         )
 
 def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
-    """Tests that `e4edm init_mission` properly calls DataManager.initialize_mission
+    """Tests that `e4edm init mission` properly calls DataManager.initialize_mission
 
     Args:
         test_app (Tuple[Mock, DataManager, Path]): Test application
@@ -68,7 +68,7 @@ def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
         directory=root_dir
     )
 
-    args = split('e4edm init_mission --timestamp 2023-03-02T15:06-08:00 --device Device1 '
+    args = split('e4edm init mission --timestamp 2023-03-02T15:06-08:00 --device Device1 '
                 '--country USA --region California --site SD --name RUN001')
     with patch('sys.argv', args):
         main()
