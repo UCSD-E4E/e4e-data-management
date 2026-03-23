@@ -21,7 +21,7 @@ pub type ManifestData = HashMap<String, ManifestEntry>;
 pub fn compute_file_hash(path: &Path) -> Result<String> {
     let mut file = fs::File::open(path)?;
     let mut hasher = Sha256::new();
-    let mut buf = [0u8; 4096];
+    let mut buf = [0u8; 65536];
     loop {
         let n = file.read(&mut buf)?;
         if n == 0 {
@@ -77,6 +77,30 @@ pub fn update_manifest(path: &Path, root: &Path, files: &[PathBuf]) -> Result<()
     let mut data = read_manifest(path)?;
     let new_entries = compute_hashes(root, files)?;
     data.extend(new_entries);
+    write_manifest(path, &data)?;
+    Ok(())
+}
+
+/// Update manifest using pre-computed hashes, only stat()ing files for size.
+/// Avoids re-reading file contents when the hash is already known.
+pub fn update_manifest_with_known_hashes(
+    path: &Path,
+    root: &Path,
+    files: &[(PathBuf, String)], // (abs_path, sha256_hex)
+) -> Result<()> {
+    let mut data = read_manifest(path)?;
+    for (file, hash) in files {
+        let rel_path = file
+            .strip_prefix(root)
+            .map_err(|e| crate::errors::E4EError::Runtime(e.to_string()))?;
+        let rel_posix = rel_path
+            .components()
+            .map(|c| c.as_os_str().to_string_lossy().into_owned())
+            .collect::<Vec<_>>()
+            .join("/");
+        let size = fs::metadata(file)?.len();
+        data.insert(rel_posix, ManifestEntry { sha256sum: hash.clone(), size });
+    }
     write_manifest(path, &data)?;
     Ok(())
 }

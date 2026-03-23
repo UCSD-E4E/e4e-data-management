@@ -367,6 +367,7 @@ pub fn commit_mission_files(
     let staged = state.missions[mission_idx].staged_files.clone();
 
     let mut committed: Vec<PathBuf> = Vec::new();
+    let mut committed_with_hashes: Vec<(PathBuf, String)> = Vec::new();
     for sf in &staged {
         let src = PathBuf::from(&sf.origin_path);
         let dst = PathBuf::from(&sf.target_path);
@@ -374,7 +375,7 @@ pub fn commit_mission_files(
             fs::create_dir_all(parent)?;
         }
         fs::copy(&src, &dst)?;
-        // Verify hash
+        // Verify the copy is intact by recomputing the hash of the destination.
         let actual_hash = manifest::compute_file_hash(&dst)?;
         if actual_hash != sf.hash {
             return Err(E4EError::Runtime(format!(
@@ -382,18 +383,28 @@ pub fn commit_mission_files(
                 src.display()
             )));
         }
-        committed.push(dst);
+        committed.push(dst.clone());
+        committed_with_hashes.push((dst, sf.hash.clone()));
     }
 
-    // Update mission manifest
+    // Update mission manifest using pre-computed hashes (no re-read of file contents)
     let mission_manifest_path = mission_path.join(MANIFEST_NAME);
-    manifest::update_manifest(&mission_manifest_path, &mission_path, &committed)?;
+    manifest::update_manifest_with_known_hashes(
+        &mission_manifest_path,
+        &mission_path,
+        &committed_with_hashes,
+    )?;
 
-    // Update dataset manifest with mission's new data files AND mission manifest
-    let dataset_manifest_path = state.root.join(MANIFEST_NAME);
-    let mut dataset_update_files = committed.clone();
-    dataset_update_files.push(mission_manifest_path);
-    manifest::update_manifest(&dataset_manifest_path, &state.root, &dataset_update_files)?;
+    // Update dataset manifest: data files reuse staged hashes; mission manifest was just
+    // rewritten so its hash must be freshly computed (it's small, one hash is fine).
+    let mission_manifest_hash = manifest::compute_file_hash(&mission_manifest_path)?;
+    let mut dataset_update = committed_with_hashes;
+    dataset_update.push((mission_manifest_path, mission_manifest_hash));
+    manifest::update_manifest_with_known_hashes(
+        &state.root.join(MANIFEST_NAME),
+        &state.root,
+        &dataset_update,
+    )?;
 
     // Update state
     let relative_committed: Vec<String> = committed

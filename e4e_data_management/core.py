@@ -2,6 +2,7 @@
 '''
 import datetime as dt
 import json
+import logging
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Set
 
@@ -137,6 +138,7 @@ class DataManager:
             app_config_dir = Path(self.dirs.user_config_dir)
         default_dataset_dir = str(Path(self.dirs.user_data_dir))
         self._inner = _DataManager(str(app_config_dir), default_dataset_dir)
+        self._log = logging.getLogger('e4edm.core')
 
     @classmethod
     def load(cls, *, config_dir=None) -> 'DataManager':
@@ -144,6 +146,7 @@ class DataManager:
             config_dir = cls.config_dir or Path(cls.dirs.user_config_dir)
         obj = cls.__new__(cls)
         obj._inner = _DataManager.load(str(config_dir))
+        obj._log = logging.getLogger('e4edm.core')
         return obj
 
     def save(self) -> None:
@@ -181,6 +184,9 @@ class DataManager:
 
     def initialize_dataset(self, date: dt.date, project: str, location: str,
                            directory: Path) -> None:
+        dataset_name = f'{date.strftime("%Y.%m.%d")}.{project}.{location}'
+        dataset_path = Path(directory) / dataset_name
+        self._log.info('Initializing dataset at %s', dataset_path.as_posix())
         self._inner.initialize_dataset(
             date.isoformat(), project, location, str(directory)
         )
