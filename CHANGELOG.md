@@ -4,6 +4,8 @@
 
 ### Fix
 
+* fix: support python 3.14 ([`07b1196`](https://github.com/UCSD-E4E/e4e-data-management/commit/07b11960e1d42ffea7d23e9077704fb1d8da113c))
+
 * fix: suppress pylint R0904 too-many-public-methods on DataManager
 
 Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/dba4a1e9-344a-4780-ac99-f3fc27bd5861
