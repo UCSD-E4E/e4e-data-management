@@ -1,5 +1,40 @@
 # CHANGELOG
 
+## v0.4.1 (2026-03-28)
+
+### Fix
+
+* fix: suppress pylint R0904 too-many-public-methods on DataManager
+
+Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/dba4a1e9-344a-4780-ac99-f3fc27bd5861
+
+Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`8f9ecaf`](https://github.com/UCSD-E4E/e4e-data-management/commit/8f9ecaf0eb8e1b8e321c6e8687dbe2355c9e223c))
+
+* fix: upgrade PyO3 to 0.23 to support Python 3.14
+
+- Update pyo3 from 0.22 to 0.23 in Cargo.toml
+- Update Cargo.lock (pyo3 0.22.6 -&gt; 0.23.5)
+- Remove gil-refs lint workaround that was specific to pyo3 0.22
+- Fix deprecated API calls: new_bound -&gt; new, get_type_bound -&gt; get_type
+
+Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/2cff3a6a-a487-47b5-bdb5-fb8b58ca7b0b
+
+Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`523a514`](https://github.com/UCSD-E4E/e4e-data-management/commit/523a514417b245dd92e320381a0ce0cf638ef48e))
+
+### Unknown
+
+* Merge pull request #115 from UCSD-E4E/copilot/fix-pylint-errors
+
+Fix pylint R0904: too-many-public-methods on DataManager ([`6eaf3f5`](https://github.com/UCSD-E4E/e4e-data-management/commit/6eaf3f5cf7ba406b01ed4afb1aeaf94c31739852))
+
+* Initial plan ([`4f58ec6`](https://github.com/UCSD-E4E/e4e-data-management/commit/4f58ec6e730a7a11a92c11f9a8a7e94861eb0aac))
+
+* Merge pull request #117 from UCSD-E4E/copilot/fix-pipx-install-errors
+
+fix: upgrade PyO3 to 0.23 to support Python 3.14 ([`40a314f`](https://github.com/UCSD-E4E/e4e-data-management/commit/40a314f6dfb1a4a64c91c221673a6f02cdc9eb14))
+
+* Initial plan ([`256f734`](https://github.com/UCSD-E4E/e4e-data-management/commit/256f7341495487830cb46ec654e6e98f7f012dd1))
+
 ## v0.4.0 (2026-03-28)
 
 ### Chore
