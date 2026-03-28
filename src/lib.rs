@@ -1,18 +1,13 @@
-use std::fs;
-use std::path::PathBuf;
-
-use pyo3::create_exception;
-use pyo3::prelude::*;
-use pyo3::types::PyDict;
-
 mod db;
 mod dataset;
 mod errors;
+mod ffi;
 mod manifest;
 mod metadata;
 mod manager;
 mod utils;
 
+<<<<<<< HEAD
 use db::{DatasetInfo, StagedFileRecord};
 use dataset::{DatasetState, MissionState};
 use errors::E4EError;

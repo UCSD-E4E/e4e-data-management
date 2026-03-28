@@ -1,7 +1,8 @@
 use std::path::{Path, PathBuf};
 
+use crate::dataset::{self, DatasetState};
 use crate::db::{DatasetInfo, ManagerDb};
-use crate::errors::Result;
+use crate::errors::{E4EError, Result};
 
 /// Current manager schema version.
 const VERSION: i32 = 2;
@@ -12,6 +13,7 @@ pub struct DataManagerState {
     pub active_dataset_name: Option<String>,
     pub active_mission_name: Option<String>,
     pub dataset_dir: PathBuf,
+    #[cfg_attr(not(feature = "python"), allow(dead_code))]
     pub version: i32,
     pub dataset_infos: Vec<DatasetInfo>,
 }
@@ -113,6 +115,71 @@ impl DataManagerState {
 
 }
 
+/// Combined state for both the manager and the currently active dataset/mission.
+/// Holds the two shared helper methods so both the PyO3 and C FFI layers can delegate
+/// to a single implementation.
+#[cfg_attr(not(feature = "python"), allow(dead_code))]
+pub struct DataManager {
+    pub state: DataManagerState,
+    pub active_dataset: Option<DatasetState>,
+    pub active_mission_name: Option<String>,
+}
+
+#[cfg_attr(not(feature = "python"), allow(dead_code))]
+impl DataManager {
+    /// Creates a fresh DataManager and persists its state.
+    pub fn new(config_dir: &Path, default_dataset_dir: &Path) -> Result<Self> {
+        let state = DataManagerState::new(config_dir, default_dataset_dir)?;
+        Ok(DataManager { state, active_dataset: None, active_mission_name: None })
+    }
+
+    /// Loads an existing DataManager from `config_dir/config.db`.
+    pub fn load(config_dir: &Path) -> Result<Self> {
+        let state = DataManagerState::load(config_dir)?;
+        let active_mission_name = state.active_mission_name.clone().filter(|s| !s.is_empty());
+        Ok(DataManager { state, active_dataset: None, active_mission_name })
+    }
+
+    /// Load or refresh the active dataset state from disk.
+    pub fn ensure_active_dataset(&mut self) -> Result<&mut DatasetState> {
+        if self.active_dataset.is_none() {
+            if let Some(name) = &self.state.active_dataset_name.clone() {
+                if !name.is_empty() {
+                    if let Some(info) = self.state.find_dataset(name).cloned() {
+                        let ds = dataset::load_dataset_state(&PathBuf::from(&info.root_path))?;
+                        self.active_dataset = Some(ds);
+                    }
+                }
+            }
+        }
+        self.active_dataset
+            .as_mut()
+            .ok_or_else(|| E4EError::Runtime("Dataset not active".to_string()))
+    }
+
+    /// Sync the active dataset's metadata back into the manager's dataset_infos list.
+    pub fn sync_active_dataset_info(&mut self) {
+        if let (Some(ds), Some(name)) =
+            (&self.active_dataset, &self.state.active_dataset_name.clone())
+        {
+            if name.is_empty() {
+                return;
+            }
+            let info = DatasetInfo {
+                name: name.clone(),
+                root_path: ds.root.to_string_lossy().into_owned(),
+                pushed: ds.pushed,
+                last_country: ds.last_country.clone(),
+                last_region: ds.last_region.clone(),
+                last_site: ds.last_site.clone(),
+                day_0: Some(ds.day_0.clone()),
+            };
+            if let Some(existing) = self.state.dataset_infos.iter_mut().find(|d| d.name == *name) {
+                *existing = info;
+            }
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
