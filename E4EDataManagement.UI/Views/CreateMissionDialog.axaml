@@ -1,0 +1,101 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:E4EDataManagement.UI.ViewModels"
+        x:Class="E4EDataManagement.UI.Views.CreateMissionDialog"
+        x:DataType="vm:CreateMissionViewModel"
+        Title="Create Mission"
+        Width="460"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="Height">
+
+    <Grid RowDefinitions="*,Auto" Margin="16">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="100,*"
+              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="Timestamp:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding Timestamp}"
+                     Watermark="2024-03-15T09:00:00Z"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0"
+                       Text="Device:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     Text="{Binding Device}"
+                     Watermark="reef-laser-01"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0"
+                       Text="Country:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="2" Grid.Column="1"
+                     Text="{Binding Country}"
+                     Watermark="US"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0"
+                       Text="Region:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="3" Grid.Column="1"
+                     Text="{Binding Region}"
+                     Watermark="Pacific"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0"
+                       Text="Site:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="4" Grid.Column="1"
+                     Text="{Binding Site}"
+                     Watermark="North Beach"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="5" Grid.Column="0"
+                       Text="Mission Name:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="5" Grid.Column="1"
+                     Text="{Binding MissionName}"
+                     Watermark="(optional)"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="6" Grid.Column="0"
+                       Text="Notes:"
+                       VerticalAlignment="Top"
+                       Margin="0,4,10,0" />
+            <TextBox Grid.Row="6" Grid.Column="1"
+                     Text="{Binding Notes}"
+                     Watermark="(optional)"
+                     AcceptsReturn="True"
+                     Height="60"
+                     TextWrapping="Wrap" />
+
+        </Grid>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+            <Button Content="Cancel"
+                    Name="CancelButton"
+                    Width="80" />
+            <Button Content="Create"
+                    Name="OkButton"
+                    Width="80"
+                    IsEnabled="{Binding CanConfirm}"
+                    IsDefault="True" />
+        </StackPanel>
+
+    </Grid>
+</Window>

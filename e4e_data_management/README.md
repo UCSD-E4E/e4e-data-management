@@ -46,8 +46,10 @@ uv run e4edm --help
 
 State is persisted in a SQLite database (`.e4edm.db`) inside each dataset directory, and a manager config database (`config.db`) under the user config directory:
 
-- **Linux/macOS:** `~/.config/Engineers for Exploration/E4EDataManagement/`
-- **Windows:** `%APPDATA%\Engineers for Exploration\E4EDataManagement\`
+| Platform | Path |
+|----------|------|
+| Linux/macOS | `$XDG_CONFIG_HOME/E4EDataManagement/` (defaults to `~/.config/E4EDataManagement/`) |
+| Windows | `%APPDATA%\Engineers for Exploration\E4EDataManagement\` |
 
 ---
 

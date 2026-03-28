@@ -1,0 +1,79 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:E4EDataManagement.UI.ViewModels"
+        x:Class="E4EDataManagement.UI.Views.CreateDatasetDialog"
+        x:DataType="vm:CreateDatasetViewModel"
+        Title="Create Dataset"
+        Width="460"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="Height">
+
+    <Grid RowDefinitions="*,Auto" Margin="16">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="140,*"
+              RowDefinitions="Auto,Auto,Auto,Auto">
+
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="Date (YYYY-MM-DD):"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding Date}"
+                     Watermark="2024-03-15"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0"
+                       Text="Project:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     Text="{Binding Project}"
+                     Watermark="ReefLaser"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0"
+                       Text="Location:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,8" />
+            <TextBox Grid.Row="2" Grid.Column="1"
+                     Text="{Binding Location}"
+                     Watermark="Palmyra"
+                     Margin="0,0,0,8" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0"
+                       Text="Directory:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0" />
+            <Grid Grid.Row="3" Grid.Column="1"
+                  ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0"
+                         Text="{Binding Directory}"
+                         Watermark="/data/datasets"
+                         Margin="0,0,4,0" />
+                <Button Grid.Column="1"
+                        Content="…"
+                        Name="BrowseButton"
+                        Width="32" />
+            </Grid>
+
+        </Grid>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+            <Button Content="Cancel"
+                    Name="CancelButton"
+                    Width="80" />
+            <Button Content="Create"
+                    Name="OkButton"
+                    Width="80"
+                    IsEnabled="{Binding CanConfirm}"
+                    IsDefault="True" />
+        </StackPanel>
+
+    </Grid>
+</Window>

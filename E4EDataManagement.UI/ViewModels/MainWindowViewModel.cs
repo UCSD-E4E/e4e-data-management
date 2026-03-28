@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -60,6 +61,14 @@ public partial class MainWindowViewModel : ViewModelBase
         RefreshCommand.Execute(null);
     }
 
+    // ── Derived state ────────────────────────────────────────────────────────
+
+    /// <summary>True when there is a dataset currently marked active by the data manager.</summary>
+    public bool HasActiveDataset => Datasets.Any(d => d.IsActive);
+
+    /// <summary>True when the active dataset has an active mission.</summary>
+    public bool HasActiveMission => Datasets.FirstOrDefault(d => d.IsActive)?.ActiveMission != null;
+
     // ── Commands ─────────────────────────────────────────────────────────────
 
     /// <summary>Reload the dataset list and status from the native layer.</summary>
@@ -98,6 +107,9 @@ public partial class MainWindowViewModel : ViewModelBase
                 SelectedDataset = Datasets.FirstOrDefault(d => d.IsActive) ?? Datasets.FirstOrDefault();
 
             StatusText = _dm.Status();
+
+            OnPropertyChanged(nameof(HasActiveDataset));
+            OnPropertyChanged(nameof(HasActiveMission));
         }
         catch (E4EException ex)
         {
@@ -162,6 +174,61 @@ public partial class MainWindowViewModel : ViewModelBase
         catch (E4EException ex)
         {
             StatusText = $"Prune failed: {ex.Message}";
+        }
+    }
+
+    // ── Dialog execute methods (called from MainWindow code-behind) ───────────
+
+    /// <summary>Create a new dataset and set it as active.</summary>
+    public async Task ExecuteCreateDatasetAsync(
+        string date, string project, string location, string directory)
+    {
+        StatusText = "Creating dataset…";
+        try
+        {
+            await Task.Run(() => _dm.InitializeDataset(date, project, location, directory));
+            StatusText = $"Dataset {date}.{project}.{location} created.";
+            Refresh();
+        }
+        catch (E4EException ex)
+        {
+            StatusText = $"Create dataset failed: {ex.Message}";
+        }
+    }
+
+    /// <summary>Create a new mission inside the active dataset.</summary>
+    public async Task ExecuteCreateMissionAsync(
+        string timestamp, string device, string country, string region,
+        string site, string missionName, string notes)
+    {
+        StatusText = "Creating mission…";
+        try
+        {
+            await Task.Run(() =>
+                _dm.InitializeMission(timestamp, device, country, region, site, missionName, notes));
+            StatusText = "Mission created.";
+            Refresh();
+        }
+        catch (E4EException ex)
+        {
+            StatusText = $"Create mission failed: {ex.Message}";
+        }
+    }
+
+    /// <summary>Stage files into the active mission (or dataset level when readme is true).</summary>
+    public async Task ExecuteAddFilesAsync(
+        IEnumerable<string> paths, bool readme, string? destination)
+    {
+        StatusText = "Adding files…";
+        try
+        {
+            await Task.Run(() => _dm.AddFiles(paths, readme, destination));
+            StatusText = "Files added.";
+            Refresh();
+        }
+        catch (E4EException ex)
+        {
+            StatusText = $"Add files failed: {ex.Message}";
         }
     }
 }
