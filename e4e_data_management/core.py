@@ -129,7 +129,7 @@ class _DatasetView:
         return self._inner.validate_failures()
 
 
-class DataManager:
+class DataManager:  # pylint: disable=too-many-public-methods
     dirs = appdirs.AppDirs(
         appname='E4EDataManagement',
         appauthor='Engineers for Exploration'
