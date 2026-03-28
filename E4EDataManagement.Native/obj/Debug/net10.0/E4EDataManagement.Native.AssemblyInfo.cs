@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("E4EDataManagement.Native")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aa117d53acca41bd6015c23f8292a024d00a1048")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+38b05293f10020abbf1dbfeb59270aba3ffa9523")]
 [assembly: System.Reflection.AssemblyProductAttribute("E4EDataManagement.Native")]
 [assembly: System.Reflection.AssemblyTitleAttribute("E4EDataManagement.Native")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

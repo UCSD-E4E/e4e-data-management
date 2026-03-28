@@ -27,5 +27,14 @@ build_property.EnableCodeStyleSeverity =
 [/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/Views/AddFilesDialog.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/Views/CreateDatasetDialog.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/Views/CreateMissionDialog.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
