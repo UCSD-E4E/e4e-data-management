@@ -283,6 +283,70 @@ pub fn add_mission(state: &mut DatasetState, meta: &MetadataRecord) -> Result<Mi
     Ok(record)
 }
 
+/// Remove a mission from the dataset: strip its files from the dataset manifest,
+/// delete its directory from disk, and remove it from the DB.
+pub fn remove_mission(state: &mut DatasetState, mission_name: &str) -> Result<()> {
+    let idx = state
+        .missions
+        .iter()
+        .position(|m| m.record.name == mission_name)
+        .ok_or_else(|| E4EError::Runtime(format!("Mission not found: {}", mission_name)))?;
+
+    // Derive mission_path from state.root and the mission name to avoid stale
+    // absolute paths stored in the DB (e.g. from a previous TemporaryDirectory).
+    // Mission name format: "ED-{day} {mission_sub_name}" where mission_sub_name
+    // may contain slashes for nested paths like "reef-laser-03/right/box".
+    let mission_path = {
+        let parts: Vec<&str> = mission_name.splitn(2, ' ').collect();
+        if parts.len() == 2 {
+            state.root.join(parts[0]).join(parts[1])
+        } else {
+            PathBuf::from(&state.missions[idx].record.path)
+        }
+    };
+
+    // Build the posix-style relative prefix used as manifest keys (e.g. "ED-00/M1")
+    let rel_prefix = mission_path
+        .strip_prefix(&state.root)
+        .map_err(|e| E4EError::Runtime(e.to_string()))?;
+    let rel_prefix_posix = rel_prefix
+        .components()
+        .map(|c| c.as_os_str().to_string_lossy().into_owned())
+        .collect::<Vec<_>>()
+        .join("/");
+
+    // Remove all matching entries from the dataset manifest
+    let manifest_path = state.root.join(MANIFEST_NAME);
+    let mut manifest_data = manifest::read_manifest(&manifest_path)?;
+    manifest_data.retain(|k, _| !k.starts_with(&format!("{}/", rel_prefix_posix)));
+    manifest::write_manifest(&manifest_path, &manifest_data)?;
+
+    // Delete the mission directory
+    if mission_path.exists() {
+        fs::remove_dir_all(&mission_path)?;
+    }
+
+    // Remove the day directory (ED-XX) if it is now empty
+    if let Some(day_dir) = mission_path.parent() {
+        if day_dir != state.root {
+            if let Ok(mut entries) = fs::read_dir(day_dir) {
+                if entries.next().is_none() {
+                    let _ = fs::remove_dir(day_dir);
+                }
+            }
+        }
+    }
+
+    // Remove from DB
+    let db = DatasetDb::open(&state.root)?;
+    db.delete_mission(mission_name)?;
+
+    // Remove from in-memory state
+    state.missions.remove(idx);
+
+    Ok(())
+}
+
 /// Stage files for a mission (pre-compute hashes).
 pub fn stage_mission_files(
     state: &mut DatasetState,
@@ -517,10 +581,16 @@ pub fn commit_dataset_files(state: &mut DatasetState) -> Result<Vec<PathBuf>> {
 
 /// Validate the dataset against its manifest (hash check).
 pub fn validate_dataset(root: &Path) -> Result<bool> {
+    Ok(validate_dataset_failures(root)?.is_empty())
+}
+
+/// Return a list of validation failure messages for the dataset.
+/// An empty list means the dataset is valid.
+pub fn validate_dataset_failures(root: &Path) -> Result<Vec<String>> {
     let manifest_path = root.join(MANIFEST_NAME);
     let manifest_data = manifest::read_manifest(&manifest_path)?;
     let files = get_dataset_files(root);
-    manifest::validate_manifest(&manifest_data, root, &files, "hash")
+    manifest::collect_validation_failures(&manifest_data, root, &files, "hash")
 }
 
 /// Check that dataset is complete and ready to push.
@@ -572,6 +642,40 @@ pub fn check_complete(state: &DatasetState) -> Result<()> {
     Ok(())
 }
 
+/// Verify that the dataset at `dest` (if it exists) is a subset of the source dataset.
+///
+/// Every file recorded in the destination's `manifest.json` must also appear in
+/// `source_manifest` with an identical SHA-256 hash.  Returns `Ok(())` when it is
+/// safe to push (destination absent, empty, or a compatible partial copy).  Returns
+/// an error describing the first conflict found.
+pub fn check_destination_is_subset(
+    source_manifest: &manifest::ManifestData,
+    dest: &Path,
+) -> Result<()> {
+    if !dest.exists() {
+        return Ok(());
+    }
+    let dest_manifest = manifest::read_manifest(&dest.join(MANIFEST_NAME))?;
+    for (rel_path, dest_entry) in &dest_manifest {
+        match source_manifest.get(rel_path) {
+            Some(src_entry) if src_entry.sha256sum == dest_entry.sha256sum => {}
+            Some(_) => {
+                return Err(E4EError::Runtime(format!(
+                    "File '{}' at destination has a different hash from the source dataset",
+                    rel_path
+                )));
+            }
+            None => {
+                return Err(E4EError::Runtime(format!(
+                    "File '{}' exists at destination but is not in the source dataset",
+                    rel_path
+                )));
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Return all data files in a dataset root (excluding manifest.json and .e4edm.db).
 pub fn get_dataset_files(root: &Path) -> Vec<PathBuf> {
     let excluded = [root.join(MANIFEST_NAME), root.join(DB_NAME)];
@@ -597,21 +701,32 @@ pub fn duplicate_dataset(state: &DatasetState, destinations: &[PathBuf]) -> Resu
 
     for dest in destinations {
         fs::create_dir_all(dest)?;
-        let mut dest_files: Vec<PathBuf> = Vec::new();
         for rel_path in manifest_data.keys() {
             let src = state.root.join(rel_path);
             let dst = dest.join(rel_path);
             if let Some(parent) = dst.parent() {
                 fs::create_dir_all(parent)?;
             }
-            fs::copy(&src, &dst)?;
-            dest_files.push(dst);
+            // Skip if the destination file already has the correct hash.
+            let expected_hash = &manifest_data[rel_path].sha256sum;
+            let already_correct = dst.exists()
+                && manifest::compute_file_hash(&dst)
+                    .map(|h| &h == expected_hash)
+                    .unwrap_or(false);
+            if !already_correct {
+                fs::copy(&src, &dst)?;
+            }
         }
-        // Validate copy
-        if !manifest::validate_manifest(&manifest_data, dest, &dest_files, "hash")? {
+        // Validate: check all files now at dest (not just what we copied) so that
+        // any pre-existing extra files from a previous interrupted push are caught.
+        let all_dest_files = get_dataset_files(dest);
+        let failures = manifest::collect_validation_failures(
+            &manifest_data, dest, &all_dest_files, "hash")?;
+        if !failures.is_empty() {
             return Err(E4EError::Runtime(format!(
-                "Validation failed after duplicate to {}",
-                dest.display()
+                "Validation failed after duplicate to {}:\n  {}",
+                dest.display(),
+                failures.join("\n  ")
             )));
         }
         // Write manifest to dest
@@ -1105,5 +1220,232 @@ mod tests {
 
         let loaded = load_dataset_state(&root).unwrap();
         assert_eq!(loaded.missions[0].staged_files.len(), 1);
+    }
+
+    // ── remove_mission ───────────────────────────────────────────
+
+    #[test]
+    fn remove_mission_deletes_directory_from_disk() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+
+        let mission_dir = root.join("ED-00").join("M1");
+        assert!(mission_dir.exists());
+
+        remove_mission(&mut state, "ED-00 M1").unwrap();
+
+        assert!(!mission_dir.exists());
+    }
+
+    #[test]
+    fn remove_mission_strips_entries_from_dataset_manifest() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+
+        remove_mission(&mut state, "ED-00 M1").unwrap();
+
+        let manifest_data = manifest::read_manifest(&root.join("manifest.json")).unwrap();
+        assert!(manifest_data.keys().all(|k| !k.starts_with("ED-00/M1/")));
+    }
+
+    #[test]
+    fn remove_mission_removes_empty_day_directory() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+
+        remove_mission(&mut state, "ED-00 M1").unwrap();
+
+        assert!(!root.join("ED-00").exists());
+    }
+
+    #[test]
+    fn remove_mission_preserves_day_dir_when_sibling_remains() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+        add_mission(&mut state, &meta("2023-03-02T11:00:00+00:00", "M2")).unwrap();
+
+        remove_mission(&mut state, "ED-00 M1").unwrap();
+
+        assert!(root.join("ED-00").exists());
+        assert!(root.join("ED-00").join("M2").exists());
+    }
+
+    #[test]
+    fn remove_mission_preserves_sibling_manifest_entries() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+        add_mission(&mut state, &meta("2023-03-02T11:00:00+00:00", "M2")).unwrap();
+
+        remove_mission(&mut state, "ED-00 M1").unwrap();
+
+        let manifest_data = manifest::read_manifest(&root.join("manifest.json")).unwrap();
+        assert!(manifest_data.keys().any(|k| k.starts_with("ED-00/M2/")));
+        assert!(manifest_data.keys().all(|k| !k.starts_with("ED-00/M1/")));
+    }
+
+    #[test]
+    fn remove_mission_removes_it_from_state() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+        add_mission(&mut state, &meta("2023-03-02T11:00:00+00:00", "M2")).unwrap();
+
+        assert_eq!(state.missions.len(), 2);
+        remove_mission(&mut state, "ED-00 M1").unwrap();
+        assert_eq!(state.missions.len(), 1);
+        assert_eq!(state.missions[0].record.name, "ED-00 M2");
+    }
+
+    #[test]
+    fn remove_mission_also_removes_committed_files_from_manifest() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+
+        let src = tmp.path().join("data.bin");
+        fs::write(&src, b"payload").unwrap();
+        stage_mission_files(&mut state, "ED-00 M1", &[src], None).unwrap();
+        commit_mission_files(&mut state, "ED-00 M1").unwrap();
+
+        // Confirm the committed file is in the dataset manifest before removal
+        let before = manifest::read_manifest(&root.join("manifest.json")).unwrap();
+        assert!(before.keys().any(|k| k.ends_with("data.bin")));
+
+        remove_mission(&mut state, "ED-00 M1").unwrap();
+
+        let after = manifest::read_manifest(&root.join("manifest.json")).unwrap();
+        assert!(after.keys().all(|k| !k.ends_with("data.bin")));
+    }
+
+    #[test]
+    fn remove_mission_errors_for_unknown_mission() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+
+        let err = remove_mission(&mut state, "ED-00 nonexistent").unwrap_err();
+        assert!(err.to_string().contains("Mission not found"));
+    }
+
+    // ── check_destination_is_subset ──────────────────────────────
+
+    fn make_committed_dataset(tmp: &tempfile::TempDir, name: &str) -> DatasetState {
+        let root = tmp.path().join(name);
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        add_mission(&mut state, &meta("2023-03-02T10:00:00+00:00", "M1")).unwrap();
+        let src = tmp.path().join("data.bin");
+        fs::write(&src, b"payload").unwrap();
+        stage_mission_files(&mut state, "ED-00 M1", &[src], None).unwrap();
+        commit_mission_files(&mut state, "ED-00 M1").unwrap();
+        state
+    }
+
+    #[test]
+    fn subset_check_passes_when_destination_does_not_exist() {
+        let tmp = tempdir().unwrap();
+        let state = make_committed_dataset(&tmp, "ds");
+        let src_manifest =
+            manifest::read_manifest(&state.root.join("manifest.json")).unwrap();
+        let nonexistent = tmp.path().join("nowhere");
+        check_destination_is_subset(&src_manifest, &nonexistent).unwrap();
+    }
+
+    #[test]
+    fn subset_check_passes_when_destination_has_empty_manifest() {
+        let tmp = tempdir().unwrap();
+        let state = make_committed_dataset(&tmp, "ds");
+        let src_manifest =
+            manifest::read_manifest(&state.root.join("manifest.json")).unwrap();
+        // Destination exists but has no files
+        let dest = tmp.path().join("dest");
+        fs::create_dir_all(&dest).unwrap();
+        check_destination_is_subset(&src_manifest, &dest).unwrap();
+    }
+
+    #[test]
+    fn subset_check_passes_when_destination_is_partial_copy() {
+        let tmp = tempdir().unwrap();
+        let state = make_committed_dataset(&tmp, "ds");
+        let src_manifest =
+            manifest::read_manifest(&state.root.join("manifest.json")).unwrap();
+
+        // Duplicate to dest then delete some files from the dest manifest
+        let dest = tmp.path().join("dest");
+        duplicate_dataset(&state, &[dest.clone()]).unwrap();
+
+        // Remove one entry from dest manifest to simulate a partial push
+        let dest_manifest_path = dest.join("manifest.json");
+        let mut dest_manifest = manifest::read_manifest(&dest_manifest_path).unwrap();
+        let first_key = dest_manifest.keys().next().unwrap().clone();
+        dest_manifest.remove(&first_key);
+        manifest::write_manifest(&dest_manifest_path, &dest_manifest).unwrap();
+
+        check_destination_is_subset(&src_manifest, &dest).unwrap();
+    }
+
+    #[test]
+    fn subset_check_passes_when_destination_is_full_copy() {
+        let tmp = tempdir().unwrap();
+        let state = make_committed_dataset(&tmp, "ds");
+        let src_manifest =
+            manifest::read_manifest(&state.root.join("manifest.json")).unwrap();
+        let dest = tmp.path().join("dest");
+        duplicate_dataset(&state, &[dest.clone()]).unwrap();
+        check_destination_is_subset(&src_manifest, &dest).unwrap();
+    }
+
+    #[test]
+    fn subset_check_fails_when_destination_has_extra_file() {
+        let tmp = tempdir().unwrap();
+        let state = make_committed_dataset(&tmp, "ds");
+        let src_manifest =
+            manifest::read_manifest(&state.root.join("manifest.json")).unwrap();
+
+        // Destination has a file not in source
+        let dest = tmp.path().join("dest");
+        duplicate_dataset(&state, &[dest.clone()]).unwrap();
+        let dest_manifest_path = dest.join("manifest.json");
+        let mut dest_manifest = manifest::read_manifest(&dest_manifest_path).unwrap();
+        dest_manifest.insert(
+            "extra/alien.bin".to_string(),
+            manifest::ManifestEntry { sha256sum: "abc".to_string(), size: 3 },
+        );
+        manifest::write_manifest(&dest_manifest_path, &dest_manifest).unwrap();
+
+        let err = check_destination_is_subset(&src_manifest, &dest).unwrap_err();
+        assert!(err.to_string().contains("not in the source dataset"));
+    }
+
+    #[test]
+    fn subset_check_fails_when_destination_file_has_different_hash() {
+        let tmp = tempdir().unwrap();
+        let state = make_committed_dataset(&tmp, "ds");
+        let src_manifest =
+            manifest::read_manifest(&state.root.join("manifest.json")).unwrap();
+
+        let dest = tmp.path().join("dest");
+        duplicate_dataset(&state, &[dest.clone()]).unwrap();
+
+        // Corrupt one entry in the dest manifest
+        let dest_manifest_path = dest.join("manifest.json");
+        let mut dest_manifest = manifest::read_manifest(&dest_manifest_path).unwrap();
+        let first_key = dest_manifest.keys().next().unwrap().clone();
+        dest_manifest.get_mut(&first_key).unwrap().sha256sum = "deadbeef".to_string();
+        manifest::write_manifest(&dest_manifest_path, &dest_manifest).unwrap();
+
+        let err = check_destination_is_subset(&src_manifest, &dest).unwrap_err();
+        assert!(err.to_string().contains("different hash"));
     }
 }
