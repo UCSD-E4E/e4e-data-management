@@ -1,350 +1,257 @@
 '''Core application logic
 '''
-from __future__ import annotations
-
 import datetime as dt
+import json
 import logging
-import pickle
 from pathlib import Path
-from shutil import copy2, rmtree
 from typing import Dict, Iterable, List, Optional, Set
 
 import appdirs
 
-from e4e_data_management.data import Dataset, Mission
-from e4e_data_management.metadata import Metadata
+from e4e_data_management._core import (
+    PyDataManager as _DataManager,
+    PyDataset as _Dataset,
+    PyMission as _Mission,
+)
+from e4e_data_management.data import Manifest as _Manifest
+
+
+class _MissionView:
+    """Thin wrapper around PyMission for Python attribute access"""
+
+    def __init__(self, inner: _Mission):
+        self._inner = inner
+
+    @property
+    def name(self) -> str:
+        return self._inner.name
+
+    @property
+    def path(self) -> Path:
+        return Path(self._inner.path)
+
+    @property
+    def staged_files(self) -> list:
+        return self._inner.staged_files
+
+    @property
+    def committed_files(self) -> List[str]:
+        return self._inner.committed_files
+
+    @property
+    def country(self) -> str:
+        return self._inner.country
+
+    @property
+    def region(self) -> str:
+        return self._inner.region
+
+    @property
+    def site(self) -> str:
+        return self._inner.site
+
+    @property
+    def device(self) -> str:
+        return self._inner.device
+
+    @property
+    def timestamp(self) -> str:
+        return self._inner.timestamp
+
+
+class _DatasetView:
+    """Thin wrapper around PyDataset for Python attribute access"""
+
+    def __init__(self, inner: _Dataset):
+        self._inner = inner
+
+    @property
+    def pushed(self) -> bool:
+        return self._inner.pushed
+
+    @property
+    def last_country(self) -> Optional[str]:
+        return self._inner.last_country
+
+    @property
+    def last_region(self) -> Optional[str]:
+        return self._inner.last_region
+
+    @property
+    def last_site(self) -> Optional[str]:
+        return self._inner.last_site
+
+    @property
+    def root(self) -> Path:
+        return Path(self._inner.root)
+
+    @property
+    def name(self) -> str:
+        return self._inner.name
+
+    @property
+    def staged_files(self) -> List[Path]:
+        return [Path(p) for p in self._inner.staged_files]
+
+    @property
+    def committed_files(self) -> List[str]:
+        return self._inner.committed_files
+
+    @property
+    def missions(self) -> Dict[str, _MissionView]:
+        return {m.name: _MissionView(m) for m in self._inner.missions}
+
+    @property
+    def sites(self) -> Set[str]:
+        return {m.site for m in self._inner.missions}
+
+    @property
+    def countries(self) -> Set[str]:
+        return {m.country for m in self._inner.missions}
+
+    @property
+    def regions(self) -> Set[str]:
+        return {m.region for m in self._inner.missions}
+
+    @property
+    def devices(self) -> Set[str]:
+        return {m.device for m in self._inner.missions}
+
+    @property
+    def manifest(self) -> _Manifest:
+        root = Path(self._inner.root)
+        return _Manifest(root / 'manifest.json', root)
+
+    def validate(self) -> bool:
+        return self._inner.validate()
+
+    def validate_failures(self) -> List[str]:
+        return self._inner.validate_failures()
 
 
 class DataManager:
-    """Data Manager Application Core
-    """
-    __CONFIG_NAME = 'config.pkl'
-    __VERSION = 2
-
     dirs = appdirs.AppDirs(
         appname='E4EDataManagement',
         appauthor='Engineers for Exploration'
     )
-    def __init__(self, *, app_config_dir: Optional[Path] = None):
-        self.__log = logging.getLogger('e4edm')
-        self.config_path = Path(app_config_dir)
-        self.active_dataset: Optional[Dataset] = None
-        self.active_mission: Optional[Mission] = None
-        self.datasets: Dict[str, Dataset] = {}
-        self.version = self.__VERSION
-        self.dataset_dir = Path(self.dirs.user_data_dir)
-        self.save()
+    config_dir = None
 
-    def upgrade(self):
-        """Upgrades self to current version
-        """
-        self.__log.warning('Upgrading to version 2 from version %d', self.version)
-        if self.version < 2:
-            self.dataset_dir = Path(self.dirs.user_data_dir)
-        self.version = 2
+    def __init__(self, *, app_config_dir=None):
+        if app_config_dir is None:
+            app_config_dir = Path(self.dirs.user_config_dir)
+        default_dataset_dir = str(Path(self.dirs.user_data_dir))
+        self._inner = _DataManager(str(app_config_dir), default_dataset_dir)
+        self._log = logging.getLogger('e4edm.core')
 
     @classmethod
-    def load(cls, *, config_dir: Optional[Path] = None) -> DataManager:
-        """Loads the app from the specified config dir
-
-        Args:
-            config_dir (Optional[Path], optional): Configuration directory. Defaults to None.
-
-        Returns:
-            DataManager: restored application
-        """
-        try:
-            if config_dir is None:
-                config_dir = Path(cls.dirs.user_config_dir)
-            config_file = config_dir.joinpath(cls.__CONFIG_NAME)
-            if not config_file.exists():
-                return DataManager(app_config_dir=config_dir)
-            with open(config_file, 'rb') as handle:
-                loaded = pickle.load(handle)
-                if not isinstance(loaded, DataManager):
-                    raise RuntimeError('Not a DataManager')
-                if loaded.version != cls.__VERSION:
-                    loaded.upgrade()
-                return loaded
-        except Exception: # pylint: disable=broad-except
-            return DataManager(app_config_dir=config_dir)
+    def load(cls, *, config_dir=None) -> 'DataManager':
+        if config_dir is None:
+            config_dir = cls.config_dir or Path(cls.dirs.user_config_dir)
+        obj = cls.__new__(cls)
+        obj._inner = _DataManager.load(str(config_dir))
+        obj._log = logging.getLogger('e4edm.core')
+        return obj
 
     def save(self) -> None:
-        """Saves the app into the specified config dir
-        """
-        self.__log.debug('Saving')
-        config_file = self.config_path.joinpath(self.__CONFIG_NAME)
-        if not config_file.exists():
-            config_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(config_file, 'wb') as handle:
-            pickle.dump(self, handle)
+        self._inner.save()
 
-    def initialize_dataset(self, date: dt.date, project: str, location: str, directory: Path):
-        """Initializes a new dataset
+    @property
+    def active_dataset(self) -> Optional[_DatasetView]:
+        ds = self._inner.active_dataset
+        if ds is None:
+            return None
+        return _DatasetView(ds)
 
-        Args:
-            date (dt.date): Date of expedition
-            project (str): Expedition's project
-            location (str): Expedition common name
-            directory (Path): Path to create dataset in
-        """
-        dataset_name = f'{date.year:04d}.{date.month:02d}.{date.day:02d}.{project}.{location}'
-        dataset_path = directory.joinpath(dataset_name)
+    @property
+    def active_mission(self) -> Optional[_MissionView]:
+        m = self._inner.active_mission
+        if m is None:
+            return None
+        return _MissionView(m)
 
-        if dataset_name in self.datasets:
-            raise RuntimeError('Dataset with that name already exists!')
+    @property
+    def datasets(self) -> Dict[str, _DatasetView]:
+        return {name: _DatasetView(ds) for name, ds in self._inner.datasets.items()}
 
-        self.active_dataset = Dataset(
-            root=dataset_path.resolve(),
-            day_0=date
+    @property
+    def dataset_dir(self) -> Path:
+        return Path(self._inner.dataset_dir)
+
+    @dataset_dir.setter
+    def dataset_dir(self, value) -> None:
+        self._inner.dataset_dir = str(Path(value))
+
+    @property
+    def version(self) -> int:
+        return self._inner.version
+
+    def initialize_dataset(self, date: dt.date, project: str, location: str,
+                           directory: Path) -> None:
+        dataset_name = f'{date.strftime("%Y.%m.%d")}.{project}.{location}'
+        dataset_path = Path(directory) / dataset_name
+        self._log.info('Initializing dataset at %s', dataset_path.as_posix())
+        self._inner.initialize_dataset(
+            date.isoformat(), project, location, str(directory)
         )
-        self.active_dataset.create()
-        self.active_dataset.save()
-        self.datasets[dataset_name] = self.active_dataset
-        self.active_mission = None
-        self.save()
 
-    def initialize_mission(self,
-                           metadata: Metadata) -> None:
-        """Initializes a new mission.  This should create the appropriate folder structure and
-        open the staging area
-
-        Args:
-            metadata (Metadata): Mission metadata
-        """
-        if self.active_dataset is None:
-            raise RuntimeError('Dataset not active')
-        mission = self.active_dataset.add_mission(
-            metadata=metadata
+    def initialize_mission(self, metadata) -> None:
+        self._inner.initialize_mission(
+            timestamp=metadata.timestamp.isoformat(),
+            device=metadata.device,
+            country=metadata.country,
+            region=metadata.region,
+            site=metadata.site,
+            mission=metadata.mission,
+            notes=metadata.notes,
+            properties=json.dumps(metadata.properties)
         )
-        self.active_mission = mission
-        self.save()
 
     def status(self) -> str:
-        """Generates a status string
+        return self._inner.status()
 
-        Returns:
-            str: Status
-        """
-        output = ''
-        if self.active_dataset:
-            name = self.active_dataset.name
-            path = self.active_dataset.root.resolve().as_posix()
-            output += f'Dataset {name} at {path} activated'
-        else:
-            output += 'No dataset active'
-            return output
+    def activate(self, dataset: str, day=None, mission=None,
+                 root_dir=None) -> None:
+        self._inner.activate(
+            dataset,
+            day,
+            mission,
+            str(root_dir) if root_dir is not None else None
+        )
 
-        output += '\n'
-        if self.active_mission:
-            name = self.active_mission.name
-            path = self.active_mission.path.resolve().as_posix()
-            output += f'Mission {name} at {path} activated'
-        else:
-            output += 'No mission active'
-            return output
-
-        output += '\n'
-        if len(self.active_mission.staged_files) > 0:
-            output += f'{len(self.active_mission.staged_files)} staged files:\n\t'
-            staged_files = ((f"{file.origin_path.as_posix()} -> "
-                            f"{file.target_path.relative_to(self.active_mission.path).as_posix()}")
-                                  for file in sorted(self.active_mission.staged_files,
-                                                     key=lambda x: x.target_path.name))
-
-            output += '\n\t'.join(staged_files)
-        if len(self.active_dataset.staged_files) > 0:
-            output += f'{len(self.active_dataset.staged_files)} staged dataset files:\n\t'
-            output += '\n\t'.join(file.as_posix() for file in self.active_dataset.staged_files)
-        return output
-
-    def activate(self,
-                 dataset: str,
-                 day: Optional[int] = None,
-                 mission: Optional[str] = None,
-                 *,
-                 root_dir: Optional[Path] = None) -> None:
-        """This activates the specified dataset and optionally mission.
-
-        If only dataset is specified, day and mission may not be specified, and either init_mission
-        or activate must be called before add may be called.
-
-        Day must be specified with mission and dataset.
-
-        We will look in the application database for the dataset.  If root_dir is specified, we will
-        assume that the dataset exists in root_dir
-
-        Args:
-            dataset (str): Dataset name
-            day (Optional[int], optional): Expedition Day Number. Defaults to None.
-            mission (Optional[str], optional): Mission name. Defaults to None.
-            root_dir (Optional[Path], optional): Optional root directory. Defaults to None.
-        """
-        if dataset in self.datasets:
-            self.active_dataset = self.datasets[dataset]
-        else:
-            dataset_path = root_dir.joinpath(dataset)
-            if not dataset_path.is_dir():
-                raise RuntimeError('Unable to find dataset')
-            self.active_dataset = Dataset.load(dataset_path)
-
-        if mission:
-            if day is None:
-                raise RuntimeError('Expedted day parameter')
-            name = f'ED-{day:02d} {mission}'
-            self.active_mission = self.active_dataset.missions[name]
-        else:
-            self.active_mission = None
-
-        self.save()
-
-    def add(self, paths: Iterable[Path],
-            readme: bool = False,
-            destination: Optional[Path] = None) -> None:
-        """This adds a file or directory to the staging area.
-
-        Args:
-            paths (Iterable[Path]): List of paths to add
-            readme (bool, optional): Readme flag. Defaults to False.
-            destination (Optional[Path], optional): Directory in the dataset to add paths to.
-            Defaults to None.
-
-        Raises:
-            RuntimeError: Dataset not active
-            RuntimeError: Mission not active
-        """
-        if self.active_dataset is None:
-            raise RuntimeError('Dataset not active')
-        if readme:
-            # This is a dataset level readme, no need to seek into the mission
-            self.active_dataset.stage(paths)
-            self.save()
-            return
-        if self.active_mission is None:
-            raise RuntimeError('Mission not active')
-        self.active_mission.stage(paths, destination=destination)
-        self.save()
+    def add(self, paths: Iterable[Path], readme: bool = False,
+            destination=None) -> None:
+        self._inner.add(
+            [str(p) for p in paths],
+            readme,
+            str(destination) if destination is not None else None
+        )
 
     def commit(self, readme: bool = False) -> None:
-        """This should copy files and directories in the staging area to the committed area, and
-        compute the hashes and sizes.
-        """
-        if self.active_dataset is None:
-            raise RuntimeError('Dataset not active')
-        if readme:
-            new_files = self.active_dataset.commit()
-        else:
-            if self.active_mission is None:
-                raise RuntimeError('Mission not active')
-            new_files = self.active_mission.commit()
-        self.active_dataset.manifest.update(new_files)
-        self.active_dataset.manifest.update([self.active_mission.manifest.path])
-        self.save()
+        self._inner.commit(readme)
 
     def duplicate(self, paths: List[Path]) -> None:
-        """This will duplicate the active datasets to the provided paths.  We will assume that only
-        the active dataset has changed, and the duplicates have not changed.
-
-        Args:
-            paths (List[Path]): List of paths to duplicate to
-        """
-        manifest = self.active_dataset.manifest.get_dict()
-        new_files = [[] * len(paths)]
-        for file in manifest:
-            src_path = self.active_dataset.root.joinpath(file)
-            dests = [dest.joinpath(file) for dest in paths]
-            for idx, dest in enumerate(dests):
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                copy2(src=src_path, dst=dest)
-                new_files[idx].append(dest)
-        for idx, new_file_list in enumerate(new_files):
-            self.active_dataset.manifest.validate(
-                manifest=manifest,
-                files=new_file_list,
-                root=paths[idx])
-            self.active_dataset.manifest.write(manifest, path=paths[idx].joinpath('manifest.json'))
+        self._inner.duplicate([str(p) for p in paths])
 
     def validate(self) -> bool:
-        """This will check that the active dataset is valid and coherent
-        """
-        if self.active_dataset is None:
-            raise RuntimeError('Dataset not active')
-        if self.active_mission is None:
-            raise RuntimeError('Mission not active')
-        return self.active_dataset.validate()
+        return self._inner.validate()
+
+    def validate_failures(self) -> List[str]:
+        return self._inner.validate_failures()
 
     def push(self, path: Path) -> None:
-        """This will check that the dataset is complete, verify the dataset, then copy the dataset
-        to the specified location
+        self._inner.push(str(path))
 
-        Args:
-            path (Path): Destination to push completed dataset to
-        """
-        self.active_dataset.check_complete()
-
-        # Duplicate to destination
-        destination = path.joinpath(self.active_dataset.name)
-        destination.mkdir(parents=True, exist_ok=False)
-        self.duplicate([destination])
-
-        # set pushed flag
-        self.active_dataset.pushed = True
-        self.active_dataset.save()
-        self.save()
+    def remove_mission(self, dataset: str, mission: str) -> None:
+        self._inner.remove_mission(dataset, mission)
 
     def zip(self, output_path: Path) -> None:
-        """This will zip the active and completed dataset to the specified path
-
-        Args:
-            output_path (Path): Output path
-        """
-        if output_path.suffix.lower() != '.zip':
-            output_path = output_path.joinpath(
-                self.active_dataset.name + '.zip')
-
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        self.active_dataset.check_complete()
-
-        self.active_dataset.create_zip(output_path)
-
-    def unzip(self, input_file: Path, output_path: Path) -> None:
-        """This will unzip the archived dataset to the specified root
-
-        Args:
-            input_file (Path): Archived dataset
-            output_path (Path): New root
-        """
-
-    def list_datasets(self) -> List[str]:
-        """Lists the known datasets
-
-        Returns:
-            List[str]: List of dataset names
-        """
-        return list(self.datasets.keys())
+        self._inner.zip_dataset(str(output_path))
 
     def prune(self) -> Set[str]:
-        """Prunes missing datasets
-        """
-        items_to_remove: Set[str] = set()
-        for name, dataset in self.datasets.items():
-            if not dataset.root.exists():
-                items_to_remove.add(name)
-            if dataset.pushed:
-                items_to_remove.add(name)
-        if self.active_dataset.name in items_to_remove:
-            self.active_dataset = None
-
-        for remove in items_to_remove:
-            dataset = self.datasets.pop(remove)
-            if dataset.root.exists():
-                rmtree(dataset.root)
-        self.save()
-        return items_to_remove
+        return set(self._inner.prune())
 
     def reset(self) -> None:
-        """Resets the active mission
-        """
-        if self.active_mission:
-            self.active_mission.reset()
-            self.save()
+        self._inner.reset()
+
+    def list_datasets(self) -> List[str]:
+        return self._inner.list_datasets()

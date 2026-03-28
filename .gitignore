@@ -271,3 +271,5 @@ $RECYCLE.BIN/
 # Project specific ignores
 **manifest.json
 **metadata.json
+VERSION
+.claude

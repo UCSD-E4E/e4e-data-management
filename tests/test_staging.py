@@ -44,7 +44,7 @@ def test_stage_commit_files(test_app: Tuple[Mock, DataManager, Path],
     assert len(app.active_mission.committed_files) == n_files
 
     expected_files = [
-        Path('.e4edm.pkl'),
+        Path('.e4edm.db'),
         Path('manifest.json'),
         Path('ED-00'),
         Path('ED-00', 'TSF001'),
@@ -97,7 +97,7 @@ def test_stage_commit_readme(test_app: Tuple[Mock, DataManager, Path],
     assert len(app.active_dataset.committed_files) == 1
 
     expected_files = [
-        Path('.e4edm.pkl'),
+        Path('.e4edm.db'),
         Path('manifest.json'),
         Path('readme.md'),
         Path('ED-00'),

@@ -20,7 +20,7 @@ def test_init_dataset(test_bare_app: Tuple[Mock, DataManager, Path]):
     """Tests initialize dataset
     """
     mock, _, _ = test_bare_app
-    args = split('e4edm init_dataset --date 2023-03-02 --project "TEST" --location "San Diego"')
+    args = split('e4edm init dataset --date 2023-03-02 --project "TEST" --location "San Diego"')
     with patch('sys.argv', args):
         main()
         mock.initialize_dataset.assert_called_once_with(
@@ -40,7 +40,7 @@ def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
         test_app (Tuple[Mock, DataManager, Path]): Test application
     """
     mock, _, _ = test_app
-    args = split('e4edm init_dataset --date today --project TEST --location Location')
+    args = split('e4edm init dataset --date today --project TEST --location Location')
     with patch('sys.argv', args):
         main()
         mock.initialize_dataset.assert_called_once_with(
@@ -54,7 +54,7 @@ def test_init_dataset_today(test_app: Tuple[Mock, DataManager, Path]):
         )
 
 def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
-    """Tests that `e4edm init_mission` properly calls DataManager.initialize_mission
+    """Tests that `e4edm init mission` properly calls DataManager.initialize_mission
 
     Args:
         test_app (Tuple[Mock, DataManager, Path]): Test application
@@ -68,7 +68,7 @@ def test_init_mission(test_app: Tuple[Mock, DataManager, Path]):
         directory=root_dir
     )
 
-    args = split('e4edm init_mission --timestamp 2023-03-02T15:06-08:00 --device Device1 '
+    args = split('e4edm init mission --timestamp 2023-03-02T15:06-08:00 --device Device1 '
                 '--country USA --region California --site SD --name RUN001')
     with patch('sys.argv', args):
         main()
@@ -310,7 +310,7 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
     mock, app, _ = single_mission
 
     mock.datasets = app.datasets
-    args = split('e4edm list')
+    args = split('e4edm list dataset')
     with patch('sys.argv', args):
         main()
 
@@ -397,5 +397,53 @@ def test_e4edm_empty_call(test_app: Tuple[Mock, DataManager, Path]):
     _ = test_app
 
     args = split('e4edm')
+    with patch('sys.argv', args):
+        main()
+
+def test_rm_mission(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests that `e4edm rm MISSION` routes to remove_mission using the active dataset
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission app
+    """
+    mock, app, _ = single_mission
+    dataset_name = app.active_dataset.name
+    mission_name = app.active_mission.name
+    mock.active_dataset = app.active_dataset
+    args = split(f'e4edm rm mission "{mission_name}"')
+    with patch('sys.argv', args):
+        main()
+        mock.remove_mission.assert_called_once_with(
+            dataset=dataset_name,
+            mission=mission_name,
+        )
+
+def test_rm_mission_explicit_dataset(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests that `e4edm rm mission MISSION --dataset DATASET` routes to remove_mission correctly
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission app
+    """
+    mock, app, _ = single_mission
+    dataset_name = app.active_dataset.name
+    mission_name = app.active_mission.name
+    args = split(f'e4edm rm mission "{mission_name}" --dataset "{dataset_name}"')
+    with patch('sys.argv', args):
+        main()
+        mock.remove_mission.assert_called_once_with(
+            dataset=dataset_name,
+            mission=mission_name,
+        )
+
+def test_list_mission(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests that `e4edm list mission DATASET` prints missions for the given dataset
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission app
+    """
+    mock, app, _ = single_mission
+    dataset_name = app.active_dataset.name
+    mock.datasets = app.datasets
+    args = split(f'e4edm list mission "{dataset_name}"')
     with patch('sys.argv', args):
         main()

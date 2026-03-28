@@ -31,7 +31,7 @@ def test_init_dataset(test_app: Tuple[Mock, DataManager, Path]):
     assert dataset_dir.joinpath('manifest.json').is_file()
     current_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')])
     expected_files = sorted([
-        Path('.e4edm.pkl'),
+        Path('.e4edm.db'),
         Path('manifest.json')
     ])
     assert current_files == expected_files
