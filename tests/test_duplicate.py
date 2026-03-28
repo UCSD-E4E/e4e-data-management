@@ -26,17 +26,10 @@ def test_duplicate(
 
         dataset_dir = root_dir.joinpath('2023.03.02.Test.San Diego')
         original_files = sorted([file.relative_to(dataset_dir) for file in dataset_dir.rglob('*')
-                                 if file.name not in ['.e4edm.pkl']])
+                                 if file.name not in ['.e4edm.db']])
 
         duplicate_files = sorted([file.relative_to(target) for file in target.rglob('*')])
 
         assert original_files == duplicate_files
 
-        manifest_files = [file
-                          for file in target.rglob('*')
-                          if file.is_file() and file not in [target.joinpath('manifest.json')]]
-        assert app.active_dataset.manifest.validate(
-            manifest=app.active_dataset.manifest.get_dict(),
-            files=manifest_files,
-            root=target
-        )
+        assert app.validate()
