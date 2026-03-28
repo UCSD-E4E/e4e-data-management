@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>E4EDataManagement.UI</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\E4EDataManagement.Native\E4EDataManagement.Native.csproj" />
+  </ItemGroup>
+
+  <!-- ── Rust native library ─────────────────────────────────────────────── -->
+  <PropertyGroup>
+    <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))</RepoRoot>
+    <!-- Map MSBuild Configuration to the cargo profile directory -->
+    <CargoProfile Condition="'$(Configuration)' == 'Release'">release</CargoProfile>
+    <CargoProfile Condition="'$(Configuration)' != 'Release'">debug</CargoProfile>
+    <!-- Always disable Python feature so the cdylib has no dangling Python ABI symbols -->
+    <CargoFlags>--no-default-features</CargoFlags>
+    <CargoFlags Condition="'$(Configuration)' == 'Release'">--no-default-features --release</CargoFlags>
+    <RustOutDir>$(RepoRoot)\target\$(CargoProfile)</RustOutDir>
+    <!-- Platform-specific output file name -->
+    <NativeLibFile Condition="$([MSBuild]::IsOSPlatform('Windows'))">_core.dll</NativeLibFile>
+    <NativeLibFile Condition="$([MSBuild]::IsOSPlatform('OSX'))">lib_core.dylib</NativeLibFile>
+    <NativeLibFile Condition="$([MSBuild]::IsOSPlatform('Linux'))">lib_core.so</NativeLibFile>
+  </PropertyGroup>
+
+  <!-- Set SkipNativeRustBuild=true (e.g. via AdditionalProperties on a ProjectReference)
+       to skip the cargo step — useful when only C# logic is under test. -->
+  <Target Name="BuildRustNative" BeforeTargets="Build"
+          Condition="'$(SkipNativeRustBuild)' != 'true'">
+    <Message Text="Building Rust native library ($(CargoProfile))…" Importance="High" />
+    <Exec Command="cargo build $(CargoFlags)" WorkingDirectory="$(RepoRoot)" />
+  </Target>
+
+  <Target Name="CopyRustNative" AfterTargets="Build"
+          Condition="'$(SkipNativeRustBuild)' != 'true'">
+    <Copy SourceFiles="$(RustOutDir)\$(NativeLibFile)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true" />
+    <Message Text="Copied $(NativeLibFile) → $(OutDir)" Importance="High" />
+  </Target>
+
+</Project>

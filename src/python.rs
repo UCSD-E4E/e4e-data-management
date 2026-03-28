@@ -1,18 +1,27 @@
-mod db;
-mod dataset;
-mod errors;
-mod ffi;
-mod manifest;
-mod metadata;
-mod manager;
-mod utils;
+// python.rs – PyO3 bindings for the E4E Data Management library.
+//
+// Compiled only when the "python" feature is enabled (the default).
+// `maturin develop` / `maturin build` both use the default feature set,
+// so the Python extension continues to work unchanged.
+//
+// When building the plain cdylib for .NET P/Invoke use
+// (`cargo build --no-default-features`), this file is excluded entirely,
+// which prevents PyO3's Python-ABI symbols from appearing in the shared
+// library and causing load failures in non-Python hosts.
 
-<<<<<<< HEAD
-use db::{DatasetInfo, StagedFileRecord};
-use dataset::{DatasetState, MissionState};
-use errors::E4EError;
-use manager::DataManagerState;
-use metadata::MetadataRecord;
+use std::fs;
+use std::path::PathBuf;
+
+use pyo3::create_exception;
+use pyo3::prelude::*;
+use pyo3::types::PyDict;
+
+use crate::db::{DatasetDb, DatasetInfo, DatasetMeta, StagedFileRecord};
+use crate::dataset::{self, DatasetState, MissionState};
+use crate::errors::E4EError;
+use crate::manager::DataManager;
+use crate::metadata::MetadataRecord;
+use crate::manifest;
 
 // ─────────────────────────────────────────────────────────────
 // Python exceptions
@@ -217,56 +226,15 @@ impl PyDataset {
 
 #[pyclass]
 struct PyDataManager {
-    inner: DataManagerState,
-    /// In-memory active dataset state (loaded on demand)
-    active_dataset: Option<DatasetState>,
-    /// In-memory active mission state (index into active_dataset.missions)
-    active_mission_name: Option<String>,
+    dm: DataManager,
 }
 
 impl PyDataManager {
-    /// Load or refresh the active dataset state from disk.
-    fn ensure_active_dataset(&mut self) -> errors::Result<&mut DatasetState> {
-        if self.active_dataset.is_none() {
-            if let Some(name) = &self.inner.active_dataset_name.clone() {
-                if !name.is_empty() {
-                    if let Some(info) = self.inner.find_dataset(name).cloned() {
-                        let state =
-                            dataset::load_dataset_state(&PathBuf::from(&info.root_path))?;
-                        self.active_dataset = Some(state);
-                    }
-                }
-            }
-        }
-        self.active_dataset
-            .as_mut()
-            .ok_or_else(|| E4EError::Runtime("Dataset not active".to_string()))
+    fn ensure_active_dataset(&mut self) -> crate::errors::Result<&mut DatasetState> {
+        self.dm.ensure_active_dataset()
     }
-
-    /// Sync the active dataset's metadata back into the manager's dataset_infos.
     fn sync_active_dataset_info(&mut self) {
-        if let (Some(ds), Some(name)) = (&self.active_dataset, &self.inner.active_dataset_name.clone()) {
-            if name.is_empty() {
-                return;
-            }
-            let info = DatasetInfo {
-                name: name.clone(),
-                root_path: ds.root.to_string_lossy().into_owned(),
-                pushed: ds.pushed,
-                last_country: ds.last_country.clone(),
-                last_region: ds.last_region.clone(),
-                last_site: ds.last_site.clone(),
-                day_0: Some(ds.day_0.clone()),
-            };
-            if let Some(existing) = self
-                .inner
-                .dataset_infos
-                .iter_mut()
-                .find(|d| d.name == *name)
-            {
-                *existing = info;
-            }
-        }
+        self.dm.sync_active_dataset_info()
     }
 }
 
@@ -274,15 +242,11 @@ impl PyDataManager {
 impl PyDataManager {
     #[new]
     fn new(config_dir: &str, default_dataset_dir: &str) -> PyResult<Self> {
-        let state = DataManagerState::new(
+        let dm = DataManager::new(
             &PathBuf::from(config_dir),
             &PathBuf::from(default_dataset_dir),
         )?;
-        Ok(PyDataManager {
-            inner: state,
-            active_dataset: None,
-            active_mission_name: None,
-        })
+        Ok(PyDataManager { dm })
     }
 
     #[classmethod]
@@ -290,20 +254,12 @@ impl PyDataManager {
         _cls: &Bound<'_, pyo3::types::PyType>,
         config_dir: &str,
     ) -> PyResult<Self> {
-        let state = DataManagerState::load(&PathBuf::from(config_dir))?;
-        let active_mission_name = state
-            .active_mission_name
-            .clone()
-            .filter(|s| !s.is_empty());
-        Ok(PyDataManager {
-            inner: state,
-            active_dataset: None,
-            active_mission_name,
-        })
+        let dm = DataManager::load(&PathBuf::from(config_dir))?;
+        Ok(PyDataManager { dm })
     }
 
     fn save(&self) -> PyResult<()> {
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(())
     }
 
@@ -320,7 +276,7 @@ impl PyDataManager {
 
     #[getter]
     fn active_mission(&mut self) -> PyResult<Option<PyMission>> {
-        let mission_name = match self.active_mission_name.clone() {
+        let mission_name = match self.dm.active_mission_name.clone() {
             Some(n) if !n.is_empty() => n,
             _ => return Ok(None),
         };
@@ -340,8 +296,8 @@ impl PyDataManager {
 
     #[getter]
     fn datasets<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = PyDict::new(py);
-        for info in &self.inner.dataset_infos {
+        let dict = PyDict::new_bound(py);
+        for info in &self.dm.state.dataset_infos {
             // Try to load the dataset state
             let ds_result = dataset::load_dataset_state(&PathBuf::from(&info.root_path));
             let state = match ds_result {
@@ -370,19 +326,19 @@ impl PyDataManager {
 
     #[getter]
     fn dataset_dir(&self) -> String {
-        self.inner.dataset_dir.to_string_lossy().into_owned()
+        self.dm.state.dataset_dir.to_string_lossy().into_owned()
     }
 
     #[setter]
     fn set_dataset_dir(&mut self, path: String) -> PyResult<()> {
-        self.inner.dataset_dir = PathBuf::from(path);
-        self.inner.save()?;
+        self.dm.state.dataset_dir = PathBuf::from(path);
+        self.dm.state.save()?;
         Ok(())
     }
 
     #[getter]
     fn version(&self) -> i32 {
-        self.inner.version
+        self.dm.state.version
     }
 
     // ── Operations ────────────────────────────────────────────
@@ -407,7 +363,7 @@ impl PyDataManager {
         let dataset_name = format!("{:04}.{:02}.{:02}.{}.{}", y, m, d, project, location);
 
         // Check duplicate
-        if self.inner.find_dataset(&dataset_name).is_some() {
+        if self.dm.state.find_dataset(&dataset_name).is_some() {
             return Err(pyo3::exceptions::PyRuntimeError::new_err(
                 "Dataset with that name already exists!",
             ));
@@ -428,12 +384,12 @@ impl PyDataManager {
             last_site: None,
             day_0: Some(day_0),
         };
-        self.inner.upsert_dataset_info(info)?;
-        self.inner.active_dataset_name = Some(dataset_name);
-        self.inner.active_mission_name = None;
-        self.active_mission_name = None;
-        self.active_dataset = Some(state);
-        self.inner.save()?;
+        self.dm.state.upsert_dataset_info(info)?;
+        self.dm.state.active_dataset_name = Some(dataset_name);
+        self.dm.state.active_mission_name = None;
+        self.dm.active_mission_name = None;
+        self.dm.active_dataset = Some(state);
+        self.dm.state.save()?;
         Ok(())
     }
 
@@ -461,7 +417,7 @@ impl PyDataManager {
         };
 
         // Extract active dataset name before mutable borrow
-        let active_name = self.inner.active_dataset_name.clone().unwrap_or_default();
+        let active_name = self.dm.state.active_dataset_name.clone().unwrap_or_default();
 
         let (mission_name, info) = {
             let ds = self.ensure_active_dataset()?;
@@ -479,18 +435,18 @@ impl PyDataManager {
             (name, info)
         };
 
-        self.inner.upsert_dataset_info(info)?;
+        self.dm.state.upsert_dataset_info(info)?;
 
-        self.active_mission_name = Some(mission_name.clone());
-        self.inner.active_mission_name = Some(mission_name);
-        self.inner.save()?;
+        self.dm.active_mission_name = Some(mission_name.clone());
+        self.dm.state.active_mission_name = Some(mission_name);
+        self.dm.state.save()?;
         Ok(())
     }
 
     fn status(&mut self) -> PyResult<String> {
         let mut output = String::new();
 
-        let active_ds_name = self.inner.active_dataset_name.clone().unwrap_or_default();
+        let active_ds_name = self.dm.state.active_dataset_name.clone().unwrap_or_default();
         if active_ds_name.is_empty() {
             return Ok("No dataset active".to_string());
         }
@@ -507,7 +463,7 @@ impl PyDataManager {
         ));
 
         let active_mission_name = self
-            .active_mission_name
+            .dm.active_mission_name
             .clone()
             .unwrap_or_default();
         if active_mission_name.is_empty() {
@@ -598,8 +554,8 @@ impl PyDataManager {
         root_dir: Option<String>,
     ) -> PyResult<()> {
         // Find or load the dataset
-        let ds_state = if self.inner.find_dataset(dataset).is_some() {
-            let info = self.inner.find_dataset(dataset).cloned().unwrap();
+        let ds_state = if self.dm.state.find_dataset(dataset).is_some() {
+            let info = self.dm.state.find_dataset(dataset).cloned().unwrap();
             dataset::load_dataset_state(&PathBuf::from(&info.root_path))?
         } else if let Some(ref rdir) = root_dir {
             let dataset_path = PathBuf::from(rdir).join(dataset);
@@ -619,7 +575,7 @@ impl PyDataManager {
                 last_site: state.last_site.clone(),
                 day_0: Some(state.day_0.clone()),
             };
-            self.inner.upsert_dataset_info(info)?;
+            self.dm.state.upsert_dataset_info(info)?;
             state
         } else {
             return Err(pyo3::exceptions::PyRuntimeError::new_err(
@@ -627,8 +583,8 @@ impl PyDataManager {
             ));
         };
 
-        self.active_dataset = Some(ds_state);
-        self.inner.active_dataset_name = Some(dataset.to_string());
+        self.dm.active_dataset = Some(ds_state);
+        self.dm.state.active_dataset_name = Some(dataset.to_string());
 
         // Activate mission if specified
         if let Some(ref mission_name) = mission {
@@ -638,25 +594,25 @@ impl PyDataManager {
                 })?;
                 let full_name = format!("ED-{:02} {}", day_num, mission_name);
                 // Verify the mission exists in the dataset
-                let ds = self.active_dataset.as_ref().unwrap();
+                let ds = self.dm.active_dataset.as_ref().unwrap();
                 if !ds.missions.iter().any(|m| m.record.name == full_name) {
                     return Err(pyo3::exceptions::PyRuntimeError::new_err(format!(
                         "Mission not found: {}",
                         full_name
                     )));
                 }
-                self.active_mission_name = Some(full_name.clone());
-                self.inner.active_mission_name = Some(full_name);
+                self.dm.active_mission_name = Some(full_name.clone());
+                self.dm.state.active_mission_name = Some(full_name);
             } else {
-                self.active_mission_name = None;
-                self.inner.active_mission_name = None;
+                self.dm.active_mission_name = None;
+                self.dm.state.active_mission_name = None;
             }
         } else {
-            self.active_mission_name = None;
-            self.inner.active_mission_name = None;
+            self.dm.active_mission_name = None;
+            self.dm.state.active_mission_name = None;
         }
 
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(())
     }
 
@@ -674,12 +630,12 @@ impl PyDataManager {
             let ds = self.ensure_active_dataset()?;
             dataset::stage_dataset_files(ds, &path_bufs)?;
             self.sync_active_dataset_info();
-            self.inner.save()?;
+            self.dm.state.save()?;
             return Ok(());
         }
 
         let mission_name = self
-            .active_mission_name
+            .dm.active_mission_name
             .clone()
             .filter(|s| !s.is_empty())
             .ok_or_else(|| {
@@ -690,7 +646,7 @@ impl PyDataManager {
         let ds = self.ensure_active_dataset()?;
         dataset::stage_mission_files(ds, &mission_name, &path_bufs, dest.as_deref())?;
         self.sync_active_dataset_info();
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(())
     }
 
@@ -699,12 +655,12 @@ impl PyDataManager {
             let ds = self.ensure_active_dataset()?;
             dataset::commit_dataset_files(ds)?;
             self.sync_active_dataset_info();
-            self.inner.save()?;
+            self.dm.state.save()?;
             return Ok(());
         }
 
         let mission_name = self
-            .active_mission_name
+            .dm.active_mission_name
             .clone()
             .filter(|s| !s.is_empty())
             .ok_or_else(|| {
@@ -714,7 +670,7 @@ impl PyDataManager {
         let ds = self.ensure_active_dataset()?;
         dataset::commit_mission_files(ds, &mission_name)?;
         self.sync_active_dataset_info();
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(())
     }
 
@@ -764,8 +720,8 @@ impl PyDataManager {
         // Set pushed flag
         let ds = self.ensure_active_dataset()?;
         ds.pushed = true;
-        let db = db::DatasetDb::open(&ds.root.clone())?;
-        let meta = db::DatasetMeta {
+        let db = DatasetDb::open(&ds.root.clone())?;
+        let meta = DatasetMeta {
             day_0: ds.day_0.clone(),
             pushed: true,
             version: ds.version,
@@ -776,13 +732,13 @@ impl PyDataManager {
         db.update_dataset_meta(&meta)?;
 
         self.sync_active_dataset_info();
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(())
     }
 
     fn remove_mission(&mut self, dataset_name: &str, mission_name: &str) -> PyResult<()> {
         let info = self
-            .inner
+            .dm.state
             .find_dataset(dataset_name)
             .ok_or_else(|| {
                 pyo3::exceptions::PyRuntimeError::new_err(format!(
@@ -798,15 +754,15 @@ impl PyDataManager {
 
         // If this is the active dataset, refresh cached state and clear active
         // mission if it was the one that was removed.
-        if self.inner.active_dataset_name.as_deref() == Some(dataset_name) {
-            if self.active_mission_name.as_deref() == Some(mission_name) {
-                self.active_mission_name = None;
-                self.inner.active_mission_name = None;
+        if self.dm.state.active_dataset_name.as_deref() == Some(dataset_name) {
+            if self.dm.active_mission_name.as_deref() == Some(mission_name) {
+                self.dm.active_mission_name = None;
+                self.dm.state.active_mission_name = None;
             }
-            self.active_dataset = Some(ds_state);
+            self.dm.active_dataset = Some(ds_state);
         }
 
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(())
     }
 
@@ -836,7 +792,7 @@ impl PyDataManager {
     fn prune(&mut self) -> PyResult<Vec<String>> {
         let mut to_remove: Vec<String> = Vec::new();
 
-        for info in &self.inner.dataset_infos {
+        for info in &self.dm.state.dataset_infos {
             let root = PathBuf::from(&info.root_path);
             if !root.exists() || info.pushed {
                 to_remove.push(info.name.clone());
@@ -844,32 +800,32 @@ impl PyDataManager {
         }
 
         // If active dataset is being pruned, clear it
-        if let Some(ref active_name) = self.inner.active_dataset_name.clone() {
+        if let Some(ref active_name) = self.dm.state.active_dataset_name.clone() {
             if to_remove.contains(active_name) {
-                self.inner.active_dataset_name = None;
-                self.active_dataset = None;
-                self.active_mission_name = None;
-                self.inner.active_mission_name = None;
+                self.dm.state.active_dataset_name = None;
+                self.dm.active_dataset = None;
+                self.dm.active_mission_name = None;
+                self.dm.state.active_mission_name = None;
             }
         }
 
         for name in &to_remove {
             // Delete root if it exists
-            if let Some(info) = self.inner.find_dataset(name).cloned() {
+            if let Some(info) = self.dm.state.find_dataset(name).cloned() {
                 let root = PathBuf::from(&info.root_path);
                 if root.exists() {
                     fs::remove_dir_all(&root)?;
                 }
             }
-            self.inner.remove_dataset_info(name)?;
+            self.dm.state.remove_dataset_info(name)?;
         }
 
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(to_remove)
     }
 
     fn reset(&mut self) -> PyResult<()> {
-        let mission_name = match self.active_mission_name.clone().filter(|s| !s.is_empty()) {
+        let mission_name = match self.dm.active_mission_name.clone().filter(|s| !s.is_empty()) {
             Some(n) => n,
             None => return Ok(()),
         };
@@ -879,16 +835,16 @@ impl PyDataManager {
             mission.staged_files.clear();
         }
 
-        let db = db::DatasetDb::open(&ds.root.clone())?;
+        let db = DatasetDb::open(&ds.root.clone())?;
         db.clear_mission_staged_files(&mission_name)?;
 
         self.sync_active_dataset_info();
-        self.inner.save()?;
+        self.dm.state.save()?;
         Ok(())
     }
 
     fn list_datasets(&self) -> Vec<String> {
-        self.inner
+        self.dm.state
             .dataset_infos
             .iter()
             .map(|d| d.name.clone())
@@ -902,17 +858,17 @@ impl PyDataManager {
 
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add("Incomplete", m.py().get_type::<Incomplete>())?;
+    m.add("Incomplete", m.py().get_type_bound::<Incomplete>())?;
     m.add(
         "MissionFilesInStaging",
-        m.py().get_type::<MissionFilesInStaging>(),
+        m.py().get_type_bound::<MissionFilesInStaging>(),
     )?;
     m.add(
         "ReadmeFilesInStaging",
-        m.py().get_type::<ReadmeFilesInStaging>(),
+        m.py().get_type_bound::<ReadmeFilesInStaging>(),
     )?;
-    m.add("ReadmeNotFound", m.py().get_type::<ReadmeNotFound>())?;
-    m.add("CorruptedDataset", m.py().get_type::<CorruptedDataset>())?;
+    m.add("ReadmeNotFound", m.py().get_type_bound::<ReadmeNotFound>())?;
+    m.add("CorruptedDataset", m.py().get_type_bound::<CorruptedDataset>())?;
     m.add_class::<PyStagedFile>()?;
     m.add_class::<PyMission>()?;
     m.add_class::<PyDataset>()?;

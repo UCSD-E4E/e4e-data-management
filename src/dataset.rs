@@ -736,6 +736,7 @@ pub fn duplicate_dataset(state: &DatasetState, destinations: &[PathBuf]) -> Resu
 }
 
 /// Create a zip archive of the dataset.
+#[cfg_attr(not(feature = "python"), allow(dead_code))]
 pub fn create_zip(state: &DatasetState, zip_path: &Path) -> Result<()> {
     let manifest_path = state.root.join(MANIFEST_NAME);
     let manifest_data = manifest::read_manifest(&manifest_path)?;

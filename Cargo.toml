@@ -7,6 +7,10 @@ edition = "2021"
 name = "_core"
 crate-type = ["cdylib"]
 
+[features]
+default = ["python"]
+python = ["pyo3/extension-module"]
+
 [dependencies]
 pyo3 = { version = "0.28.2", features = ["extension-module"] }
 rusqlite = { version = "0.32", features = ["bundled"] }

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Native: DatasetInfo / MissionInfo records + JSON deserialization -->
+    <ProjectReference Include="..\E4EDataManagement.Native\E4EDataManagement.Native.csproj" />
+    <!-- UI: DatasetViewModel / MissionViewModel; SkipNativeRustBuild avoids
+         requiring a Rust toolchain when only running C# unit tests. -->
+    <ProjectReference Include="..\E4EDataManagement.UI\E4EDataManagement.UI.csproj"
+                      AdditionalProperties="SkipNativeRustBuild=true" />
+  </ItemGroup>
+</Project>
