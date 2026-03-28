@@ -1,5 +1,89 @@
 # CHANGELOG
 
+## v0.4.1 (2026-03-28)
+
+### Fix
+
+* fix: support python 3.14 ([`07b1196`](https://github.com/UCSD-E4E/e4e-data-management/commit/07b11960e1d42ffea7d23e9077704fb1d8da113c))
+
+* fix: suppress pylint R0904 too-many-public-methods on DataManager
+
+Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/dba4a1e9-344a-4780-ac99-f3fc27bd5861
+
+Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`8f9ecaf`](https://github.com/UCSD-E4E/e4e-data-management/commit/8f9ecaf0eb8e1b8e321c6e8687dbe2355c9e223c))
+
+* fix: upgrade PyO3 to 0.23 to support Python 3.14
+
+- Update pyo3 from 0.22 to 0.23 in Cargo.toml
+- Update Cargo.lock (pyo3 0.22.6 -&gt; 0.23.5)
+- Remove gil-refs lint workaround that was specific to pyo3 0.22
+- Fix deprecated API calls: new_bound -&gt; new, get_type_bound -&gt; get_type
+
+Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/2cff3a6a-a487-47b5-bdb5-fb8b58ca7b0b
+
+Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`523a514`](https://github.com/UCSD-E4E/e4e-data-management/commit/523a514417b245dd92e320381a0ce0cf638ef48e))
+
+### Unknown
+
+* Merge pull request #115 from UCSD-E4E/copilot/fix-pylint-errors
+
+Fix pylint R0904: too-many-public-methods on DataManager ([`6eaf3f5`](https://github.com/UCSD-E4E/e4e-data-management/commit/6eaf3f5cf7ba406b01ed4afb1aeaf94c31739852))
+
+* Initial plan ([`4f58ec6`](https://github.com/UCSD-E4E/e4e-data-management/commit/4f58ec6e730a7a11a92c11f9a8a7e94861eb0aac))
+
+* Merge pull request #117 from UCSD-E4E/copilot/fix-pipx-install-errors
+
+fix: upgrade PyO3 to 0.23 to support Python 3.14 ([`40a314f`](https://github.com/UCSD-E4E/e4e-data-management/commit/40a314f6dfb1a4a64c91c221673a6f02cdc9eb14))
+
+* Initial plan ([`256f734`](https://github.com/UCSD-E4E/e4e-data-management/commit/256f7341495487830cb46ec654e6e98f7f012dd1))
+
+## v0.4.0 (2026-03-28)
+
+### Chore
+
+* chore: pylint ([`a54e167`](https://github.com/UCSD-E4E/e4e-data-management/commit/a54e167d89501e537ef0739ac9e46611afe40c00))
+
+* chore: rust lint ([`79b17b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/79b17b57ac92ec58e60393763b68c61e14e23150))
+
+### Feature
+
+* feat: fully functional e4edm using rust ([`9323c28`](https://github.com/UCSD-E4E/e4e-data-management/commit/9323c28ac48b6fdcb3ea7288a8449c467960caec))
+
+* feat: update command structure ([`a75c86b`](https://github.com/UCSD-E4E/e4e-data-management/commit/a75c86b62e641016906c6506cb9955a183df12ee))
+
+* feat: performance improvements ([`ff32807`](https://github.com/UCSD-E4E/e4e-data-management/commit/ff328077a5a1b857033f363e39cb6f3ccf848630))
+
+* feat: port to rust ([`51d6e86`](https://github.com/UCSD-E4E/e4e-data-management/commit/51d6e868ea267f8acf2c8ca23d9d0bfbc76e8ded))
+
+### Fix
+
+* fix: address review feedback - shared utils, Incomplete base class, dir copy verification, release workflow outputs
+
+Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt;
+Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/fab26efe-bc66-4640-80a8-8b9fb1e588f4 ([`077eee9`](https://github.com/UCSD-E4E/e4e-data-management/commit/077eee9c7e1e2f6049581a9c4d1ccb8a86f1bfc5))
+
+* fix: remove dependency on macos-13 ([`daef181`](https://github.com/UCSD-E4E/e4e-data-management/commit/daef18167d140e650b37d95d2b8222ddc6a1106e))
+
+### Unknown
+
+* Merge pull request #108 from UCSD-E4E/feature/rust
+
+feat: port to rust ([`aa117d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/aa117d53acca41bd6015c23f8292a024d00a1048))
+
+* Merge pull request #109 from UCSD-E4E/copilot/sub-pr-108
+
+fix: address review feedback on Rust port ([`9f921e5`](https://github.com/UCSD-E4E/e4e-data-management/commit/9f921e5540f73a2df478bbebdf172330bf18eee9))
+
+* Initial plan ([`a7ad3e8`](https://github.com/UCSD-E4E/e4e-data-management/commit/a7ad3e8387f04ded621d597f5ee202a115934b13))
+
+* Potential fix for code scanning alert no. 3: Workflow does not contain permissions
+
+Co-authored-by: Copilot Autofix powered by AI &lt;62310815+github-advanced-security[bot]@users.noreply.github.com&gt; ([`d6354e9`](https://github.com/UCSD-E4E/e4e-data-management/commit/d6354e97e362a702918df95dddb9481980dc746a))
+
+* Potential fix for code scanning alert no. 5: Workflow does not contain permissions
+
+Co-authored-by: Copilot Autofix powered by AI &lt;62310815+github-advanced-security[bot]@users.noreply.github.com&gt; ([`a4d32cf`](https://github.com/UCSD-E4E/e4e-data-management/commit/a4d32cf64e3612a17efbd122cff35323256c8431))
+
 ## v0.3.1 (2025-06-16)
 
 ### Fix

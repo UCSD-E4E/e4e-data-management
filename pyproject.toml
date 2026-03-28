@@ -1,6 +1,6 @@
 [project]
 name = "e4e-data-management"
-version = "0.3.1"
+version = "0.4.1"
 description = "E4E Data Management Tool (Python)"
 authors = [
     {name = "Nathan Hui", email = "nthui@ucsd.edu"},
