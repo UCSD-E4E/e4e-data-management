@@ -310,7 +310,7 @@ def test_list(single_mission: Tuple[Mock, DataManager, Path]):
     mock, app, _ = single_mission
 
     mock.datasets = app.datasets
-    args = split('e4edm list')
+    args = split('e4edm list dataset')
     with patch('sys.argv', args):
         main()
 
@@ -397,5 +397,53 @@ def test_e4edm_empty_call(test_app: Tuple[Mock, DataManager, Path]):
     _ = test_app
 
     args = split('e4edm')
+    with patch('sys.argv', args):
+        main()
+
+def test_rm_mission(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests that `e4edm rm MISSION` routes to remove_mission using the active dataset
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission app
+    """
+    mock, app, _ = single_mission
+    dataset_name = app.active_dataset.name
+    mission_name = app.active_mission.name
+    mock.active_dataset = app.active_dataset
+    args = split(f'e4edm rm mission "{mission_name}"')
+    with patch('sys.argv', args):
+        main()
+        mock.remove_mission.assert_called_once_with(
+            dataset=dataset_name,
+            mission=mission_name,
+        )
+
+def test_rm_mission_explicit_dataset(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests that `e4edm rm mission MISSION --dataset DATASET` routes to remove_mission correctly
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission app
+    """
+    mock, app, _ = single_mission
+    dataset_name = app.active_dataset.name
+    mission_name = app.active_mission.name
+    args = split(f'e4edm rm mission "{mission_name}" --dataset "{dataset_name}"')
+    with patch('sys.argv', args):
+        main()
+        mock.remove_mission.assert_called_once_with(
+            dataset=dataset_name,
+            mission=mission_name,
+        )
+
+def test_list_mission(single_mission: Tuple[Mock, DataManager, Path]):
+    """Tests that `e4edm list mission DATASET` prints missions for the given dataset
+
+    Args:
+        single_mission (Tuple[Mock, DataManager, Path]): Single mission app
+    """
+    mock, app, _ = single_mission
+    dataset_name = app.active_dataset.name
+    mock.datasets = app.datasets
+    args = split(f'e4edm list mission "{dataset_name}"')
     with patch('sys.argv', args):
         main()

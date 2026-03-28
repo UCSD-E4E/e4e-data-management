@@ -98,6 +98,9 @@ class Dataset:
     def validate(self) -> bool:
         return self._inner.validate()
 
+    def validate_failures(self) -> list:
+        return self._inner.validate_failures()
+
     @property
     def manifest(self) -> Manifest:
         return self._manifest

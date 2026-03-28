@@ -3,6 +3,7 @@ use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -105,50 +106,91 @@ pub fn update_manifest_with_known_hashes(
     Ok(())
 }
 
-/// Validate manifest entries.
+/// Collect validation failures for manifest entries.
+///
+/// Returns a list of human-readable failure messages.  An empty list means
+/// the dataset is valid.  Also checks for manifest entries whose files are
+/// missing from disk.
+///
 /// For "hash": verify sha256sum matches; for "size": verify file size matches.
-pub fn validate_manifest(
+/// Hash checks are performed in parallel across all files.
+pub fn collect_validation_failures(
     data: &ManifestData,
     root: &Path,
     files: &[PathBuf],
     method: &str,
-) -> Result<bool> {
-    for file in files {
-        let rel_path = file
-            .strip_prefix(root)
-            .map_err(|e| crate::errors::E4EError::Runtime(e.to_string()))?;
-        let rel_posix = rel_path
-            .components()
-            .map(|c| c.as_os_str().to_string_lossy().into_owned())
-            .collect::<Vec<_>>()
-            .join("/");
-        let entry = match data.get(&rel_posix) {
-            Some(e) => e,
-            None => return Ok(false),
-        };
-        match method {
-            "hash" => {
-                let computed = compute_file_hash(file)?;
-                if computed != entry.sha256sum {
-                    return Ok(false);
-                }
-            }
-            "size" => {
-                let size = fs::metadata(file)?.len();
-                if size != entry.size {
-                    return Ok(false);
-                }
-            }
-            _ => {
-                return Err(crate::errors::E4EError::Runtime(format!(
-                    "Unknown validation method: {}",
-                    method
-                )));
-            }
+) -> Result<Vec<String>> {
+    if method != "hash" && method != "size" {
+        return Err(crate::errors::E4EError::Runtime(format!(
+            "Unknown validation method: {}",
+            method
+        )));
+    }
+
+    // Process each on-disk file in parallel.  Each thread returns:
+    //   Ok((rel_posix, Option<failure_message>))
+    // or Err(...) on an I/O or strip_prefix error.
+    let results: Result<Vec<(String, Option<String>)>> = files
+        .par_iter()
+        .map(|file| {
+            let rel_path = file
+                .strip_prefix(root)
+                .map_err(|e| crate::errors::E4EError::Runtime(e.to_string()))?;
+            let rel_posix = rel_path
+                .components()
+                .map(|c| c.as_os_str().to_string_lossy().into_owned())
+                .collect::<Vec<_>>()
+                .join("/");
+
+            let failure = match data.get(&rel_posix) {
+                None => Some(format!("unlisted file: {}", rel_posix)),
+                Some(entry) => match method {
+                    "hash" => {
+                        let computed = compute_file_hash(file)?;
+                        if computed != entry.sha256sum {
+                            Some(format!(
+                                "hash mismatch: {} (expected {}, got {})",
+                                rel_posix, entry.sha256sum, computed
+                            ))
+                        } else {
+                            None
+                        }
+                    }
+                    "size" => {
+                        let size = fs::metadata(file)?.len();
+                        if size != entry.size {
+                            Some(format!(
+                                "size mismatch: {} (expected {} bytes, got {} bytes)",
+                                rel_posix, entry.size, size
+                            ))
+                        } else {
+                            None
+                        }
+                    }
+                    _ => unreachable!(),
+                },
+            };
+            Ok((rel_posix, failure))
+        })
+        .collect();
+
+    let pairs = results?;
+
+    let on_disk: std::collections::HashSet<&str> =
+        pairs.iter().map(|(rel, _)| rel.as_str()).collect();
+
+    let mut failures: Vec<String> = pairs.iter().filter_map(|(_, f)| f.clone()).collect();
+
+    // Check for manifest entries whose files are absent from disk.
+    for key in data.keys() {
+        if !on_disk.contains(key.as_str()) {
+            failures.push(format!("missing file: {}", key));
         }
     }
-    Ok(true)
+
+    Ok(failures)
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -297,7 +339,7 @@ mod tests {
         assert!(result.contains_key("new.bin"), "new entry should be added");
     }
 
-    // ── validate_manifest ────────────────────────────────────────
+    // ── collect_validation_failures ──────────────────────────────
 
     #[test]
     fn validate_by_hash_passes_for_correct_file() {
@@ -305,7 +347,7 @@ mod tests {
         let file = dir.path().join("data.bin");
         write_file(&file, b"hello");
         let data = compute_hashes(dir.path(), &[file.clone()]).unwrap();
-        assert!(validate_manifest(&data, dir.path(), &[file], "hash").unwrap());
+        assert!(collect_validation_failures(&data, dir.path(), &[file], "hash").unwrap().is_empty());
     }
 
     #[test]
@@ -315,7 +357,7 @@ mod tests {
         write_file(&file, b"hello");
         let mut data = compute_hashes(dir.path(), &[file.clone()]).unwrap();
         data.get_mut("data.bin").unwrap().sha256sum = "deadbeef".to_string();
-        assert!(!validate_manifest(&data, dir.path(), &[file], "hash").unwrap());
+        assert!(!collect_validation_failures(&data, dir.path(), &[file], "hash").unwrap().is_empty());
     }
 
     #[test]
@@ -324,7 +366,7 @@ mod tests {
         let file = dir.path().join("data.bin");
         write_file(&file, b"hello");
         // Empty manifest — file not listed
-        assert!(!validate_manifest(&ManifestData::new(), dir.path(), &[file], "hash").unwrap());
+        assert!(!collect_validation_failures(&ManifestData::new(), dir.path(), &[file], "hash").unwrap().is_empty());
     }
 
     #[test]
@@ -333,7 +375,7 @@ mod tests {
         let file = dir.path().join("data.bin");
         write_file(&file, b"hello");
         let data = compute_hashes(dir.path(), &[file.clone()]).unwrap();
-        assert!(validate_manifest(&data, dir.path(), &[file], "size").unwrap());
+        assert!(collect_validation_failures(&data, dir.path(), &[file], "size").unwrap().is_empty());
     }
 
     #[test]
@@ -343,7 +385,7 @@ mod tests {
         write_file(&file, b"hello"); // 5 bytes
         let mut data = compute_hashes(dir.path(), &[file.clone()]).unwrap();
         data.get_mut("data.bin").unwrap().size = 999;
-        assert!(!validate_manifest(&data, dir.path(), &[file], "size").unwrap());
+        assert!(!collect_validation_failures(&data, dir.path(), &[file], "size").unwrap().is_empty());
     }
 
     #[test]
@@ -352,7 +394,7 @@ mod tests {
         let file = dir.path().join("data.bin");
         write_file(&file, b"hello");
         let data = compute_hashes(dir.path(), &[file.clone()]).unwrap();
-        assert!(validate_manifest(&data, dir.path(), &[file], "crc32").is_err());
+        assert!(collect_validation_failures(&data, dir.path(), &[file], "crc32").is_err());
     }
 
     // ── convert_to_4space_indent (shared utility, tested here) ──

@@ -210,6 +210,10 @@ impl PyDataset {
         let result = dataset::validate_dataset(&self.inner.root)?;
         Ok(result)
     }
+
+    fn validate_failures(&self) -> PyResult<Vec<String>> {
+        Ok(dataset::validate_dataset_failures(&self.inner.root)?)
+    }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -732,17 +736,32 @@ impl PyDataManager {
         Ok(result)
     }
 
+    fn validate_failures(&mut self) -> PyResult<Vec<String>> {
+        let ds = self.ensure_active_dataset()?;
+        Ok(dataset::validate_dataset_failures(&ds.root.clone())?)
+    }
+
     fn push(&mut self, path: &str) -> PyResult<()> {
         let dest_root = PathBuf::from(path);
         let ds = self.ensure_active_dataset()?;
         dataset::check_complete(ds)?;
 
-        let ds_name = ds
-            .root
+        let ds_root = ds.root.clone();
+        let ds_name = ds_root
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default();
         let destination = dest_root.join(&ds_name);
+
+        // If the destination already exists, verify it contains only files that are
+        // also present in the source dataset with the same content.  This allows push
+        // to recover from a previously interrupted push without silently overwriting
+        // data that belongs to a different dataset.
+        if destination.exists() {
+            let src_manifest = manifest::read_manifest(&ds_root.join("manifest.json"))?;
+            dataset::check_destination_is_subset(&src_manifest, &destination)?;
+        }
+
         fs::create_dir_all(&destination)?;
 
         dataset::duplicate_dataset(ds, &[destination])?;
@@ -762,6 +781,36 @@ impl PyDataManager {
         db.update_dataset_meta(&meta)?;
 
         self.sync_active_dataset_info();
+        self.inner.save()?;
+        Ok(())
+    }
+
+    fn remove_mission(&mut self, dataset_name: &str, mission_name: &str) -> PyResult<()> {
+        let info = self
+            .inner
+            .find_dataset(dataset_name)
+            .ok_or_else(|| {
+                pyo3::exceptions::PyRuntimeError::new_err(format!(
+                    "Dataset not found: {}",
+                    dataset_name
+                ))
+            })?
+            .clone();
+
+        let mut ds_state =
+            dataset::load_dataset_state(&PathBuf::from(&info.root_path))?;
+        dataset::remove_mission(&mut ds_state, mission_name)?;
+
+        // If this is the active dataset, refresh cached state and clear active
+        // mission if it was the one that was removed.
+        if self.inner.active_dataset_name.as_deref() == Some(dataset_name) {
+            if self.active_mission_name.as_deref() == Some(mission_name) {
+                self.active_mission_name = None;
+                self.inner.active_mission_name = None;
+            }
+            self.active_dataset = Some(ds_state);
+        }
+
         self.inner.save()?;
         Ok(())
     }

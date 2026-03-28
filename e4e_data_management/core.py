@@ -125,6 +125,9 @@ class _DatasetView:
     def validate(self) -> bool:
         return self._inner.validate()
 
+    def validate_failures(self) -> List[str]:
+        return self._inner.validate_failures()
+
 
 class DataManager:
     dirs = appdirs.AppDirs(
@@ -232,8 +235,14 @@ class DataManager:
     def validate(self) -> bool:
         return self._inner.validate()
 
+    def validate_failures(self) -> List[str]:
+        return self._inner.validate_failures()
+
     def push(self, path: Path) -> None:
         self._inner.push(str(path))
+
+    def remove_mission(self, dataset: str, mission: str) -> None:
+        self._inner.remove_mission(dataset, mission)
 
     def zip(self, output_path: Path) -> None:
         self._inner.zip_dataset(str(output_path))

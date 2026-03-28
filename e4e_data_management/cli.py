@@ -54,7 +54,8 @@ class DataManagerCLI:
                 'unzip',
                 'prune',
                 'ls',
-                'reset'
+                'reset',
+                'rm',
             ]
             self.parameters = [
                 Parameter(
@@ -91,6 +92,7 @@ class DataManagerCLI:
             self.__configure_ls_parser(parsers['ls'])
             self.__configure_validate_parser(parsers['validate'])
             self.__configure_reset_parser(parsers['reset'])
+            self.__configure_rm_parser(parsers['rm'])
             # self.__configure_zip_parser(parsers['zip'])
             # self.__configure_unzip_parser(parsers['unzip'])
 
@@ -110,8 +112,11 @@ class DataManagerCLI:
         else:
             dataset = Dataset.load(path=root_dir)
 
-        if not dataset.validate():
-            print('Dataset validation failed')
+        failures = dataset.validate_failures()
+        if failures:
+            print('Dataset validation failed:')
+            for reason in failures:
+                print(f'  {reason}')
         else:
             print('Dataset valid')
 
@@ -195,6 +200,14 @@ class DataManagerCLI:
             else:
                 pushed_str = ' '
             print(f'{dataset_name} {pushed_str}')
+
+    def list_missions_cmd(self, dataset: str) -> None:
+        """Lists the missions in the specified dataset"""
+        datasets = self.app.datasets
+        if dataset not in datasets:
+            raise RuntimeError(f'Dataset not found: {dataset}')
+        for mission_name in datasets[dataset].missions:
+            print(mission_name)
 
     def add_files_cmd(self,
                     paths: List[str],
@@ -284,6 +297,8 @@ class DataManagerCLI:
 
             with keep.running():
                 arg_fn(**arg_dict)
+        except KeyboardInterrupt:
+            sys.exit(130)
         except Exception as exc:
             self._log.exception('Exception during main execution')
             raise exc
@@ -349,7 +364,12 @@ class DataManagerCLI:
         parser.set_defaults(func=self.add_files_cmd)
 
     def __configure_list_parser(self, parser: argparse.ArgumentParser):
-        parser.set_defaults(func=self.list_datasets_cmd)
+        subparsers = parser.add_subparsers()
+        subparsers.add_parser('dataset').set_defaults(func=self.list_datasets_cmd)
+        mission_parser = subparsers.add_parser('mission')
+        mission_parser.add_argument('dataset', type=str, help='Dataset name')
+        mission_parser.set_defaults(func=self.list_missions_cmd)
+        parser.set_defaults(func=parser.print_help)
 
     def __configure_status_parser(self, parser: argparse.ArgumentParser):
         parser.set_defaults(func=self.status_cmd)
@@ -429,6 +449,24 @@ class DataManagerCLI:
 
     def __configure_reset_parser(self, parser: argparse.ArgumentParser):
         parser.set_defaults(func=self.app.reset)
+
+    def rm_mission_cmd(self, mission: str, dataset: Optional[str]) -> None:
+        """Remove a mission, defaulting to the active dataset when --dataset is omitted"""
+        if dataset is None:
+            active = self.app.active_dataset
+            if active is None:
+                raise RuntimeError('No dataset active and no --dataset specified')
+            dataset = active.name
+        self.app.remove_mission(dataset=dataset, mission=mission)
+
+    def __configure_rm_parser(self, parser: argparse.ArgumentParser):
+        subparsers = parser.add_subparsers()
+        mission_parser = subparsers.add_parser('mission')
+        mission_parser.add_argument('mission', type=str, help='Mission name')
+        mission_parser.add_argument('--dataset', type=str, default=None,
+                                    help='Dataset name (defaults to the active dataset)')
+        mission_parser.set_defaults(func=self.rm_mission_cmd)
+        parser.set_defaults(func=parser.print_help)
 
 def main():
     """Main bootstrap

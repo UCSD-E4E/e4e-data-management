@@ -283,6 +283,21 @@ impl DatasetDb {
         Ok(files)
     }
 
+    pub fn delete_mission(&self, mission_name: &str) -> Result<()> {
+        let tx = self.conn.unchecked_transaction()?;
+        tx.execute("DELETE FROM missions WHERE name=?1", params![mission_name])?;
+        tx.execute(
+            "DELETE FROM mission_staged_files WHERE mission_name=?1",
+            params![mission_name],
+        )?;
+        tx.execute(
+            "DELETE FROM mission_committed_files WHERE mission_name=?1",
+            params![mission_name],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+
     // ── dataset staged files ───────────────────────────────────
 
     pub fn set_dataset_staged_files(&self, files: &[String]) -> Result<()> {
@@ -459,5 +474,284 @@ impl ManagerDb {
         self.conn
             .execute("DELETE FROM datasets WHERE name=?1", params![name])?;
         Ok(())
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Tests
+// ─────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::metadata::MetadataRecord;
+    use tempfile::tempdir;
+
+    fn open(root: &std::path::Path) -> DatasetDb {
+        DatasetDb::open(root).unwrap()
+    }
+
+    fn mission(name: &str) -> MissionRecord {
+        MissionRecord {
+            name: name.to_string(),
+            path: format!("/ds/{}", name),
+            metadata: MetadataRecord {
+                timestamp: "2023-03-02T10:00:00+00:00".to_string(),
+                device: "device1".to_string(),
+                country: "USA".to_string(),
+                region: "California".to_string(),
+                site: "SD".to_string(),
+                mission_name: name.to_string(),
+                properties: "{}".to_string(),
+                notes: String::new(),
+            },
+        }
+    }
+
+    // ── dataset_meta ────────────────────────────────────────────
+
+    #[test]
+    fn init_and_get_meta_roundtrip() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.init_dataset("2023-03-02", 2).unwrap();
+        let meta = db.get_dataset_meta().unwrap();
+        assert_eq!(meta.day_0, "2023-03-02");
+        assert!(!meta.pushed);
+        assert_eq!(meta.version, 2);
+        assert!(meta.last_country.is_none());
+    }
+
+    #[test]
+    fn update_meta_persists_pushed_and_location() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.init_dataset("2023-03-02", 2).unwrap();
+        let updated = DatasetMeta {
+            day_0: "2023-03-02".to_string(),
+            pushed: true,
+            version: 2,
+            last_country: Some("USA".to_string()),
+            last_region: Some("California".to_string()),
+            last_site: Some("SD".to_string()),
+        };
+        db.update_dataset_meta(&updated).unwrap();
+        let loaded = db.get_dataset_meta().unwrap();
+        assert!(loaded.pushed);
+        assert_eq!(loaded.last_country.as_deref(), Some("USA"));
+        assert_eq!(loaded.last_region.as_deref(), Some("California"));
+        assert_eq!(loaded.last_site.as_deref(), Some("SD"));
+    }
+
+    // ── missions ────────────────────────────────────────────────
+
+    #[test]
+    fn insert_and_get_missions_roundtrip() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.insert_mission(&mission("ED-00 M1")).unwrap();
+        let missions = db.get_missions().unwrap();
+        assert_eq!(missions.len(), 1);
+        assert_eq!(missions[0].name, "ED-00 M1");
+        assert_eq!(missions[0].metadata.country, "USA");
+    }
+
+    #[test]
+    fn insert_mission_upserts_on_duplicate_name() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.insert_mission(&mission("ED-00 M1")).unwrap();
+        // Insert again — should not error (OR REPLACE)
+        db.insert_mission(&mission("ED-00 M1")).unwrap();
+        assert_eq!(db.get_missions().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn get_missions_returns_all_records() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.insert_mission(&mission("ED-00 M1")).unwrap();
+        db.insert_mission(&mission("ED-00 M2")).unwrap();
+        assert_eq!(db.get_missions().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn delete_mission_removes_record_and_related_file_rows() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.insert_mission(&mission("ED-00 M1")).unwrap();
+
+        db.set_mission_staged_files(
+            "ED-00 M1",
+            &[StagedFileRecord {
+                origin_path: "/src/a.bin".to_string(),
+                target_path: "/ds/ED-00/M1/a.bin".to_string(),
+                hash: "abc".to_string(),
+            }],
+        )
+        .unwrap();
+        db.add_mission_committed_files("ED-00 M1", &["a.bin".to_string()])
+            .unwrap();
+
+        db.delete_mission("ED-00 M1").unwrap();
+
+        assert!(db.get_missions().unwrap().is_empty());
+        assert!(db.get_mission_staged_files("ED-00 M1").unwrap().is_empty());
+        assert!(db.get_mission_committed_files("ED-00 M1").unwrap().is_empty());
+    }
+
+    #[test]
+    fn delete_mission_does_not_affect_other_missions() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.insert_mission(&mission("ED-00 M1")).unwrap();
+        db.insert_mission(&mission("ED-00 M2")).unwrap();
+        db.add_mission_committed_files("ED-00 M2", &["data.bin".to_string()])
+            .unwrap();
+
+        db.delete_mission("ED-00 M1").unwrap();
+
+        let remaining = db.get_missions().unwrap();
+        assert_eq!(remaining.len(), 1);
+        assert_eq!(remaining[0].name, "ED-00 M2");
+        assert_eq!(
+            db.get_mission_committed_files("ED-00 M2").unwrap().len(),
+            1
+        );
+    }
+
+    // ── mission staged files ─────────────────────────────────────
+
+    #[test]
+    fn staged_files_set_and_get_roundtrip() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        let files = vec![
+            StagedFileRecord {
+                origin_path: "/src/a.bin".to_string(),
+                target_path: "/ds/a.bin".to_string(),
+                hash: "aaa".to_string(),
+            },
+            StagedFileRecord {
+                origin_path: "/src/b.bin".to_string(),
+                target_path: "/ds/b.bin".to_string(),
+                hash: "bbb".to_string(),
+            },
+        ];
+        db.set_mission_staged_files("ED-00 M1", &files).unwrap();
+        let loaded = db.get_mission_staged_files("ED-00 M1").unwrap();
+        assert_eq!(loaded.len(), 2);
+        assert!(loaded.iter().any(|f| f.hash == "aaa"));
+    }
+
+    #[test]
+    fn set_staged_files_replaces_previous_entries() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        let first = vec![StagedFileRecord {
+            origin_path: "/src/a.bin".to_string(),
+            target_path: "/ds/a.bin".to_string(),
+            hash: "aaa".to_string(),
+        }];
+        db.set_mission_staged_files("ED-00 M1", &first).unwrap();
+
+        let second = vec![StagedFileRecord {
+            origin_path: "/src/b.bin".to_string(),
+            target_path: "/ds/b.bin".to_string(),
+            hash: "bbb".to_string(),
+        }];
+        db.set_mission_staged_files("ED-00 M1", &second).unwrap();
+
+        let loaded = db.get_mission_staged_files("ED-00 M1").unwrap();
+        assert_eq!(loaded.len(), 1);
+        assert_eq!(loaded[0].hash, "bbb");
+    }
+
+    #[test]
+    fn clear_staged_files_leaves_empty() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.set_mission_staged_files(
+            "ED-00 M1",
+            &[StagedFileRecord {
+                origin_path: "/src/a.bin".to_string(),
+                target_path: "/ds/a.bin".to_string(),
+                hash: "aaa".to_string(),
+            }],
+        )
+        .unwrap();
+        db.clear_mission_staged_files("ED-00 M1").unwrap();
+        assert!(db.get_mission_staged_files("ED-00 M1").unwrap().is_empty());
+    }
+
+    // ── mission committed files ──────────────────────────────────
+
+    #[test]
+    fn committed_files_add_and_get_roundtrip() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.add_mission_committed_files(
+            "ED-00 M1",
+            &["a.bin".to_string(), "b.bin".to_string()],
+        )
+        .unwrap();
+        let loaded = db.get_mission_committed_files("ED-00 M1").unwrap();
+        assert_eq!(loaded.len(), 2);
+        assert!(loaded.contains(&"a.bin".to_string()));
+    }
+
+    #[test]
+    fn committed_files_for_different_missions_are_independent() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.add_mission_committed_files("ED-00 M1", &["a.bin".to_string()])
+            .unwrap();
+        db.add_mission_committed_files("ED-00 M2", &["a.bin".to_string()])
+            .unwrap();
+        assert_eq!(
+            db.get_mission_committed_files("ED-00 M1").unwrap().len(),
+            1
+        );
+        assert_eq!(
+            db.get_mission_committed_files("ED-00 M2").unwrap().len(),
+            1
+        );
+    }
+
+    // ── dataset staged / committed files ────────────────────────
+
+    #[test]
+    fn dataset_staged_files_set_and_clear() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.set_dataset_staged_files(&["/ds/readme.md".to_string()])
+            .unwrap();
+        assert_eq!(db.get_dataset_staged_files().unwrap().len(), 1);
+        db.clear_dataset_staged_files().unwrap();
+        assert!(db.get_dataset_staged_files().unwrap().is_empty());
+    }
+
+    #[test]
+    fn dataset_committed_files_add_and_get() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.add_dataset_committed_files(&[
+            "/ds/readme.md".to_string(),
+            "/ds/readme.docx".to_string(),
+        ])
+        .unwrap();
+        let loaded = db.get_dataset_committed_files().unwrap();
+        assert_eq!(loaded.len(), 2);
+    }
+
+    #[test]
+    fn dataset_committed_files_are_deduplicated() {
+        let tmp = tempdir().unwrap();
+        let db = open(tmp.path());
+        db.add_dataset_committed_files(&["/ds/readme.md".to_string()])
+            .unwrap();
+        db.add_dataset_committed_files(&["/ds/readme.md".to_string()])
+            .unwrap();
+        assert_eq!(db.get_dataset_committed_files().unwrap().len(), 1);
     }
 }
