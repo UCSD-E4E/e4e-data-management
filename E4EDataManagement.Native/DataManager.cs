@@ -191,6 +191,25 @@ public sealed class DataManager : IDisposable
         Check(NativeMethods.e4e_push(_handle, path));
     }
 
+    /// <summary>
+    /// Pushes the active dataset to the given destination path, reporting progress via
+    /// <paramref name="onProgress"/>.  The callback receives <c>(current, total)</c> file counts.
+    /// </summary>
+    public void Push(string path, Action<ulong, ulong> onProgress)
+    {
+        ThrowIfDisposed();
+        ProgressCallback cb = (cur, tot) => onProgress(cur, tot);
+        var gcHandle = GCHandle.Alloc(cb);
+        try
+        {
+            Check(NativeMethods.e4e_push_with_progress(_handle, path, cb));
+        }
+        finally
+        {
+            gcHandle.Free();
+        }
+    }
+
     /// <summary>Validates the active dataset and returns a list of failure messages.</summary>
     public List<string> ValidateFailures()
     {
@@ -198,6 +217,27 @@ public sealed class DataManager : IDisposable
         Check(NativeMethods.e4e_validate(_handle, out IntPtr ptr));
         var json = ReadAndFreeString(ptr);
         return DeserializeOrThrow<List<string>>(json);
+    }
+
+    /// <summary>
+    /// Validates the active dataset and returns a list of failure messages, reporting progress
+    /// via <paramref name="onProgress"/>.  The callback receives <c>(current, total)</c> file counts.
+    /// </summary>
+    public List<string> ValidateFailures(Action<ulong, ulong> onProgress)
+    {
+        ThrowIfDisposed();
+        ProgressCallback cb = (cur, tot) => onProgress(cur, tot);
+        var gcHandle = GCHandle.Alloc(cb);
+        try
+        {
+            Check(NativeMethods.e4e_validate_with_progress(_handle, out IntPtr ptr, cb));
+            var json = ReadAndFreeString(ptr);
+            return DeserializeOrThrow<List<string>>(json);
+        }
+        finally
+        {
+            gcHandle.Free();
+        }
     }
 
     /// <summary>Removes a mission from the named dataset.</summary>

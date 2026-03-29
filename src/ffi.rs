@@ -709,15 +709,22 @@ pub unsafe extern "C" fn e4e_commit(dm: *mut FfiDataManager, readme: i32) -> i32
     0
 }
 
-/// Push (duplicate) the active dataset to the given path.
-///
-/// # Safety
-/// `dm` and `path` must be valid non-null pointers to null-terminated UTF-8 C strings.
-#[no_mangle]
-pub unsafe extern "C" fn e4e_push(dm: *mut FfiDataManager, path: *const c_char) -> i32 {
-    let dm = &mut *dm;
+// ─────────────────────────────────────────────────────────────────────────────
+// Progress callback type
+// ─────────────────────────────────────────────────────────────────────────────
 
-    let dest_str = match cstr_to_str(path, "path") { Ok(s) => s, Err(_) => return -1 };
+/// Optional C progress callback: called with `(current, total)` files processed.
+pub type ProgressFn = unsafe extern "C" fn(current: u64, total: u64);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared push / validate implementation
+// ─────────────────────────────────────────────────────────────────────────────
+
+unsafe fn push_impl<F: Fn(u64, u64) + Send + Sync>(
+    dm: &mut FfiDataManager,
+    dest_str: &str,
+    progress: F,
+) -> i32 {
     let dest_root = PathBuf::from(dest_str);
 
     let ds = match dm.ensure_active_dataset() {
@@ -755,7 +762,7 @@ pub unsafe extern "C" fn e4e_push(dm: *mut FfiDataManager, path: *const c_char) 
         return -1;
     }
 
-    if let Err(e) = dataset::duplicate_dataset(ds, &[destination]) {
+    if let Err(e) = dataset::duplicate_dataset_with_progress(ds, &[destination], progress) {
         set_last_error(&e.to_string());
         return -1;
     }
@@ -795,22 +802,18 @@ pub unsafe extern "C" fn e4e_push(dm: *mut FfiDataManager, path: *const c_char) 
     0
 }
 
-/// Validate the active dataset and return a JSON array of failure strings.
-/// On success, writes a heap-allocated JSON string to `*out` and returns 0.
-///
-/// # Safety
-/// `dm` and `out` must be valid non-null pointers.
-#[no_mangle]
-pub unsafe extern "C" fn e4e_validate(dm: *mut FfiDataManager, out: *mut *mut c_char) -> i32 {
-    let dm = &mut *dm;
-
+unsafe fn validate_impl<F: Fn(u64, u64) + Send + Sync>(
+    dm: &mut FfiDataManager,
+    out: *mut *mut c_char,
+    progress: F,
+) -> i32 {
     let ds = match dm.ensure_active_dataset() {
         Ok(ds) => ds,
         Err(e) => { set_last_error(&e.to_string()); return -1; }
     };
     let root = ds.root.clone();
 
-    let failures = match dataset::validate_dataset_failures(&root) {
+    let failures = match dataset::validate_dataset_failures_with_progress(&root, progress) {
         Ok(f) => f,
         Err(e) => { set_last_error(&e.to_string()); return -1; }
     };
@@ -819,6 +822,69 @@ pub unsafe extern "C" fn e4e_validate(dm: *mut FfiDataManager, out: *mut *mut c_
         Ok(s) => write_string_out(s, out),
         Err(e) => { set_last_error(&e.to_string()); -1 }
     }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Push / validate exported functions
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Push (duplicate) the active dataset to the given path.
+///
+/// # Safety
+/// `dm` and `path` must be valid non-null pointers to null-terminated UTF-8 C strings.
+#[no_mangle]
+pub unsafe extern "C" fn e4e_push(dm: *mut FfiDataManager, path: *const c_char) -> i32 {
+    let dm = &mut *dm;
+    let dest_str = match cstr_to_str(path, "path") { Ok(s) => s, Err(_) => return -1 };
+    push_impl(dm, dest_str, |_, _| {})
+}
+
+/// Push with a progress callback `cb(current, total)`.  Pass NULL for no progress reporting.
+///
+/// # Safety
+/// `dm` and `path` must be valid non-null pointers.  `cb` may be null.
+#[no_mangle]
+pub unsafe extern "C" fn e4e_push_with_progress(
+    dm: *mut FfiDataManager,
+    path: *const c_char,
+    cb: Option<ProgressFn>,
+) -> i32 {
+    let dm = &mut *dm;
+    let dest_str = match cstr_to_str(path, "path") { Ok(s) => s, Err(_) => return -1 };
+    push_impl(dm, dest_str, move |current, total| {
+        if let Some(f) = cb {
+            f(current, total);
+        }
+    })
+}
+
+/// Validate the active dataset and return a JSON array of failure strings.
+/// On success, writes a heap-allocated JSON string to `*out` and returns 0.
+///
+/// # Safety
+/// `dm` and `out` must be valid non-null pointers.
+#[no_mangle]
+pub unsafe extern "C" fn e4e_validate(dm: *mut FfiDataManager, out: *mut *mut c_char) -> i32 {
+    let dm = &mut *dm;
+    validate_impl(dm, out, |_, _| {})
+}
+
+/// Validate with a progress callback `cb(current, total)`.  Pass NULL for no progress reporting.
+///
+/// # Safety
+/// `dm` and `out` must be valid non-null pointers.  `cb` may be null.
+#[no_mangle]
+pub unsafe extern "C" fn e4e_validate_with_progress(
+    dm: *mut FfiDataManager,
+    out: *mut *mut c_char,
+    cb: Option<ProgressFn>,
+) -> i32 {
+    let dm = &mut *dm;
+    validate_impl(dm, out, move |current, total| {
+        if let Some(f) = cb {
+            f(current, total);
+        }
+    })
 }
 
 /// Remove a mission from a named dataset.

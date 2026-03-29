@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using E4EDataManagement.Native;
@@ -17,6 +19,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _statusText = "Ready";
     [ObservableProperty] private string _validationOutput = string.Empty;
     [ObservableProperty] private string _pushPath = string.Empty;
+    [ObservableProperty] private bool _isOperationRunning;
+    [ObservableProperty] private double _operationProgress;
+    [ObservableProperty] private string _progressText = string.Empty;
 
     public MainWindowViewModel()
     {
@@ -129,9 +134,25 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         StatusText = $"Pushing to {path}…";
+        IsOperationRunning = true;
+        OperationProgress = 0;
+        ProgressText = string.Empty;
+        var sw = Stopwatch.StartNew();
         try
         {
-            await Task.Run(() => _dm.Push(path));
+            await Task.Run(() => _dm.Push(path, (current, total) =>
+            {
+                var elapsed = sw.Elapsed.TotalSeconds;
+                var eta = total > 0 && current > 0
+                    ? TimeSpan.FromSeconds(elapsed / current * (total - current))
+                    : (TimeSpan?)null;
+                var etaStr = eta.HasValue ? $"  ETA {eta.Value:mm\\:ss}" : string.Empty;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    OperationProgress = total > 0 ? (double)current / total * 100 : 0;
+                    ProgressText = $"Pushing… {current}/{total}{etaStr}";
+                });
+            }));
             StatusText = $"Push complete to {path}.";
             Refresh();
         }
@@ -139,15 +160,38 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             StatusText = $"Push failed: {ex.Message}";
         }
+        finally
+        {
+            IsOperationRunning = false;
+            OperationProgress = 0;
+            ProgressText = string.Empty;
+        }
     }
 
     /// <summary>Validate the active (or selected) dataset and show failures.</summary>
     [RelayCommand]
-    private void Validate()
+    private async Task ValidateAsync()
     {
+        IsOperationRunning = true;
+        OperationProgress = 0;
+        ProgressText = string.Empty;
+        ValidationOutput = string.Empty;
+        var sw = Stopwatch.StartNew();
         try
         {
-            var failures = _dm.ValidateFailures();
+            var failures = await Task.Run(() => _dm.ValidateFailures((current, total) =>
+            {
+                var elapsed = sw.Elapsed.TotalSeconds;
+                var eta = total > 0 && current > 0
+                    ? TimeSpan.FromSeconds(elapsed / current * (total - current))
+                    : (TimeSpan?)null;
+                var etaStr = eta.HasValue ? $"  ETA {eta.Value:mm\\:ss}" : string.Empty;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    OperationProgress = total > 0 ? (double)current / total * 100 : 0;
+                    ProgressText = $"Validating… {current}/{total}{etaStr}";
+                });
+            }));
             ValidationOutput = failures.Count == 0
                 ? "Validation passed — no failures found."
                 : string.Join(Environment.NewLine, failures);
@@ -156,6 +200,12 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             ValidationOutput = $"Validation error: {ex.Message}";
             StatusText = $"Validation error: {ex.Message}";
+        }
+        finally
+        {
+            IsOperationRunning = false;
+            OperationProgress = 0;
+            ProgressText = string.Empty;
         }
     }
 

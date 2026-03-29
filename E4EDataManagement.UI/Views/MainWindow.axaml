@@ -38,7 +38,7 @@
                         Margin="0,0,4,0" />
 
                 <Button Content="Validate"
-                        Command="{Binding ValidateCommand}"
+                        Command="{Binding ValidateAsyncCommand}"
                         Margin="0,0,4,0" />
 
                 <Button Content="Prune"
@@ -56,6 +56,22 @@
                         Margin="0,0,0,0" />
 
             </WrapPanel>
+        </Border>
+
+        <!-- ── Progress bar ─────────────────────────────────────────── -->
+        <Border DockPanel.Dock="Top"
+                IsVisible="{Binding IsOperationRunning}"
+                Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                Padding="8,4">
+            <StackPanel Spacing="2">
+                <TextBlock Text="{Binding ProgressText}"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                <ProgressBar Value="{Binding OperationProgress}"
+                             Minimum="0"
+                             Maximum="100"
+                             Height="6" />
+            </StackPanel>
         </Border>
 
         <!-- ── Status bar (bottom) ───────────────────────────────────── -->

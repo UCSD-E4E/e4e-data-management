@@ -241,6 +241,14 @@ class DataManager:  # pylint: disable=too-many-public-methods
     def push(self, path: Path) -> None:
         self._inner.push(str(path))
 
+    def push_with_progress(self, path: Path, callback) -> None:
+        """Push the active dataset to `path`, calling `callback(current, total)` per file."""
+        self._inner.push_with_progress(str(path), callback)
+
+    def validate_failures_with_progress(self, callback) -> List[str]:
+        """Validate the active dataset, calling `callback(current, total)` per file hashed."""
+        return self._inner.validate_failures_with_progress(callback)
+
     def remove_mission(self, dataset: str, mission: str) -> None:
         self._inner.remove_mission(dataset, mission)
 

@@ -3,6 +3,13 @@ using System.Runtime.InteropServices;
 namespace E4EDataManagement.Native;
 
 /// <summary>
+/// Delegate matching the C signature: <c>void (*)(uint64_t current, uint64_t total)</c>.
+/// Must be kept alive (via <see cref="GCHandle"/>) for the duration of the native call.
+/// </summary>
+[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+internal delegate void ProgressCallback(ulong current, ulong total);
+
+/// <summary>
 /// P/Invoke declarations for the e4e_* C ABI exported from the Rust _core cdylib.
 /// </summary>
 internal static class NativeMethods
@@ -104,8 +111,20 @@ internal static class NativeMethods
         IntPtr dm,
         [MarshalAs(UnmanagedType.LPStr)] string path);
 
+    [DllImport(LibName, CharSet = CharSet.Ansi, EntryPoint = "e4e_push_with_progress")]
+    internal static extern int e4e_push_with_progress(
+        IntPtr dm,
+        [MarshalAs(UnmanagedType.LPStr)] string path,
+        ProgressCallback? callback);
+
     [DllImport(LibName, CharSet = CharSet.Ansi, EntryPoint = "e4e_validate")]
     internal static extern int e4e_validate(IntPtr dm, out IntPtr @out);
+
+    [DllImport(LibName, CharSet = CharSet.Ansi, EntryPoint = "e4e_validate_with_progress")]
+    internal static extern int e4e_validate_with_progress(
+        IntPtr dm,
+        out IntPtr @out,
+        ProgressCallback? callback);
 
     [DllImport(LibName, CharSet = CharSet.Ansi, EntryPoint = "e4e_remove_mission")]
     internal static extern int e4e_remove_mission(

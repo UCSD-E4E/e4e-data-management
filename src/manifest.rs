@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -106,7 +107,8 @@ pub fn update_manifest_with_known_hashes(
     Ok(())
 }
 
-/// Collect validation failures for manifest entries.
+/// Collect validation failures for manifest entries, calling `progress(current, total)`
+/// after each file is processed.
 ///
 /// Returns a list of human-readable failure messages.  An empty list means
 /// the dataset is valid.  Also checks for manifest entries whose files are
@@ -114,18 +116,25 @@ pub fn update_manifest_with_known_hashes(
 ///
 /// For "hash": verify sha256sum matches; for "size": verify file size matches.
 /// Hash checks are performed in parallel across all files.
-pub fn collect_validation_failures(
+pub fn collect_validation_failures_with_progress<F>(
     data: &ManifestData,
     root: &Path,
     files: &[PathBuf],
     method: &str,
-) -> Result<Vec<String>> {
+    progress: F,
+) -> Result<Vec<String>>
+where
+    F: Fn(u64, u64) + Send + Sync,
+{
     if method != "hash" && method != "size" {
         return Err(crate::errors::E4EError::Runtime(format!(
             "Unknown validation method: {}",
             method
         )));
     }
+
+    let total = files.len() as u64;
+    let counter = AtomicU64::new(0);
 
     // Process each on-disk file in parallel.  Each thread returns:
     //   Ok((rel_posix, Option<failure_message>))
@@ -170,6 +179,10 @@ pub fn collect_validation_failures(
                     _ => unreachable!(),
                 },
             };
+
+            let current = counter.fetch_add(1, Ordering::Relaxed) + 1;
+            progress(current, total);
+
             Ok((rel_posix, failure))
         })
         .collect();
@@ -189,6 +202,17 @@ pub fn collect_validation_failures(
     }
 
     Ok(failures)
+}
+
+/// Collect validation failures without progress reporting.
+#[cfg_attr(not(feature = "python"), allow(dead_code))]
+pub fn collect_validation_failures(
+    data: &ManifestData,
+    root: &Path,
+    files: &[PathBuf],
+    method: &str,
+) -> Result<Vec<String>> {
+    collect_validation_failures_with_progress(data, root, files, method, |_, _| {})
 }
 
 

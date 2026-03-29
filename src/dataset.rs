@@ -584,13 +584,22 @@ pub fn validate_dataset(root: &Path) -> Result<bool> {
     Ok(validate_dataset_failures(root)?.is_empty())
 }
 
-/// Return a list of validation failure messages for the dataset.
-/// An empty list means the dataset is valid.
-pub fn validate_dataset_failures(root: &Path) -> Result<Vec<String>> {
+/// Return a list of validation failure messages for the dataset, calling
+/// `progress(current, total)` after each file is hashed.
+pub fn validate_dataset_failures_with_progress<F>(root: &Path, progress: F) -> Result<Vec<String>>
+where
+    F: Fn(u64, u64) + Send + Sync,
+{
     let manifest_path = root.join(MANIFEST_NAME);
     let manifest_data = manifest::read_manifest(&manifest_path)?;
     let files = get_dataset_files(root);
-    manifest::collect_validation_failures(&manifest_data, root, &files, "hash")
+    manifest::collect_validation_failures_with_progress(&manifest_data, root, &files, "hash", progress)
+}
+
+/// Return a list of validation failure messages for the dataset.
+/// An empty list means the dataset is valid.
+pub fn validate_dataset_failures(root: &Path) -> Result<Vec<String>> {
+    validate_dataset_failures_with_progress(root, |_, _| {})
 }
 
 /// Check that dataset is complete and ready to push.
@@ -694,14 +703,27 @@ pub fn get_dataset_files(root: &Path) -> Vec<PathBuf> {
     files
 }
 
-/// Duplicate the dataset to each destination.
-pub fn duplicate_dataset(state: &DatasetState, destinations: &[PathBuf]) -> Result<()> {
+/// Duplicate the dataset to each destination, calling `progress(current, total)` as
+/// files are copied and then verified.  Progress runs 1..N during the copy phase and
+/// N+1..2N during the destination validation phase.
+pub fn duplicate_dataset_with_progress<F>(
+    state: &DatasetState,
+    destinations: &[PathBuf],
+    progress: F,
+) -> Result<()>
+where
+    F: Fn(u64, u64) + Send + Sync,
+{
     let manifest_path = state.root.join(MANIFEST_NAME);
     let manifest_data = manifest::read_manifest(&manifest_path)?;
+    let file_count = manifest_data.len() as u64;
+    let total = file_count * 2;
 
     for dest in destinations {
         fs::create_dir_all(dest)?;
-        for rel_path in manifest_data.keys() {
+
+        // Phase 1: copy files (progress 1..file_count).
+        for (i, rel_path) in manifest_data.keys().enumerate() {
             let src = state.root.join(rel_path);
             let dst = dest.join(rel_path);
             if let Some(parent) = dst.parent() {
@@ -716,12 +738,21 @@ pub fn duplicate_dataset(state: &DatasetState, destinations: &[PathBuf]) -> Resu
             if !already_correct {
                 fs::copy(&src, &dst)?;
             }
+            progress(i as u64 + 1, total);
         }
-        // Validate: check all files now at dest (not just what we copied) so that
-        // any pre-existing extra files from a previous interrupted push are caught.
+
+        // Phase 2: validate destination (progress file_count+1..2*file_count).
+        // Check all files now at dest (not just what we copied) so that any
+        // pre-existing extra files from a previous interrupted push are caught.
         let all_dest_files = get_dataset_files(dest);
-        let failures = manifest::collect_validation_failures(
-            &manifest_data, dest, &all_dest_files, "hash")?;
+        let failures = manifest::collect_validation_failures_with_progress(
+            &manifest_data,
+            dest,
+            &all_dest_files,
+            "hash",
+            |current, _| progress(file_count + current, total),
+        )?;
+
         if !failures.is_empty() {
             return Err(E4EError::Runtime(format!(
                 "Validation failed after duplicate to {}:\n  {}",
@@ -729,10 +760,15 @@ pub fn duplicate_dataset(state: &DatasetState, destinations: &[PathBuf]) -> Resu
                 failures.join("\n  ")
             )));
         }
-        // Write manifest to dest
         manifest::write_manifest(&dest.join(MANIFEST_NAME), &manifest_data)?;
     }
     Ok(())
+}
+
+/// Duplicate the dataset to each destination.
+#[cfg_attr(not(feature = "python"), allow(dead_code))]
+pub fn duplicate_dataset(state: &DatasetState, destinations: &[PathBuf]) -> Result<()> {
+    duplicate_dataset_with_progress(state, destinations, |_, _| {})
 }
 
 /// Create a zip archive of the dataset.
