@@ -692,6 +692,23 @@ impl PyDataManager {
         Ok(dataset::validate_dataset_failures(&ds.root.clone())?)
     }
 
+    fn validate_failures_with_progress(
+        &mut self,
+        py: Python<'_>,
+        callback: PyObject,
+    ) -> PyResult<Vec<String>> {
+        let ds = self.ensure_active_dataset()?;
+        let root = ds.root.clone();
+        py.allow_threads(move || {
+            dataset::validate_dataset_failures_with_progress(&root, |current, total| {
+                Python::with_gil(|py| {
+                    let _ = callback.call1(py, (current, total));
+                });
+            })
+        })
+        .map_err(PyErr::from)
+    }
+
     fn push(&mut self, path: &str) -> PyResult<()> {
         let dest_root = PathBuf::from(path);
         let ds = self.ensure_active_dataset()?;
@@ -715,7 +732,7 @@ impl PyDataManager {
 
         fs::create_dir_all(&destination)?;
 
-        dataset::duplicate_dataset(ds, &[destination])?;
+        dataset::duplicate_dataset(ds, &[destination.clone()])?;
 
         // Set pushed flag
         let ds = self.ensure_active_dataset()?;
@@ -731,6 +748,58 @@ impl PyDataManager {
         };
         db.update_dataset_meta(&meta)?;
 
+        self.sync_active_dataset_info();
+        self.dm.state.save()?;
+        Ok(())
+    }
+
+    fn push_with_progress(
+        &mut self,
+        py: Python<'_>,
+        path: &str,
+        callback: PyObject,
+    ) -> PyResult<()> {
+        let dest_root = PathBuf::from(path);
+        let ds = self.ensure_active_dataset()?;
+        dataset::check_complete(ds)?;
+
+        let ds_root = ds.root.clone();
+        let ds_clone = ds.clone();
+        let ds_name = ds_root
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let destination = dest_root.join(&ds_name);
+
+        if destination.exists() {
+            let src_manifest = manifest::read_manifest(&ds_root.join("manifest.json"))?;
+            dataset::check_destination_is_subset(&src_manifest, &destination)?;
+        }
+        fs::create_dir_all(&destination)?;
+
+        let dest_clone = destination.clone();
+        py.allow_threads(move || {
+            dataset::duplicate_dataset_with_progress(&ds_clone, &[dest_clone], |current, total| {
+                Python::with_gil(|py| {
+                    let _ = callback.call1(py, (current, total));
+                });
+            })
+        })
+        .map_err(PyErr::from)?;
+
+        // Set pushed flag
+        let ds = self.ensure_active_dataset()?;
+        ds.pushed = true;
+        let db = DatasetDb::open(&ds.root.clone())?;
+        let meta = DatasetMeta {
+            day_0: ds.day_0.clone(),
+            pushed: true,
+            version: ds.version,
+            last_country: ds.last_country.clone(),
+            last_region: ds.last_region.clone(),
+            last_site: ds.last_site.clone(),
+        };
+        db.update_dataset_meta(&meta)?;
         self.sync_active_dataset_info();
         self.dm.state.save()?;
         Ok(())

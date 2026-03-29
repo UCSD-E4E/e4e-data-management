@@ -107,12 +107,27 @@ class DataManagerCLI:
         parser.set_defaults(func=self.__external_validate)
 
     def __external_validate(self, root_dir: Optional[Path]):
+        from rich.progress import (BarColumn, MofNCompleteColumn, Progress,  # pylint: disable=import-outside-toplevel
+                                   SpinnerColumn, TextColumn, TimeRemainingColumn)
+
         if root_dir is None:
-            dataset = self.app.active_dataset
+            with Progress(
+                SpinnerColumn(),
+                TextColumn('[bold blue]{task.description}'),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TimeRemainingColumn(),
+            ) as progress:
+                task = progress.add_task('Validating\u2026', total=None)
+
+                def on_validate_progress(current: int, total: int) -> None:
+                    progress.update(task, completed=current, total=total)
+
+                failures = self.app.validate_failures_with_progress(on_validate_progress)
         else:
             dataset = Dataset.load(path=root_dir)
+            failures = dataset.validate_failures()
 
-        failures = dataset.validate_failures()
         if failures:
             print('Dataset validation failed:')
             for reason in failures:
@@ -343,9 +358,27 @@ class DataManagerCLI:
     def __configure_prune_parser(self, parser: argparse.ArgumentParser):
         parser.set_defaults(func=self.prune_cmd)
 
+    def push_cmd(self, path: Path) -> None:
+        """Push the active dataset to `path` with a rich progress bar."""
+        from rich.progress import (BarColumn, MofNCompleteColumn, Progress,  # pylint: disable=import-outside-toplevel
+                                   SpinnerColumn, TextColumn, TimeRemainingColumn)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn('[bold blue]{task.description}'),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeRemainingColumn(),
+        ) as progress:
+            task = progress.add_task('Pushing\u2026', total=None)
+
+            def on_push_progress(current: int, total: int) -> None:
+                progress.update(task, completed=current, total=total)
+
+            self.app.push_with_progress(path, on_push_progress)
+
     def __configure_push_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('path', type=Path)
-        parser.set_defaults(func=self.app.push)
+        parser.set_defaults(func=self.push_cmd)
 
     def __configure_duplicate_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('paths', nargs='+', type=Path)
