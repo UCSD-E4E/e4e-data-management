@@ -19,7 +19,7 @@ use pyo3::types::PyDict;
 use crate::db::{DatasetDb, DatasetInfo, DatasetMeta, StagedFileRecord};
 use crate::dataset::{self, DatasetState, MissionState};
 use crate::errors::E4EError;
-use crate::manager::DataManager;
+use crate::manager::{self, DataManager};
 use crate::metadata::MetadataRecord;
 use crate::manifest;
 
@@ -730,7 +730,16 @@ impl PyDataManager {
             dataset::check_destination_is_subset(&src_manifest, &destination)?;
         }
 
-        fs::create_dir_all(&destination)?;
+        fs::create_dir_all(&destination).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::AlreadyExists {
+                PyErr::from(E4EError::Runtime(format!(
+                    "Cannot create destination directory '{}': path already exists but is not a directory",
+                    destination.display()
+                )))
+            } else {
+                PyErr::from(E4EError::Io(e))
+            }
+        })?;
 
         dataset::duplicate_dataset(ds, &[destination.clone()])?;
 
@@ -775,7 +784,16 @@ impl PyDataManager {
             let src_manifest = manifest::read_manifest(&ds_root.join("manifest.json"))?;
             dataset::check_destination_is_subset(&src_manifest, &destination)?;
         }
-        fs::create_dir_all(&destination)?;
+        fs::create_dir_all(&destination).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::AlreadyExists {
+                PyErr::from(E4EError::Runtime(format!(
+                    "Cannot create destination directory '{}': path already exists but is not a directory",
+                    destination.display()
+                )))
+            } else {
+                PyErr::from(E4EError::Io(e))
+            }
+        })?;
 
         let dest_clone = destination.clone();
         py.allow_threads(move || {
@@ -925,6 +943,11 @@ impl PyDataManager {
 // Module definition
 // ─────────────────────────────────────────────────────────────
 
+#[pyfunction]
+fn default_config_dir() -> PyResult<Option<String>> {
+    Ok(manager::default_config_dir().map(|p: std::path::PathBuf| p.to_string_lossy().into_owned()))
+}
+
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("Incomplete", m.py().get_type_bound::<Incomplete>())?;
@@ -942,5 +965,6 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyMission>()?;
     m.add_class::<PyDataset>()?;
     m.add_class::<PyDataManager>()?;
+    m.add_function(wrap_pyfunction!(default_config_dir, m)?)?;
     Ok(())
 }

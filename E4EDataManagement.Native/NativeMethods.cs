@@ -39,6 +39,14 @@ internal static class NativeMethods
     // ── Data manager lifecycle ──────────────────────────────────────────────
 
     /// <summary>
+    /// Returns the platform-appropriate default configuration directory as a
+    /// heap-allocated string.  The caller must free it with <see cref="e4e_string_free"/>.
+    /// Returns 0 on success, -1 on error.
+    /// </summary>
+    [DllImport(LibName, CharSet = CharSet.Ansi, EntryPoint = "e4e_default_config_dir")]
+    internal static extern int e4e_default_config_dir(out IntPtr @out);
+
+    /// <summary>
     /// Loads or creates the data manager state from the given config directory.
     /// Returns a non-null opaque handle on success, IntPtr.Zero on error.
     /// </summary>

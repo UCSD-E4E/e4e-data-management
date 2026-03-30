@@ -368,11 +368,37 @@ class DataManagerCLI:
             BarColumn(),
             MofNCompleteColumn(),
             TimeRemainingColumn(),
+            speed_estimate_period=600,
         ) as progress:
-            task = progress.add_task('Pushing\u2026', total=None)
+            push_task = progress.add_task('Pushing\u2026', total=None)
+            val_task = progress.add_task('Validating\u2026', total=None, visible=False)
+            # Parallel callbacks arrive in bursts with identical timestamps, which
+            # prevents Rich from computing a rate.  Count every callback but only
+            # render at most 10 times per second so samples are spaced in time.
+            import time as _time
+            _counts = [0, 0]   # [push_done, val_done]
+            _last_t = [_time.monotonic()]
+            _INTERVAL = 0.1
 
             def on_push_progress(current: int, total: int) -> None:
-                progress.update(task, completed=current, total=total)
+                file_count = total // 2
+                now = _time.monotonic()
+                if current <= file_count:
+                    _counts[0] += 1
+                    n = _counts[0]
+                    if now - _last_t[0] >= _INTERVAL or n == file_count:
+                        _last_t[0] = now
+                        progress.update(push_task, total=file_count, completed=n)
+                else:
+                    if not progress.tasks[val_task].visible:
+                        progress.update(push_task, visible=False)
+                        progress.update(val_task, total=file_count, visible=True)
+                        _last_t[0] = now
+                    _counts[1] += 1
+                    n = _counts[1]
+                    if now - _last_t[0] >= _INTERVAL or n == file_count:
+                        _last_t[0] = now
+                        progress.update(val_task, completed=n)
 
             self.app.push_with_progress(path, on_push_progress)
 

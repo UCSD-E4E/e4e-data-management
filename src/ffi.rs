@@ -17,7 +17,7 @@ use serde::Serialize;
 use crate::dataset::{self, DatasetState};
 use crate::db::{DatasetDb, DatasetInfo, DatasetMeta};
 use crate::errors::E4EError;
-use crate::manager::DataManagerState;
+use crate::manager::{self, DataManagerState};
 use crate::metadata::MetadataRecord;
 use crate::manifest;
 
@@ -217,6 +217,23 @@ pub extern "C" fn e4e_last_error() -> *const c_char {
 pub unsafe extern "C" fn e4e_string_free(s: *mut c_char) {
     if !s.is_null() {
         drop(CString::from_raw(s));
+    }
+}
+
+/// Returns the default configuration directory as a heap-allocated string.
+/// The caller must free the string with `e4e_string_free`.
+/// Returns 0 on success, -1 if the platform provides no suitable directory.
+///
+/// # Safety
+/// `out` must be a valid non-null pointer to a `*mut c_char`.
+#[no_mangle]
+pub unsafe extern "C" fn e4e_default_config_dir(out: *mut *mut c_char) -> i32 {
+    match manager::default_config_dir() {
+        Some(path) => write_string_out(path.to_string_lossy().into_owned(), out),
+        None => {
+            set_last_error("Could not determine default config directory for this platform");
+            -1
+        }
     }
 }
 

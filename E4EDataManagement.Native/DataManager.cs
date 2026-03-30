@@ -24,6 +24,20 @@ public sealed class DataManager : IDisposable
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     /// <summary>
+    /// Returns the platform-appropriate default configuration directory.
+    /// This is the canonical path used by both the CLI and the UI.
+    /// </summary>
+    /// <exception cref="E4EException">Thrown when the native call fails.</exception>
+    public static string DefaultConfigDir()
+    {
+        if (NativeMethods.e4e_default_config_dir(out IntPtr ptr) != 0)
+            throw new E4EException($"Failed to get default config dir: {NativeMethods.LastError}");
+        var path = Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
+        NativeMethods.e4e_string_free(ptr);
+        return path;
+    }
+
+    /// <summary>
     /// Opens (or creates) the data manager state from the given config directory.
     /// </summary>
     /// <exception cref="E4EException">Thrown when the native call fails.</exception>
