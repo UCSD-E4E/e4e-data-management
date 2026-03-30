@@ -10,3 +10,15 @@
 /home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/refint/E4EDataManagement.Native.dll
 /home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.pdb
 /home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/ref/E4EDataManagement.Native.dll
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/bin/Debug/net10.0/E4EDataManagement.Native.deps.json
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/bin/Debug/net10.0/E4EDataManagement.Native.dll
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/bin/Debug/net10.0/E4EDataManagement.Native.pdb
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.GeneratedMSBuildEditorConfig.editorconfig
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.AssemblyInfoInputs.cache
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.AssemblyInfo.cs
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.csproj.CoreCompileInputs.cache
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.sourcelink.json
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.dll
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/refint/E4EDataManagement.Native.dll
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/E4EDataManagement.Native.pdb
+/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/obj/Debug/net10.0/ref/E4EDataManagement.Native.dll

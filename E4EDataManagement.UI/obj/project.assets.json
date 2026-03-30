@@ -1457,33 +1457,32 @@
     ]
   },
   "packageFolders": {
-    "/home/chris/.nuget/packages/": {}
+    "/Users/chriscrutchfield/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/E4EDataManagement.UI.csproj",
+      "projectUniqueName": "/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/E4EDataManagement.UI.csproj",
       "projectName": "E4EDataManagement.UI",
-      "projectPath": "/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/E4EDataManagement.UI.csproj",
-      "packagesPath": "/home/chris/.nuget/packages/",
-      "outputPath": "/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/obj/",
+      "projectPath": "/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/E4EDataManagement.UI.csproj",
+      "packagesPath": "/Users/chriscrutchfield/.nuget/packages/",
+      "outputPath": "/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.UI/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/chris/.nuget/NuGet/NuGet.Config"
+        "/Users/chriscrutchfield/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "/usr/lib/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/E4EDataManagement.Native.csproj": {
-              "projectPath": "/home/chris/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/E4EDataManagement.Native.csproj"
+            "/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/E4EDataManagement.Native.csproj": {
+              "projectPath": "/Users/chriscrutchfield/Repos/school/e4e/e4e-data-management/E4EDataManagement.Native/E4EDataManagement.Native.csproj"
             }
           }
         }
@@ -1498,7 +1497,7 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "net10.0": {
@@ -1549,7 +1548,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.104/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

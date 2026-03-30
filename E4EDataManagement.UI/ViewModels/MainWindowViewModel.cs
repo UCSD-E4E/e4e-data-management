@@ -18,38 +18,19 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private DatasetViewModel? _selectedDataset;
     [ObservableProperty] private string _statusText = "Ready";
     [ObservableProperty] private string _validationOutput = string.Empty;
-    [ObservableProperty] private string _pushPath = string.Empty;
-    [ObservableProperty] private bool _isOperationRunning;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(PushAsyncCommand))]
+    private string _pushPath = string.Empty;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(PushAsyncCommand))]
+    private bool _isOperationRunning;
     [ObservableProperty] private double _operationProgress;
     [ObservableProperty] private string _progressText = string.Empty;
 
     public MainWindowViewModel()
     {
-        // Match the path produced by Python's appdirs.AppDirs(
-        //   appname="E4EDataManagement", appauthor="Engineers for Exploration"):
-        //
-        //   Linux/macOS  →  $XDG_CONFIG_HOME/E4EDataManagement
-        //                   (~/.config/E4EDataManagement when XDG_CONFIG_HOME is unset)
-        //                   appdirs ignores appauthor on non-Windows platforms.
-        //
-        //   Windows      →  %LOCALAPPDATA%\Engineers for Exploration\E4EDataManagement
-        //                   appdirs uses LOCALAPPDATA (non-roaming) by default.
-        string configDir;
-        if (OperatingSystem.IsWindows())
-        {
-            configDir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Engineers for Exploration",
-                "E4EDataManagement");
-        }
-        else
-        {
-            var xdgConfig = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME")
-                            ?? Path.Combine(
-                                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                                ".config");
-            configDir = Path.Combine(xdgConfig, "E4EDataManagement");
-        }
+        var configDir = DataManager.DefaultConfigDir();
         Directory.CreateDirectory(configDir);
 
         try
@@ -122,8 +103,10 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private bool CanPushAsync() => !string.IsNullOrWhiteSpace(PushPath) && !IsOperationRunning;
+
     /// <summary>Push the active dataset to <see cref="PushPath"/>.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanPushAsync))]
     private async Task PushAsync()
     {
         var path = PushPath.Trim();

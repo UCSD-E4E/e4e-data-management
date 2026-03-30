@@ -1,8 +1,20 @@
 use std::path::{Path, PathBuf};
 
+use directories::ProjectDirs;
+
 use crate::dataset::{self, DatasetState};
 use crate::db::{DatasetInfo, ManagerDb};
 use crate::errors::{E4EError, Result};
+
+/// Returns the default configuration directory for this application.
+///
+/// - macOS:   `~/Library/Application Support/E4EDataManagement`
+/// - Windows: `%APPDATA%\Engineers for Exploration\E4EDataManagement`
+/// - Linux:   `$XDG_CONFIG_HOME/E4EDataManagement` (or `~/.config/E4EDataManagement`)
+pub fn default_config_dir() -> Option<PathBuf> {
+    ProjectDirs::from("", "", "E4EDataManagement")
+        .map(|dirs| dirs.config_dir().to_path_buf())
+}
 
 /// Current manager schema version.
 const VERSION: i32 = 2;

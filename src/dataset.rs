@@ -1,6 +1,9 @@
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
+
+use rayon::prelude::*;
 
 use crate::db::{DatasetDb, DatasetMeta, MissionRecord, StagedFileRecord};
 use crate::errors::{E4EError, Result};
@@ -719,47 +722,113 @@ where
     let file_count = manifest_data.len() as u64;
     let total = file_count * 2;
 
+    let entries: Vec<(&String, &manifest::ManifestEntry)> = manifest_data.iter().collect();
+
     for dest in destinations {
         fs::create_dir_all(dest)?;
 
-        // Phase 1: copy files (progress 1..file_count).
-        for (i, rel_path) in manifest_data.keys().enumerate() {
+        // Clear any leftover temp files from a previous interrupted push.
+        manifest::cleanup_temp_files(dest)?;
+
+        // Phase 1: copy files in parallel, verifying hash during the write.
+        // Each file is hashed as it is streamed to the destination, so no
+        // separate re-read of the destination is needed for copied files.
+        let counter = AtomicU64::new(0);
+        let first_error: std::sync::Mutex<Option<E4EError>> = std::sync::Mutex::new(None);
+
+        entries.par_iter().for_each(|(rel_path, entry)| {
+            // Stop early if a previous iteration already failed.
+            if first_error.lock().unwrap().is_some() {
+                return;
+            }
+
             let src = state.root.join(rel_path);
-            let dst = dest.join(rel_path);
-            if let Some(parent) = dst.parent() {
-                fs::create_dir_all(parent)?;
+            let dst = dest.join(rel_path.as_str());
+
+            let result = (|| -> Result<()> {
+                if let Some(parent) = dst.parent() {
+                    fs::create_dir_all(parent).map_err(|e| {
+                        if e.kind() == std::io::ErrorKind::AlreadyExists {
+                            E4EError::Runtime(format!(
+                                "Cannot create directory '{}': path exists as a file",
+                                parent.display()
+                            ))
+                        } else {
+                            E4EError::Io(e)
+                        }
+                    })?;
+                }
+
+                // Skip if the destination file already has the correct hash.
+                let already_correct = dst.exists()
+                    && manifest::compute_file_hash(&dst)
+                        .map(|h| h == entry.sha256sum)
+                        .unwrap_or(false);
+
+                if !already_correct {
+                    if dst.is_dir() {
+                        return Err(E4EError::Runtime(format!(
+                            "Cannot copy '{}': destination path '{}' exists as a directory",
+                            rel_path,
+                            dst.display()
+                        )));
+                    }
+                    // Copy and verify the hash inline — no second read needed.
+                    manifest::copy_and_verify(&src, &dst, &entry.sha256sum)?;
+                }
+                Ok(())
+            })();
+
+            if let Err(e) = result {
+                let mut guard = first_error.lock().unwrap();
+                if guard.is_none() {
+                    *guard = Some(e);
+                }
             }
-            // Skip if the destination file already has the correct hash.
-            let expected_hash = &manifest_data[rel_path].sha256sum;
-            let already_correct = dst.exists()
-                && manifest::compute_file_hash(&dst)
-                    .map(|h| &h == expected_hash)
-                    .unwrap_or(false);
-            if !already_correct {
-                fs::copy(&src, &dst)?;
-            }
-            progress(i as u64 + 1, total);
+
+            let i = counter.fetch_add(1, Ordering::Relaxed);
+            progress(i + 1, total);
+        });
+
+        if let Some(e) = first_error.into_inner().unwrap() {
+            return Err(e);
         }
 
-        // Phase 2: validate destination (progress file_count+1..2*file_count).
-        // Check all files now at dest (not just what we copied) so that any
-        // pre-existing extra files from a previous interrupted push are caught.
+        // Phase 2: check for unlisted files at the destination.
+        // Hashes were already verified inline during copy, so only a directory
+        // walk is needed here — no re-hashing.
         let all_dest_files = get_dataset_files(dest);
-        let failures = manifest::collect_validation_failures_with_progress(
-            &manifest_data,
-            dest,
-            &all_dest_files,
-            "hash",
-            |current, _| progress(file_count + current, total),
-        )?;
+        let unlisted: Vec<String> = all_dest_files
+            .iter()
+            .filter_map(|file| {
+                let rel = file.strip_prefix(dest.as_path()).ok()?;
+                let rel_posix = rel
+                    .components()
+                    .map(|c| c.as_os_str().to_string_lossy().into_owned())
+                    .collect::<Vec<_>>()
+                    .join("/");
+                if !manifest_data.contains_key(&rel_posix)
+                    && !manifest::is_temp_file(file)
+                {
+                    Some(format!("unlisted file: {}", rel_posix))
+                } else {
+                    None
+                }
+            })
+            .collect();
 
-        if !failures.is_empty() {
+        for i in 0..all_dest_files.len() as u64 {
+            progress(file_count + i + 1, total);
+        }
+
+        if !unlisted.is_empty() {
             return Err(E4EError::Runtime(format!(
-                "Validation failed after duplicate to {}:\n  {}",
+                "Unlisted files at destination {}:\n  {}",
                 dest.display(),
-                failures.join("\n  ")
+                unlisted.join("\n  ")
             )));
         }
+
         manifest::write_manifest(&dest.join(MANIFEST_NAME), &manifest_data)?;
     }
     Ok(())

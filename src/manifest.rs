@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -8,8 +8,10 @@ use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use crate::errors::Result;
+use crate::errors::{E4EError, Result};
 use crate::utils::convert_to_4space_indent;
+
+const TMP_SUFFIX: &str = ".e4edm_tmp";
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ManifestEntry {
@@ -18,6 +20,75 @@ pub struct ManifestEntry {
 }
 
 pub type ManifestData = HashMap<String, ManifestEntry>;
+
+/// Copy `src` to a temp file beside `dst`, verify the hash, then rename into place.
+/// If the hash does not match or the write fails, the temp file is removed.
+pub fn copy_and_verify(src: &Path, dst: &Path, expected_hash: &str) -> Result<()> {
+    let tmp_name = format!(
+        "{}{}",
+        dst.file_name().unwrap_or_default().to_string_lossy(),
+        TMP_SUFFIX
+    );
+    let tmp = dst.with_file_name(tmp_name);
+
+    let result = (|| -> Result<()> {
+        let mut src_file = fs::File::open(src)?;
+        let mut tmp_file = fs::File::create(&tmp)?;
+        let mut hasher = Sha256::new();
+        let mut buf = [0u8; 65536];
+        loop {
+            let n = src_file.read(&mut buf)?;
+            if n == 0 {
+                break;
+            }
+            hasher.update(&buf[..n]);
+            tmp_file.write_all(&buf[..n])?;
+        }
+        let computed = hex::encode(hasher.finalize());
+        if computed != expected_hash {
+            return Err(E4EError::Runtime(format!(
+                "Hash mismatch copying '{}': expected {}, got {}",
+                src.display(),
+                expected_hash,
+                computed
+            )));
+        }
+        fs::rename(&tmp, dst)?;
+        Ok(())
+    })();
+
+    if result.is_err() {
+        let _ = fs::remove_file(&tmp);
+    }
+    result
+}
+
+/// Remove any leftover `.e4edm_tmp` files under `dir` from a previous interrupted push.
+pub fn cleanup_temp_files(dir: &Path) -> Result<()> {
+    if !dir.exists() {
+        return Ok(());
+    }
+    for entry in walkdir::WalkDir::new(dir) {
+        let entry = entry.map_err(|e| E4EError::Runtime(e.to_string()))?;
+        let path = entry.path();
+        if path.is_file()
+            && path
+                .file_name()
+                .map(|n| n.to_string_lossy().ends_with(TMP_SUFFIX))
+                .unwrap_or(false)
+        {
+            fs::remove_file(path)?;
+        }
+    }
+    Ok(())
+}
+
+/// Returns true if `path` is a temp file created by `copy_and_verify`.
+pub fn is_temp_file(path: &Path) -> bool {
+    path.file_name()
+        .map(|n| n.to_string_lossy().ends_with(TMP_SUFFIX))
+        .unwrap_or(false)
+}
 
 /// Read a file in 4096-byte chunks, compute SHA256, return hex string.
 pub fn compute_file_hash(path: &Path) -> Result<String> {
@@ -206,6 +277,7 @@ where
 
 /// Collect validation failures without progress reporting.
 #[cfg_attr(not(feature = "python"), allow(dead_code))]
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn collect_validation_failures(
     data: &ManifestData,
     root: &Path,
