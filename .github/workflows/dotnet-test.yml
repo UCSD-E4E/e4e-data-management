@@ -1,0 +1,22 @@
+name: .NET Test
+
+on: [push, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "10.0.x"
+    - name: Build
+      run: dotnet build E4EDataManagement.Tests -p:SkipNativeRustBuild=true
+    - name: Run C# unit tests
+      run: dotnet test E4EDataManagement.Tests --no-build -p:SkipNativeRustBuild=true

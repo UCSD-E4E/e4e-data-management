@@ -12,6 +12,7 @@ from e4e_data_management._core import (
     PyDataManager as _DataManager,
     PyDataset as _Dataset,
     PyMission as _Mission,
+    default_config_dir as _default_config_dir,
 )
 from e4e_data_management.data import Manifest as _Manifest
 
@@ -138,7 +139,7 @@ class DataManager:  # pylint: disable=too-many-public-methods
 
     def __init__(self, *, app_config_dir=None):
         if app_config_dir is None:
-            app_config_dir = Path(self.dirs.user_config_dir)
+            app_config_dir = Path(_default_config_dir())
         default_dataset_dir = str(Path(self.dirs.user_data_dir))
         self._inner = _DataManager(str(app_config_dir), default_dataset_dir)
         self._log = logging.getLogger('e4edm.core')
@@ -146,7 +147,7 @@ class DataManager:  # pylint: disable=too-many-public-methods
     @classmethod
     def load(cls, *, config_dir=None) -> 'DataManager':
         if config_dir is None:
-            config_dir = cls.config_dir or Path(cls.dirs.user_config_dir)
+            config_dir = cls.config_dir or Path(_default_config_dir())
         obj = cls.__new__(cls)
         obj._inner = _DataManager.load(str(config_dir))
         obj._log = logging.getLogger('e4edm.core')
@@ -240,6 +241,14 @@ class DataManager:  # pylint: disable=too-many-public-methods
 
     def push(self, path: Path) -> None:
         self._inner.push(str(path))
+
+    def push_with_progress(self, path: Path, callback) -> None:
+        """Push the active dataset to `path`, calling `callback(current, total)` per file."""
+        self._inner.push_with_progress(str(path), callback)
+
+    def validate_failures_with_progress(self, callback) -> List[str]:
+        """Validate the active dataset, calling `callback(current, total)` per file hashed."""
+        return self._inner.validate_failures_with_progress(callback)
 
     def remove_mission(self, dataset: str, mission: str) -> None:
         self._inner.remove_mission(dataset, mission)

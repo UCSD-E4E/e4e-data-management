@@ -1,0 +1,214 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:E4EDataManagement.UI.ViewModels"
+        xmlns:local="clr-namespace:E4EDataManagement.UI"
+        mc:Ignorable="d"
+        x:Class="E4EDataManagement.UI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="E4E Data Management"
+        Width="1100" Height="700"
+        MinWidth="800" MinHeight="500">
+
+    <DockPanel LastChildFill="True">
+
+        <!-- ── Toolbar (top) ──────────────────────────────────────────── -->
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                Padding="8,4">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <Button Content="New Dataset"
+                        Name="NewDatasetButton"
+                        Margin="0,0,4,0" />
+
+                <Button Content="New Mission"
+                        Name="NewMissionButton"
+                        IsEnabled="{Binding HasActiveDataset}"
+                        Margin="0,0,4,0" />
+
+                <Button Content="Add Files"
+                        Name="AddFilesButton"
+                        IsEnabled="{Binding HasActiveMission}"
+                        Margin="0,0,16,0" />
+
+                <Button Content="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        Margin="0,0,4,0" />
+
+                <Button Content="Validate"
+                        Command="{Binding ValidateAsyncCommand}"
+                        Margin="0,0,4,0" />
+
+                <Button Content="Prune"
+                        Command="{Binding PruneCommand}"
+                        Margin="0,0,16,0" />
+
+                <!-- Push controls -->
+                <TextBlock Text="Push to:" VerticalAlignment="Center" Margin="0,0,4,0" />
+                <TextBox Text="{Binding PushPath}"
+                         Watermark="Destination directory…"
+                         Width="280"
+                         Margin="0,0,4,0" />
+                <Button Content="Push"
+                        Command="{Binding PushAsyncCommand}"
+                        Margin="0,0,0,0" />
+
+            </WrapPanel>
+        </Border>
+
+        <!-- ── Progress bar ─────────────────────────────────────────── -->
+        <Border DockPanel.Dock="Top"
+                IsVisible="{Binding IsOperationRunning}"
+                Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                Padding="8,4">
+            <StackPanel Spacing="2">
+                <TextBlock Text="{Binding ProgressText}"
+                           FontSize="11"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                <ProgressBar Value="{Binding OperationProgress}"
+                             Minimum="0"
+                             Maximum="100"
+                             Height="6" />
+            </StackPanel>
+        </Border>
+
+        <!-- ── Status bar (bottom) ───────────────────────────────────── -->
+        <Border DockPanel.Dock="Bottom"
+                Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                Padding="8,3">
+            <TextBlock Text="{Binding StatusText}"
+                       FontSize="12"
+                       TextWrapping="Wrap" />
+        </Border>
+
+        <!-- ── Dataset list (left) ───────────────────────────────────── -->
+        <Border DockPanel.Dock="Left"
+                Width="220"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                BorderThickness="0,0,1,0">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Text="Datasets"
+                           FontWeight="SemiBold"
+                           Margin="8,6,8,4" />
+                <ListBox ItemsSource="{Binding Datasets}"
+                         SelectedItem="{Binding SelectedDataset}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DatasetViewModel">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding Name}"
+                                           FontWeight="{Binding IsActive, Converter={x:Static local:AppConverters.BoolToFontWeight}}"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="150"
+                                           ToolTip.Tip="{Binding Name}" />
+                                <TextBlock Text="✓"
+                                           Foreground="Green"
+                                           IsVisible="{Binding IsPushed}"
+                                           ToolTip.Tip="Pushed" />
+                                <TextBlock Text="●"
+                                           Foreground="DodgerBlue"
+                                           IsVisible="{Binding IsActive}"
+                                           ToolTip.Tip="Active" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- ── Detail pane (right / centre fill) ────────────────────── -->
+        <ScrollViewer>
+            <StackPanel Margin="12,8" Spacing="10">
+
+                <!-- Dataset header -->
+                <StackPanel IsVisible="{Binding SelectedDataset, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="{Binding SelectedDataset.Name}"
+                                   FontSize="18"
+                                   FontWeight="Bold" />
+                        <Border Background="Green"
+                                CornerRadius="4"
+                                Padding="6,2"
+                                IsVisible="{Binding SelectedDataset.IsPushed}">
+                            <TextBlock Text="Pushed" Foreground="White" FontSize="11" />
+                        </Border>
+                        <Border Background="DodgerBlue"
+                                CornerRadius="4"
+                                Padding="6,2"
+                                IsVisible="{Binding SelectedDataset.IsActive}">
+                            <TextBlock Text="Active" Foreground="White" FontSize="11" />
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Active mission label -->
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="6"
+                                Margin="0,4,0,0"
+                                IsVisible="{Binding SelectedDataset.ActiveMission, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Text="Active mission:" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding SelectedDataset.ActiveMission}" />
+                    </StackPanel>
+
+                    <!-- Missions table -->
+                    <TextBlock Text="Missions"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Margin="0,12,0,4" />
+
+                    <DataGrid ItemsSource="{Binding SelectedDataset.Missions}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="True"
+                              MinHeight="120">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name"
+                                               Binding="{Binding Name}"
+                                               Width="180" />
+                            <DataGridTextColumn Header="Country"
+                                               Binding="{Binding Country}"
+                                               Width="100" />
+                            <DataGridTextColumn Header="Region"
+                                               Binding="{Binding Region}"
+                                               Width="100" />
+                            <DataGridTextColumn Header="Site"
+                                               Binding="{Binding Site}"
+                                               Width="100" />
+                            <DataGridTextColumn Header="Device"
+                                               Binding="{Binding Device}"
+                                               Width="120" />
+                            <DataGridTextColumn Header="Timestamp"
+                                               Binding="{Binding Timestamp}"
+                                               Width="150" />
+                            <DataGridTextColumn Header="Staged"
+                                               Binding="{Binding StagedFiles}"
+                                               Width="70" />
+                            <DataGridTextColumn Header="Committed"
+                                               Binding="{Binding CommittedFiles}"
+                                               Width="90" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+
+                <!-- Validation output -->
+                <StackPanel IsVisible="{Binding ValidationOutput, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                            Spacing="4">
+                    <TextBlock Text="Validation Output"
+                               FontSize="14"
+                               FontWeight="SemiBold" />
+                    <ScrollViewer MaxHeight="200"
+                                  HorizontalScrollBarVisibility="Auto">
+                        <TextBlock Text="{Binding ValidationOutput}"
+                                   FontFamily="Monospace"
+                                   TextWrapping="Wrap" />
+                    </ScrollViewer>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </DockPanel>
+</Window>

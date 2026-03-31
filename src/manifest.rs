@@ -1,14 +1,17 @@
 use std::collections::HashMap;
 use std::fs;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use crate::errors::Result;
+use crate::errors::{E4EError, Result};
 use crate::utils::convert_to_4space_indent;
+
+const TMP_SUFFIX: &str = ".e4edm_tmp";
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ManifestEntry {
@@ -17,6 +20,75 @@ pub struct ManifestEntry {
 }
 
 pub type ManifestData = HashMap<String, ManifestEntry>;
+
+/// Copy `src` to a temp file beside `dst`, verify the hash, then rename into place.
+/// If the hash does not match or the write fails, the temp file is removed.
+pub fn copy_and_verify(src: &Path, dst: &Path, expected_hash: &str) -> Result<()> {
+    let tmp_name = format!(
+        "{}{}",
+        dst.file_name().unwrap_or_default().to_string_lossy(),
+        TMP_SUFFIX
+    );
+    let tmp = dst.with_file_name(tmp_name);
+
+    let result = (|| -> Result<()> {
+        let mut src_file = fs::File::open(src)?;
+        let mut tmp_file = fs::File::create(&tmp)?;
+        let mut hasher = Sha256::new();
+        let mut buf = [0u8; 65536];
+        loop {
+            let n = src_file.read(&mut buf)?;
+            if n == 0 {
+                break;
+            }
+            hasher.update(&buf[..n]);
+            tmp_file.write_all(&buf[..n])?;
+        }
+        let computed = hex::encode(hasher.finalize());
+        if computed != expected_hash {
+            return Err(E4EError::Runtime(format!(
+                "Hash mismatch copying '{}': expected {}, got {}",
+                src.display(),
+                expected_hash,
+                computed
+            )));
+        }
+        fs::rename(&tmp, dst)?;
+        Ok(())
+    })();
+
+    if result.is_err() {
+        let _ = fs::remove_file(&tmp);
+    }
+    result
+}
+
+/// Remove any leftover `.e4edm_tmp` files under `dir` from a previous interrupted push.
+pub fn cleanup_temp_files(dir: &Path) -> Result<()> {
+    if !dir.exists() {
+        return Ok(());
+    }
+    for entry in walkdir::WalkDir::new(dir) {
+        let entry = entry.map_err(|e| E4EError::Runtime(e.to_string()))?;
+        let path = entry.path();
+        if path.is_file()
+            && path
+                .file_name()
+                .map(|n| n.to_string_lossy().ends_with(TMP_SUFFIX))
+                .unwrap_or(false)
+        {
+            fs::remove_file(path)?;
+        }
+    }
+    Ok(())
+}
+
+/// Returns true if `path` is a temp file created by `copy_and_verify`.
+pub fn is_temp_file(path: &Path) -> bool {
+    path.file_name()
+        .map(|n| n.to_string_lossy().ends_with(TMP_SUFFIX))
+        .unwrap_or(false)
+}
 
 /// Read a file in 4096-byte chunks, compute SHA256, return hex string.
 pub fn compute_file_hash(path: &Path) -> Result<String> {
@@ -106,7 +178,8 @@ pub fn update_manifest_with_known_hashes(
     Ok(())
 }
 
-/// Collect validation failures for manifest entries.
+/// Collect validation failures for manifest entries, calling `progress(current, total)`
+/// after each file is processed.
 ///
 /// Returns a list of human-readable failure messages.  An empty list means
 /// the dataset is valid.  Also checks for manifest entries whose files are
@@ -114,18 +187,25 @@ pub fn update_manifest_with_known_hashes(
 ///
 /// For "hash": verify sha256sum matches; for "size": verify file size matches.
 /// Hash checks are performed in parallel across all files.
-pub fn collect_validation_failures(
+pub fn collect_validation_failures_with_progress<F>(
     data: &ManifestData,
     root: &Path,
     files: &[PathBuf],
     method: &str,
-) -> Result<Vec<String>> {
+    progress: F,
+) -> Result<Vec<String>>
+where
+    F: Fn(u64, u64) + Send + Sync,
+{
     if method != "hash" && method != "size" {
         return Err(crate::errors::E4EError::Runtime(format!(
             "Unknown validation method: {}",
             method
         )));
     }
+
+    let total = files.len() as u64;
+    let counter = AtomicU64::new(0);
 
     // Process each on-disk file in parallel.  Each thread returns:
     //   Ok((rel_posix, Option<failure_message>))
@@ -170,6 +250,10 @@ pub fn collect_validation_failures(
                     _ => unreachable!(),
                 },
             };
+
+            let current = counter.fetch_add(1, Ordering::Relaxed) + 1;
+            progress(current, total);
+
             Ok((rel_posix, failure))
         })
         .collect();
@@ -189,6 +273,18 @@ pub fn collect_validation_failures(
     }
 
     Ok(failures)
+}
+
+/// Collect validation failures without progress reporting.
+#[cfg_attr(not(feature = "python"), allow(dead_code))]
+#[cfg_attr(not(test), allow(dead_code))]
+pub fn collect_validation_failures(
+    data: &ManifestData,
+    root: &Path,
+    files: &[PathBuf],
+    method: &str,
+) -> Result<Vec<String>> {
+    collect_validation_failures_with_progress(data, root, files, method, |_, _| {})
 }
 
 
@@ -337,6 +433,85 @@ mod tests {
         let result = read_manifest(&path).unwrap();
         assert!(result.contains_key("old.bin"), "old entry should be preserved");
         assert!(result.contains_key("new.bin"), "new entry should be added");
+    }
+
+    // ── is_temp_file ─────────────────────────────────────────────
+
+    #[test]
+    fn is_temp_file_returns_true_for_tmp_suffix() {
+        let path = std::path::Path::new("/some/dir/file.bin.e4edm_tmp");
+        assert!(is_temp_file(path));
+    }
+
+    #[test]
+    fn is_temp_file_returns_false_for_normal_file() {
+        assert!(!is_temp_file(std::path::Path::new("/some/dir/file.bin")));
+    }
+
+    #[test]
+    fn is_temp_file_returns_false_for_root() {
+        assert!(!is_temp_file(std::path::Path::new("/")));
+    }
+
+    // ── cleanup_temp_files ────────────────────────────────────────
+
+    #[test]
+    fn cleanup_temp_files_removes_tmp_files() {
+        let dir = tempdir().unwrap();
+        let tmp_file = dir.path().join("data.bin.e4edm_tmp");
+        let keep_file = dir.path().join("data.bin");
+        write_file(&tmp_file, b"junk");
+        write_file(&keep_file, b"keep");
+        cleanup_temp_files(dir.path()).unwrap();
+        assert!(!tmp_file.exists(), "temp file should be removed");
+        assert!(keep_file.exists(), "normal file should be kept");
+    }
+
+    #[test]
+    fn cleanup_temp_files_on_nonexistent_dir_is_ok() {
+        let dir = tempdir().unwrap();
+        let missing = dir.path().join("does_not_exist");
+        cleanup_temp_files(&missing).unwrap();
+    }
+
+    #[test]
+    fn cleanup_temp_files_removes_nested_tmp_files() {
+        let dir = tempdir().unwrap();
+        let sub = dir.path().join("sub");
+        fs::create_dir(&sub).unwrap();
+        let tmp_file = sub.join("nested.bin.e4edm_tmp");
+        write_file(&tmp_file, b"junk");
+        cleanup_temp_files(dir.path()).unwrap();
+        assert!(!tmp_file.exists());
+    }
+
+    // ── copy_and_verify ───────────────────────────────────────────
+
+    #[test]
+    fn copy_and_verify_succeeds_with_correct_hash() {
+        let dir = tempdir().unwrap();
+        let src = dir.path().join("src.bin");
+        let dst = dir.path().join("dst.bin");
+        let content = b"hello world";
+        write_file(&src, content);
+        let expected = compute_file_hash(&src).unwrap();
+        copy_and_verify(&src, &dst, &expected).unwrap();
+        assert!(dst.exists());
+        assert_eq!(fs::read(&dst).unwrap(), content);
+    }
+
+    #[test]
+    fn copy_and_verify_fails_and_cleans_up_on_hash_mismatch() {
+        let dir = tempdir().unwrap();
+        let src = dir.path().join("src.bin");
+        let dst = dir.path().join("dst.bin");
+        write_file(&src, b"real content");
+        let result = copy_and_verify(&src, &dst, "0000000000000000000000000000000000000000000000000000000000000000");
+        assert!(result.is_err());
+        assert!(!dst.exists(), "dst should not exist after mismatch");
+        // temp file should also be cleaned up
+        let tmp = dst.with_file_name("dst.bin.e4edm_tmp");
+        assert!(!tmp.exists(), "temp file should be cleaned up");
     }
 
     // ── collect_validation_failures ──────────────────────────────
