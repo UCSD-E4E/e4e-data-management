@@ -633,7 +633,7 @@ pub fn check_complete(state: &DatasetState) -> Result<()> {
         return Err(E4EError::ReadmeNotFound("Readme not found".to_string()));
     }
 
-    let acceptable_exts: &[&OsStr] = &[OsStr::new("md"), OsStr::new("docx")];
+    let acceptable_exts: &[&OsStr] = &[OsStr::new("md"), OsStr::new("docx"), OsStr::new("txt"), OsStr::new("pdf")];
     let has_acceptable = readme_entries.iter().any(|e| {
         Path::new(&e.file_name())
             .extension()
@@ -1222,11 +1222,35 @@ mod tests {
         let tmp = tempdir().unwrap();
         let root = tmp.path().join("ds");
         let state = create_dataset(&root, "2023-03-02").unwrap();
-        fs::write(root.join("readme.txt"), b"readme").unwrap();
+        fs::write(root.join("readme.xyz"), b"readme").unwrap();
         assert!(matches!(
             check_complete(&state).unwrap_err(),
             E4EError::ReadmeNotFound(_)
         ));
+    }
+
+    #[test]
+    fn check_complete_passes_with_txt_readme() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        let readme = tmp.path().join("readme.txt");
+        fs::write(&readme, b"readme").unwrap();
+        stage_dataset_files(&mut state, &[readme]).unwrap();
+        commit_dataset_files(&mut state).unwrap();
+        assert!(check_complete(&state).is_ok());
+    }
+
+    #[test]
+    fn check_complete_passes_with_pdf_readme() {
+        let tmp = tempdir().unwrap();
+        let root = tmp.path().join("ds");
+        let mut state = create_dataset(&root, "2023-03-02").unwrap();
+        let readme = tmp.path().join("readme.pdf");
+        fs::write(&readme, b"%PDF-1.4").unwrap();
+        stage_dataset_files(&mut state, &[readme]).unwrap();
+        commit_dataset_files(&mut state).unwrap();
+        assert!(check_complete(&state).is_ok());
     }
 
     #[test]
