@@ -273,3 +273,7 @@ $RECYCLE.BIN/
 **metadata.json
 VERSION
 .claude
+
+# .NET build artifacts
+**/bin/
+**/obj/
