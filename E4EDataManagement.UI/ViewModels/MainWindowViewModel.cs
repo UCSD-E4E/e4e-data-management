@@ -19,11 +19,11 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _statusText = "Ready";
     [ObservableProperty] private string _validationOutput = string.Empty;
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(PushAsyncCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PushCommand))]
     private string _pushPath = string.Empty;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(PushAsyncCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PushCommand))]
     private bool _isOperationRunning;
     [ObservableProperty] private double _operationProgress;
     [ObservableProperty] private string _progressText = string.Empty;

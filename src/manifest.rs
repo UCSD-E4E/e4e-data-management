@@ -435,6 +435,85 @@ mod tests {
         assert!(result.contains_key("new.bin"), "new entry should be added");
     }
 
+    // ── is_temp_file ─────────────────────────────────────────────
+
+    #[test]
+    fn is_temp_file_returns_true_for_tmp_suffix() {
+        let path = std::path::Path::new("/some/dir/file.bin.e4edm_tmp");
+        assert!(is_temp_file(path));
+    }
+
+    #[test]
+    fn is_temp_file_returns_false_for_normal_file() {
+        assert!(!is_temp_file(std::path::Path::new("/some/dir/file.bin")));
+    }
+
+    #[test]
+    fn is_temp_file_returns_false_for_root() {
+        assert!(!is_temp_file(std::path::Path::new("/")));
+    }
+
+    // ── cleanup_temp_files ────────────────────────────────────────
+
+    #[test]
+    fn cleanup_temp_files_removes_tmp_files() {
+        let dir = tempdir().unwrap();
+        let tmp_file = dir.path().join("data.bin.e4edm_tmp");
+        let keep_file = dir.path().join("data.bin");
+        write_file(&tmp_file, b"junk");
+        write_file(&keep_file, b"keep");
+        cleanup_temp_files(dir.path()).unwrap();
+        assert!(!tmp_file.exists(), "temp file should be removed");
+        assert!(keep_file.exists(), "normal file should be kept");
+    }
+
+    #[test]
+    fn cleanup_temp_files_on_nonexistent_dir_is_ok() {
+        let dir = tempdir().unwrap();
+        let missing = dir.path().join("does_not_exist");
+        cleanup_temp_files(&missing).unwrap();
+    }
+
+    #[test]
+    fn cleanup_temp_files_removes_nested_tmp_files() {
+        let dir = tempdir().unwrap();
+        let sub = dir.path().join("sub");
+        fs::create_dir(&sub).unwrap();
+        let tmp_file = sub.join("nested.bin.e4edm_tmp");
+        write_file(&tmp_file, b"junk");
+        cleanup_temp_files(dir.path()).unwrap();
+        assert!(!tmp_file.exists());
+    }
+
+    // ── copy_and_verify ───────────────────────────────────────────
+
+    #[test]
+    fn copy_and_verify_succeeds_with_correct_hash() {
+        let dir = tempdir().unwrap();
+        let src = dir.path().join("src.bin");
+        let dst = dir.path().join("dst.bin");
+        let content = b"hello world";
+        write_file(&src, content);
+        let expected = compute_file_hash(&src).unwrap();
+        copy_and_verify(&src, &dst, &expected).unwrap();
+        assert!(dst.exists());
+        assert_eq!(fs::read(&dst).unwrap(), content);
+    }
+
+    #[test]
+    fn copy_and_verify_fails_and_cleans_up_on_hash_mismatch() {
+        let dir = tempdir().unwrap();
+        let src = dir.path().join("src.bin");
+        let dst = dir.path().join("dst.bin");
+        write_file(&src, b"real content");
+        let result = copy_and_verify(&src, &dst, "0000000000000000000000000000000000000000000000000000000000000000");
+        assert!(result.is_err());
+        assert!(!dst.exists(), "dst should not exist after mismatch");
+        // temp file should also be cleaned up
+        let tmp = dst.with_file_name("dst.bin.e4edm_tmp");
+        assert!(!tmp.exists(), "temp file should be cleaned up");
+    }
+
     // ── collect_validation_failures ──────────────────────────────
 
     #[test]

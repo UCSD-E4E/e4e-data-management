@@ -240,7 +240,7 @@ def test_push_files(
         args = split(f'e4edm push {push_path.as_posix()}')
         with patch('sys.argv', args):
             main()
-            mock.push.assert_called_once_with(path=push_path)
+            mock.push_with_progress.assert_called_once()
 
 def test_add_readme(single_mission: Tuple[Mock, DataManager, Path], test_readme: Path):
     """Tests pushing readmes

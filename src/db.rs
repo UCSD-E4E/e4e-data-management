@@ -754,4 +754,107 @@ mod tests {
             .unwrap();
         assert_eq!(db.get_dataset_committed_files().unwrap().len(), 1);
     }
+
+    // ── ManagerDb ────────────────────────────────────────────────
+
+    fn open_manager(config_dir: &std::path::Path) -> ManagerDb {
+        ManagerDb::open(config_dir).unwrap()
+    }
+
+    fn dataset_info(name: &str) -> DatasetInfo {
+        DatasetInfo {
+            name: name.to_string(),
+            root_path: format!("/data/{}", name),
+            pushed: false,
+            last_country: None,
+            last_region: None,
+            last_site: None,
+            day_0: Some("2024-01-01".to_string()),
+        }
+    }
+
+    #[test]
+    fn manager_config_get_returns_none_when_absent() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        assert!(db.get_config("missing_key").unwrap().is_none());
+    }
+
+    #[test]
+    fn manager_config_set_and_get_roundtrip() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        db.set_config("active_dataset", "2024.01.01.Test.SD").unwrap();
+        let val = db.get_config("active_dataset").unwrap();
+        assert_eq!(val.as_deref(), Some("2024.01.01.Test.SD"));
+    }
+
+    #[test]
+    fn manager_config_set_overwrites_existing_value() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        db.set_config("key", "first").unwrap();
+        db.set_config("key", "second").unwrap();
+        assert_eq!(db.get_config("key").unwrap().as_deref(), Some("second"));
+    }
+
+    #[test]
+    fn manager_get_all_datasets_empty_initially() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        assert!(db.get_all_datasets().unwrap().is_empty());
+    }
+
+    #[test]
+    fn manager_upsert_and_get_all_datasets_roundtrip() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        db.upsert_dataset(&dataset_info("2024.01.01.Test.SD")).unwrap();
+        let datasets = db.get_all_datasets().unwrap();
+        assert_eq!(datasets.len(), 1);
+        assert_eq!(datasets[0].name, "2024.01.01.Test.SD");
+        assert_eq!(datasets[0].root_path, "/data/2024.01.01.Test.SD");
+        assert!(!datasets[0].pushed);
+    }
+
+    #[test]
+    fn manager_upsert_updates_existing_dataset() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        db.upsert_dataset(&dataset_info("2024.01.01.Test.SD")).unwrap();
+        let updated = DatasetInfo {
+            name: "2024.01.01.Test.SD".to_string(),
+            root_path: "/data/2024.01.01.Test.SD".to_string(),
+            pushed: true,
+            last_country: Some("USA".to_string()),
+            last_region: Some("California".to_string()),
+            last_site: Some("SD".to_string()),
+            day_0: Some("2024-01-01".to_string()),
+        };
+        db.upsert_dataset(&updated).unwrap();
+        let datasets = db.get_all_datasets().unwrap();
+        assert_eq!(datasets.len(), 1);
+        assert!(datasets[0].pushed);
+        assert_eq!(datasets[0].last_country.as_deref(), Some("USA"));
+    }
+
+    #[test]
+    fn manager_remove_dataset_deletes_entry() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        db.upsert_dataset(&dataset_info("2024.01.01.Test.SD")).unwrap();
+        db.upsert_dataset(&dataset_info("2024.02.01.Test.LA")).unwrap();
+        db.remove_dataset("2024.01.01.Test.SD").unwrap();
+        let datasets = db.get_all_datasets().unwrap();
+        assert_eq!(datasets.len(), 1);
+        assert_eq!(datasets[0].name, "2024.02.01.Test.LA");
+    }
+
+    #[test]
+    fn manager_remove_nonexistent_dataset_is_a_noop() {
+        let tmp = tempdir().unwrap();
+        let db = open_manager(tmp.path());
+        db.remove_dataset("does_not_exist").unwrap();
+        assert!(db.get_all_datasets().unwrap().is_empty());
+    }
 }

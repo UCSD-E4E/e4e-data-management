@@ -296,7 +296,7 @@ impl PyDataManager {
 
     #[getter]
     fn datasets<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let dict = PyDict::new_bound(py);
+        let dict = PyDict::new(py);
         for info in &self.dm.state.dataset_infos {
             // Try to load the dataset state
             let ds_result = dataset::load_dataset_state(&PathBuf::from(&info.root_path));
@@ -695,13 +695,13 @@ impl PyDataManager {
     fn validate_failures_with_progress(
         &mut self,
         py: Python<'_>,
-        callback: PyObject,
+        callback: Py<PyAny>,
     ) -> PyResult<Vec<String>> {
         let ds = self.ensure_active_dataset()?;
         let root = ds.root.clone();
-        py.allow_threads(move || {
+        py.detach(move || {
             dataset::validate_dataset_failures_with_progress(&root, |current, total| {
-                Python::with_gil(|py| {
+                Python::attach(|py| {
                     let _ = callback.call1(py, (current, total));
                 });
             })
@@ -741,7 +741,7 @@ impl PyDataManager {
             }
         })?;
 
-        dataset::duplicate_dataset(ds, &[destination.clone()])?;
+        dataset::duplicate_dataset(ds, std::slice::from_ref(&destination))?;
 
         // Set pushed flag
         let ds = self.ensure_active_dataset()?;
@@ -766,7 +766,7 @@ impl PyDataManager {
         &mut self,
         py: Python<'_>,
         path: &str,
-        callback: PyObject,
+        callback: Py<PyAny>,
     ) -> PyResult<()> {
         let dest_root = PathBuf::from(path);
         let ds = self.ensure_active_dataset()?;
@@ -796,9 +796,9 @@ impl PyDataManager {
         })?;
 
         let dest_clone = destination.clone();
-        py.allow_threads(move || {
+        py.detach(move || {
             dataset::duplicate_dataset_with_progress(&ds_clone, &[dest_clone], |current, total| {
-                Python::with_gil(|py| {
+                Python::attach(|py| {
                     let _ = callback.call1(py, (current, total));
                 });
             })
@@ -950,17 +950,17 @@ fn default_config_dir() -> PyResult<Option<String>> {
 
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add("Incomplete", m.py().get_type_bound::<Incomplete>())?;
+    m.add("Incomplete", m.py().get_type::<Incomplete>())?;
     m.add(
         "MissionFilesInStaging",
-        m.py().get_type_bound::<MissionFilesInStaging>(),
+        m.py().get_type::<MissionFilesInStaging>(),
     )?;
     m.add(
         "ReadmeFilesInStaging",
-        m.py().get_type_bound::<ReadmeFilesInStaging>(),
+        m.py().get_type::<ReadmeFilesInStaging>(),
     )?;
-    m.add("ReadmeNotFound", m.py().get_type_bound::<ReadmeNotFound>())?;
-    m.add("CorruptedDataset", m.py().get_type_bound::<CorruptedDataset>())?;
+    m.add("ReadmeNotFound", m.py().get_type::<ReadmeNotFound>())?;
+    m.add("CorruptedDataset", m.py().get_type::<CorruptedDataset>())?;
     m.add_class::<PyStagedFile>()?;
     m.add_class::<PyMission>()?;
     m.add_class::<PyDataset>()?;
