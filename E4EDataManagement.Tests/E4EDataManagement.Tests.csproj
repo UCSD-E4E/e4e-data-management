@@ -15,7 +15,11 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Native: DatasetInfo / MissionInfo records + JSON deserialization -->
-    <ProjectReference Include="..\E4EDataManagement.Native\E4EDataManagement.Native.csproj" />
+    <!-- AdditionalProperties must match the UI reference so MSBuild sees one
+         build of E4EDataManagement.Native and avoids a file-locking race on
+         E4EDataManagement.Native.deps.json. -->
+    <ProjectReference Include="..\E4EDataManagement.Native\E4EDataManagement.Native.csproj"
+                      AdditionalProperties="SkipNativeRustBuild=true" />
     <!-- UI: DatasetViewModel / MissionViewModel; SkipNativeRustBuild avoids
          requiring a Rust toolchain when only running C# unit tests. -->
     <ProjectReference Include="..\E4EDataManagement.UI\E4EDataManagement.UI.csproj"
