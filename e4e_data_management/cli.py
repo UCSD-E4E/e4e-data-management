@@ -109,9 +109,6 @@ class DataManagerCLI:
         parser.set_defaults(func=self.__external_validate)
 
     def __external_validate(self, root_dir: Optional[Path]):
-        from rich.progress import (BarColumn, MofNCompleteColumn, Progress,  # pylint: disable=import-outside-toplevel
-                                   SpinnerColumn, TextColumn, TimeRemainingColumn)
-
         if root_dir is None:
             with Progress(
                 SpinnerColumn(),
