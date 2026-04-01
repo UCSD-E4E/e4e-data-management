@@ -307,7 +307,7 @@ wheels = [
 
 [[package]]
 name = "e4e-data-management"
-version = "0.4.1"
+version = "0.5.3"
 source = { editable = "." }
 dependencies = [
     { name = "appdirs" },

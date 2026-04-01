@@ -32,17 +32,25 @@ pub fn copy_and_verify(src: &Path, dst: &Path, expected_hash: &str) -> Result<()
     let tmp = dst.with_file_name(tmp_name);
 
     let result = (|| -> Result<()> {
-        let mut src_file = fs::File::open(src)?;
-        let mut tmp_file = fs::File::create(&tmp)?;
+        let mut src_file = fs::File::open(src).map_err(|e| {
+            E4EError::Runtime(format!("Cannot open '{}': {}", src.display(), e))
+        })?;
+        let mut tmp_file = fs::File::create(&tmp).map_err(|e| {
+            E4EError::Runtime(format!("Cannot create '{}': {}", tmp.display(), e))
+        })?;
         let mut hasher = Sha256::new();
         let mut buf = [0u8; 65536];
         loop {
-            let n = src_file.read(&mut buf)?;
+            let n = src_file.read(&mut buf).map_err(|e| {
+                E4EError::Runtime(format!("Cannot read '{}': {}", src.display(), e))
+            })?;
             if n == 0 {
                 break;
             }
             hasher.update(&buf[..n]);
-            tmp_file.write_all(&buf[..n])?;
+            tmp_file.write_all(&buf[..n]).map_err(|e| {
+                E4EError::Runtime(format!("Cannot write '{}': {}", tmp.display(), e))
+            })?;
         }
         let computed = hex::encode(hasher.finalize());
         if computed != expected_hash {
@@ -53,7 +61,14 @@ pub fn copy_and_verify(src: &Path, dst: &Path, expected_hash: &str) -> Result<()
                 computed
             )));
         }
-        fs::rename(&tmp, dst)?;
+        fs::rename(&tmp, dst).map_err(|e| {
+            E4EError::Runtime(format!(
+                "Cannot rename '{}' to '{}': {}",
+                tmp.display(),
+                dst.display(),
+                e
+            ))
+        })?;
         Ok(())
     })();
 
