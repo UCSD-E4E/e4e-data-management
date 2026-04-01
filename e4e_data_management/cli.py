@@ -11,6 +11,8 @@ from glob import glob
 from pathlib import Path
 from typing import Callable, List, Optional, TypeVar
 
+from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
+                           SpinnerColumn, TextColumn, TimeRemainingColumn)
 from wakepy import keep
 
 from e4e_data_management import __version__
@@ -360,8 +362,6 @@ class DataManagerCLI:
 
     def push_cmd(self, path: Path) -> None:
         """Push the active dataset to `path` with a rich progress bar."""
-        from rich.progress import (BarColumn, MofNCompleteColumn, Progress,  # pylint: disable=import-outside-toplevel
-                                   SpinnerColumn, TextColumn, TimeRemainingColumn)
         with Progress(
             SpinnerColumn(),
             TextColumn('[bold blue]{task.description}'),
@@ -399,7 +399,10 @@ class DataManagerCLI:
 
             if not path.exists():
                 raise FileNotFoundError(f'Path not found: {path.resolve()}')
-            self.app.push_with_progress(path, on_push_progress)
+            try:
+                self.app.push_with_progress(path, on_push_progress)
+            except RuntimeError as exc:
+                raise RuntimeError(f'Push to {path.resolve()} failed: {exc}') from exc
 
     def __configure_push_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('path', type=Path)
