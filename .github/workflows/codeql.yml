@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [csharp, python]
+        language: [csharp, python, rust]
 
     steps:
     - uses: actions/checkout@v4
@@ -42,6 +42,13 @@ jobs:
         dotnet build E4EDataManagement.Native/E4EDataManagement.Native.csproj
         dotnet build E4EDataManagement.UI/E4EDataManagement.UI.csproj -p:SkipNativeRustBuild=true
         dotnet build E4EDataManagement.Tests/E4EDataManagement.Tests.csproj -p:SkipNativeRustBuild=true
+
+    - if: matrix.language == 'rust'
+      uses: dtolnay/rust-toolchain@stable
+
+    - if: matrix.language == 'rust'
+      name: Build Rust
+      run: cargo build --no-default-features
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
