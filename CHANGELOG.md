@@ -1,16 +1,56 @@
 # CHANGELOG
 
+## v0.5.0 (2026-04-01)
+
+### Chore
+
+* chore: expand gitignore to cover build artifacts and additional IDEs
+
+Co-Authored-By: Claude Sonnet 4.6 &lt;noreply@anthropic.com&gt; ([`0dd5256`](https://github.com/UCSD-E4E/e4e-data-management/commit/0dd52564092a7574105f60be8684d22f3887994c))
+
+### Feature
+
+* feat: support txt and pdf readmes ([`cad2873`](https://github.com/UCSD-E4E/e4e-data-management/commit/cad2873b95448b0881ce78b7ec4fac10eb7cb3ce))
+
+* feat: progress bars ([`a7de0f7`](https://github.com/UCSD-E4E/e4e-data-management/commit/a7de0f7600f29d65d8ce823620c33e69727fc3dd))
+
+* feat: use progress bar ([`9bdd722`](https://github.com/UCSD-E4E/e4e-data-management/commit/9bdd722f0ce089ca7afd804e458a4eaedacf0646))
+
+* feat: can create dataset, mission, files ([`a67c822`](https://github.com/UCSD-E4E/e4e-data-management/commit/a67c82234b7a0eb308f9eeb3de445b9bd4c91c20))
+
+* feat: initial UI system ([`b2ad629`](https://github.com/UCSD-E4E/e4e-data-management/commit/b2ad62963de1c31bf2e39b0b307de7d9f59b66ab))
+
+### Fix
+
+* fix: codeql python ([`98ede65`](https://github.com/UCSD-E4E/e4e-data-management/commit/98ede65e3fccf85cf51fdb3a35c3a7cb465aadfb))
+
+* fix: codeql ([`029d692`](https://github.com/UCSD-E4E/e4e-data-management/commit/029d692e34b6e286f4e9dfeb66bd2c80ed1ad1ad))
+
+* fix: pylint issues ([`c6521fe`](https://github.com/UCSD-E4E/e4e-data-management/commit/c6521feec7ff448e11b111e9fe3e2ad598c97e44))
+
+* fix: failed dotnet test on github actions ([`6166f62`](https://github.com/UCSD-E4E/e4e-data-management/commit/6166f62fe0e78c5c5c5dde0141dfe71c07ac4f60))
+
+* fix: pylint, pytest, dotnet build, dotnet test, and add additional test cases ([`6e5f0b1`](https://github.com/UCSD-E4E/e4e-data-management/commit/6e5f0b148ec709e7160111a09e722f2db300a3f3))
+
+* fix: cargo build errors ([`c0094cb`](https://github.com/UCSD-E4E/e4e-data-management/commit/c0094cbf26d311538a63ed086dede73f81d01200))
+
+### Unknown
+
+* Merge pull request #120 from UCSD-E4E/feature/ui
+
+Feature/UI ([`56ff611`](https://github.com/UCSD-E4E/e4e-data-management/commit/56ff6116a0d16b70178ec80bfaac3300588f1239))
+
 ## v0.4.1 (2026-03-28)
 
 ### Fix
 
-* fix: support python 3.14 ([`07b1196`](https://github.com/UCSD-E4E/e4e-data-management/commit/07b11960e1d42ffea7d23e9077704fb1d8da113c))
+* fix: support python 3.14 ([`6cad379`](https://github.com/UCSD-E4E/e4e-data-management/commit/6cad379f8ee2cf81e5a892d6d02d39f714543901))
 
 * fix: suppress pylint R0904 too-many-public-methods on DataManager
 
 Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/dba4a1e9-344a-4780-ac99-f3fc27bd5861
 
-Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`8f9ecaf`](https://github.com/UCSD-E4E/e4e-data-management/commit/8f9ecaf0eb8e1b8e321c6e8687dbe2355c9e223c))
+Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`f6c4e2b`](https://github.com/UCSD-E4E/e4e-data-management/commit/f6c4e2b06a88d55b8efd599139304f1188376fa7))
 
 * fix: upgrade PyO3 to 0.23 to support Python 3.14
 
@@ -21,88 +61,88 @@ Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`8
 
 Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/2cff3a6a-a487-47b5-bdb5-fb8b58ca7b0b
 
-Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`523a514`](https://github.com/UCSD-E4E/e4e-data-management/commit/523a514417b245dd92e320381a0ce0cf638ef48e))
+Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt; ([`9cb3ed5`](https://github.com/UCSD-E4E/e4e-data-management/commit/9cb3ed55d9db42a506bd0e25ee6bc29f29121237))
 
 ### Unknown
 
 * Merge pull request #115 from UCSD-E4E/copilot/fix-pylint-errors
 
-Fix pylint R0904: too-many-public-methods on DataManager ([`6eaf3f5`](https://github.com/UCSD-E4E/e4e-data-management/commit/6eaf3f5cf7ba406b01ed4afb1aeaf94c31739852))
+Fix pylint R0904: too-many-public-methods on DataManager ([`8b3a001`](https://github.com/UCSD-E4E/e4e-data-management/commit/8b3a0013c1d391fcd7b6951ea7f2cea7c9b27bea))
 
-* Initial plan ([`4f58ec6`](https://github.com/UCSD-E4E/e4e-data-management/commit/4f58ec6e730a7a11a92c11f9a8a7e94861eb0aac))
+* Initial plan ([`78184f3`](https://github.com/UCSD-E4E/e4e-data-management/commit/78184f35bc688569d5aa1091d255bbfa1f2601f0))
 
 * Merge pull request #117 from UCSD-E4E/copilot/fix-pipx-install-errors
 
-fix: upgrade PyO3 to 0.23 to support Python 3.14 ([`40a314f`](https://github.com/UCSD-E4E/e4e-data-management/commit/40a314f6dfb1a4a64c91c221673a6f02cdc9eb14))
+fix: upgrade PyO3 to 0.23 to support Python 3.14 ([`afe0be2`](https://github.com/UCSD-E4E/e4e-data-management/commit/afe0be21f2d75420bc72a7c691c3c4adb10e6b01))
 
-* Initial plan ([`256f734`](https://github.com/UCSD-E4E/e4e-data-management/commit/256f7341495487830cb46ec654e6e98f7f012dd1))
+* Initial plan ([`f96b853`](https://github.com/UCSD-E4E/e4e-data-management/commit/f96b853b7ccdb5d2f38ae84bb1b6349ebb3ecf1d))
 
 ## v0.4.0 (2026-03-28)
 
 ### Chore
 
-* chore: pylint ([`a54e167`](https://github.com/UCSD-E4E/e4e-data-management/commit/a54e167d89501e537ef0739ac9e46611afe40c00))
+* chore: pylint ([`9747661`](https://github.com/UCSD-E4E/e4e-data-management/commit/9747661bd69329a41ff5f92b6577f7c81a6c82bb))
 
-* chore: rust lint ([`79b17b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/79b17b57ac92ec58e60393763b68c61e14e23150))
+* chore: rust lint ([`affc955`](https://github.com/UCSD-E4E/e4e-data-management/commit/affc955e5d5fb86754e62ab4e21a7bc078f71152))
 
 ### Feature
 
-* feat: fully functional e4edm using rust ([`9323c28`](https://github.com/UCSD-E4E/e4e-data-management/commit/9323c28ac48b6fdcb3ea7288a8449c467960caec))
+* feat: fully functional e4edm using rust ([`895cbab`](https://github.com/UCSD-E4E/e4e-data-management/commit/895cbabce85dc4a14ac7b10cf844c63b515dcf0a))
 
-* feat: update command structure ([`a75c86b`](https://github.com/UCSD-E4E/e4e-data-management/commit/a75c86b62e641016906c6506cb9955a183df12ee))
+* feat: update command structure ([`3e3a212`](https://github.com/UCSD-E4E/e4e-data-management/commit/3e3a212a19e951aa02c8f41eec25e67d35759b06))
 
-* feat: performance improvements ([`ff32807`](https://github.com/UCSD-E4E/e4e-data-management/commit/ff328077a5a1b857033f363e39cb6f3ccf848630))
+* feat: performance improvements ([`db3c070`](https://github.com/UCSD-E4E/e4e-data-management/commit/db3c070df0ce4930f3803de5263af6f7b8bdaeb1))
 
-* feat: port to rust ([`51d6e86`](https://github.com/UCSD-E4E/e4e-data-management/commit/51d6e868ea267f8acf2c8ca23d9d0bfbc76e8ded))
+* feat: port to rust ([`f9d7160`](https://github.com/UCSD-E4E/e4e-data-management/commit/f9d71604118497d7f71f8504361f36cec8c6feee))
 
 ### Fix
 
 * fix: address review feedback - shared utils, Incomplete base class, dir copy verification, release workflow outputs
 
 Co-authored-by: ccrutchf &lt;25113015+ccrutchf@users.noreply.github.com&gt;
-Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/fab26efe-bc66-4640-80a8-8b9fb1e588f4 ([`077eee9`](https://github.com/UCSD-E4E/e4e-data-management/commit/077eee9c7e1e2f6049581a9c4d1ccb8a86f1bfc5))
+Agent-Logs-Url: https://github.com/UCSD-E4E/e4e-data-management/sessions/fab26efe-bc66-4640-80a8-8b9fb1e588f4 ([`9a700f2`](https://github.com/UCSD-E4E/e4e-data-management/commit/9a700f2a7fabdf3548918f596b411629dd67d4c5))
 
-* fix: remove dependency on macos-13 ([`daef181`](https://github.com/UCSD-E4E/e4e-data-management/commit/daef18167d140e650b37d95d2b8222ddc6a1106e))
+* fix: remove dependency on macos-13 ([`f6d5108`](https://github.com/UCSD-E4E/e4e-data-management/commit/f6d510818eeb9ef2ae265fb90c5005fe506ba2c0))
 
 ### Unknown
 
 * Merge pull request #108 from UCSD-E4E/feature/rust
 
-feat: port to rust ([`aa117d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/aa117d53acca41bd6015c23f8292a024d00a1048))
+feat: port to rust ([`9ca5e1e`](https://github.com/UCSD-E4E/e4e-data-management/commit/9ca5e1e35e3be192e9f7bb45035df05fd75f42d1))
 
 * Merge pull request #109 from UCSD-E4E/copilot/sub-pr-108
 
-fix: address review feedback on Rust port ([`9f921e5`](https://github.com/UCSD-E4E/e4e-data-management/commit/9f921e5540f73a2df478bbebdf172330bf18eee9))
+fix: address review feedback on Rust port ([`6108496`](https://github.com/UCSD-E4E/e4e-data-management/commit/61084969ac95fcc4978920f2f3599f92ad21e410))
 
-* Initial plan ([`a7ad3e8`](https://github.com/UCSD-E4E/e4e-data-management/commit/a7ad3e8387f04ded621d597f5ee202a115934b13))
+* Initial plan ([`89e957f`](https://github.com/UCSD-E4E/e4e-data-management/commit/89e957fc79b8d8933301aea1aaf5a4acf64887e9))
 
 * Potential fix for code scanning alert no. 3: Workflow does not contain permissions
 
-Co-authored-by: Copilot Autofix powered by AI &lt;62310815+github-advanced-security[bot]@users.noreply.github.com&gt; ([`d6354e9`](https://github.com/UCSD-E4E/e4e-data-management/commit/d6354e97e362a702918df95dddb9481980dc746a))
+Co-authored-by: Copilot Autofix powered by AI &lt;62310815+github-advanced-security[bot]@users.noreply.github.com&gt; ([`7fb7848`](https://github.com/UCSD-E4E/e4e-data-management/commit/7fb78486e5f8bb8727830189eebdd8dfa498ae62))
 
 * Potential fix for code scanning alert no. 5: Workflow does not contain permissions
 
-Co-authored-by: Copilot Autofix powered by AI &lt;62310815+github-advanced-security[bot]@users.noreply.github.com&gt; ([`a4d32cf`](https://github.com/UCSD-E4E/e4e-data-management/commit/a4d32cf64e3612a17efbd122cff35323256c8431))
+Co-authored-by: Copilot Autofix powered by AI &lt;62310815+github-advanced-security[bot]@users.noreply.github.com&gt; ([`e420881`](https://github.com/UCSD-E4E/e4e-data-management/commit/e420881a7642bf70ab721ef99e27a91386a179f3))
 
 ## v0.3.1 (2025-06-16)
 
 ### Fix
 
-* fix: resolve pylint errors ([`b930a6e`](https://github.com/UCSD-E4E/e4e-data-management/commit/b930a6ea358ec6365a37921e3182930b5c7157e2))
+* fix: resolve pylint errors ([`309fb4d`](https://github.com/UCSD-E4E/e4e-data-management/commit/309fb4d0175228e03bda3a13494e4b71d8bcf44b))
 
 ## v0.3.0 (2025-06-16)
 
 ### Feature
 
-* feat: introduce &#39;e4edm reset&#39; ([`162e826`](https://github.com/UCSD-E4E/e4e-data-management/commit/162e826ae583f826b2768e92dfc860aa0dd8b5fe))
+* feat: introduce &#39;e4edm reset&#39; ([`f2cfdfd`](https://github.com/UCSD-E4E/e4e-data-management/commit/f2cfdfd0cc9808308e9aa5572c6cb14510b26c6e))
 
 ## v0.2.1 (2025-03-02)
 
 ### Chore
 
-* chore: Re-adds project ignores ([`bd09ff8`](https://github.com/UCSD-E4E/e4e-data-management/commit/bd09ff85296e7e8e734fcff3d774eb7dcaa665a9))
+* chore: Re-adds project ignores ([`2fd4521`](https://github.com/UCSD-E4E/e4e-data-management/commit/2fd452195babbafaf013e71e0ef371225053d04c))
 
-* chore: Updates gitignore ([`5df6ff6`](https://github.com/UCSD-E4E/e4e-data-management/commit/5df6ff6b7339e6ec94c8dc05e03000941d8f345f))
+* chore: Updates gitignore ([`17713a8`](https://github.com/UCSD-E4E/e4e-data-management/commit/17713a8e9060e71cc8aae0af156aa9431ca62272))
 
 * chore(deps-dev): bump jinja2 from 3.1.4 to 3.1.5
 
@@ -117,647 +157,647 @@ updated-dependencies:
   dependency-type: indirect
 ...
 
-Signed-off-by: dependabot[bot] &lt;support@github.com&gt; ([`fc7f384`](https://github.com/UCSD-E4E/e4e-data-management/commit/fc7f3844ddc136c823198e024a49eac4d0c3b910))
+Signed-off-by: dependabot[bot] &lt;support@github.com&gt; ([`373c3ff`](https://github.com/UCSD-E4E/e4e-data-management/commit/373c3ffa4dd543e79107c3f17d77473d00143dfc))
 
 ### Fix
 
-* fix: Adds wakepy ([`f23b4d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/f23b4d5904d97d98761db59495efceb697e48fc0))
+* fix: Adds wakepy ([`e4a9e6f`](https://github.com/UCSD-E4E/e4e-data-management/commit/e4a9e6f4fbc02ea6a3b773c0cc4fbc5c90f0a2ce))
 
-* fix: Adds sleep hold ([`4434ead`](https://github.com/UCSD-E4E/e4e-data-management/commit/4434eadac7068bb78d90746dddf8e3da50a2c9d5))
+* fix: Adds sleep hold ([`3c7f73e`](https://github.com/UCSD-E4E/e4e-data-management/commit/3c7f73ee6ec79e4d7230207b5a40357c41b5ce68))
 
 ### Unknown
 
 * Merge pull request #81 from UCSD-E4E/45-sleep-hold
 
-fix: Adds sleep hold ([`38fe5bd`](https://github.com/UCSD-E4E/e4e-data-management/commit/38fe5bd394b77373f936a2c3627e6b09b53b2f6d))
+fix: Adds sleep hold ([`2e89bb0`](https://github.com/UCSD-E4E/e4e-data-management/commit/2e89bb05dd9ae1e062cc32c7f4d31b52a7a731e0))
 
-* Merge branch &#39;main&#39; into 45-sleep-hold ([`9fff671`](https://github.com/UCSD-E4E/e4e-data-management/commit/9fff6710e082ba035412effff48007003b6d071e))
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`ae70041`](https://github.com/UCSD-E4E/e4e-data-management/commit/ae700415e8cb900a449b6b53db33053edb10f971))
 
-* Merge branch &#39;main&#39; into 45-sleep-hold ([`22878fd`](https://github.com/UCSD-E4E/e4e-data-management/commit/22878fd17c6d04b4c23f1064923dec8d6505df41))
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`320a6f6`](https://github.com/UCSD-E4E/e4e-data-management/commit/320a6f6afc0daffc39e43ed1199b3891123e5ce0))
 
-* Merge branch &#39;main&#39; into 45-sleep-hold ([`c7814d2`](https://github.com/UCSD-E4E/e4e-data-management/commit/c7814d2326fc23e34e48795d24b685a7421a44f1))
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`8c8c867`](https://github.com/UCSD-E4E/e4e-data-management/commit/8c8c867312bf846a8e52694ff58c68acea16f885))
 
-* Merge branch &#39;main&#39; into 45-sleep-hold ([`e1148f0`](https://github.com/UCSD-E4E/e4e-data-management/commit/e1148f0f51257ec7b37eae41dfff8dae3c067a2c))
+* Merge branch &#39;main&#39; into 45-sleep-hold ([`528c0ee`](https://github.com/UCSD-E4E/e4e-data-management/commit/528c0ee95a4e136939db42480f59a78bcba8395e))
 
 * Merge pull request #101 from UCSD-E4E/58-bug-missing-ds_store
 
-chore: Updates gitignore ([`1debbf9`](https://github.com/UCSD-E4E/e4e-data-management/commit/1debbf98b23b8ce5642e54ba41683c6d8b464f94))
+chore: Updates gitignore ([`7cb945e`](https://github.com/UCSD-E4E/e4e-data-management/commit/7cb945e008a4c5d1be7b5e26c2496a39714ee1a2))
 
 * Merge pull request #94 from UCSD-E4E/dependabot/pip/jinja2-3.1.5
 
-chore(deps-dev): bump jinja2 from 3.1.4 to 3.1.5 ([`dd9a076`](https://github.com/UCSD-E4E/e4e-data-management/commit/dd9a0769c502e82c6643aea30b6b271113f60d0e))
+chore(deps-dev): bump jinja2 from 3.1.4 to 3.1.5 ([`c0664fe`](https://github.com/UCSD-E4E/e4e-data-management/commit/c0664fe2bdf4f5620c43683cc7745e9fa7346f29))
 
-* Merge branch &#39;main&#39; into dependabot/pip/jinja2-3.1.5 ([`f93b640`](https://github.com/UCSD-E4E/e4e-data-management/commit/f93b6404b2fa478eb4d2379693940dfcbbda636e))
+* Merge branch &#39;main&#39; into dependabot/pip/jinja2-3.1.5 ([`7dbe840`](https://github.com/UCSD-E4E/e4e-data-management/commit/7dbe840bb87d11c0a4efbdc96fe35000c7287962))
 
 ## v0.2.0 (2025-01-11)
 
 ### Chore
 
-* chore: Fixes naming ([`379e0a1`](https://github.com/UCSD-E4E/e4e-data-management/commit/379e0a157375a3bc25765cb3fbae50fc2bb2c85d))
+* chore: Fixes naming ([`268b2e0`](https://github.com/UCSD-E4E/e4e-data-management/commit/268b2e0b2b2a7261e18299b994374071e2809646))
 
 ### Feature
 
-* feat: Adds zip ([`6cdc42b`](https://github.com/UCSD-E4E/e4e-data-management/commit/6cdc42b7e60853efa9a50aa2fc383bb043740279))
+* feat: Adds zip ([`9288cc0`](https://github.com/UCSD-E4E/e4e-data-management/commit/9288cc0ba0b1ec1cd72500613b3e53c4f362488a))
 
 ### Style
 
-* style: Fixes styling ([`c3bead9`](https://github.com/UCSD-E4E/e4e-data-management/commit/c3bead9a2cec33096e4f593b37611da35aceb727))
+* style: Fixes styling ([`15ff087`](https://github.com/UCSD-E4E/e4e-data-management/commit/15ff08730c9f7c7e33f447a04db0b94f647cbecf))
 
-* style: Fixes spaces and unused variables ([`7c920b1`](https://github.com/UCSD-E4E/e4e-data-management/commit/7c920b1fc836cb04455f5567fb6436fd3d777f86))
+* style: Fixes spaces and unused variables ([`7d942a3`](https://github.com/UCSD-E4E/e4e-data-management/commit/7d942a32f659ec2e9860e719b313b56591b97eb2))
 
 ### Unknown
 
 * Merge pull request #92 from UCSD-E4E/37-zip-command
 
-37 zip command ([`24b24d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/24b24d53d3985147f1d71278d80b0c683aeba620))
+37 zip command ([`6facd63`](https://github.com/UCSD-E4E/e4e-data-management/commit/6facd6366f6235894d13e8e243cbff120dc1e0cc))
 
-* Merge branch &#39;main&#39; into 37-zip-command ([`1b573b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/1b573b59113fc1f2d89d1a3c1f1c990fd4e9b879))
+* Merge branch &#39;main&#39; into 37-zip-command ([`91cbb7f`](https://github.com/UCSD-E4E/e4e-data-management/commit/91cbb7f3ff20f95e0daf733ce2d861652c3904fb))
 
-* Merge branch &#39;main&#39; into 37-zip-command ([`f49afac`](https://github.com/UCSD-E4E/e4e-data-management/commit/f49afac204ce134df63b3def37d9e19a21e0fa9a))
+* Merge branch &#39;main&#39; into 37-zip-command ([`bab9f25`](https://github.com/UCSD-E4E/e4e-data-management/commit/bab9f25c9c2152ec1efbc47b7c6e9c87b7278409))
 
-* Merge branch &#39;34-remove-dataset-after-pushing-to-server&#39; into 37-zip-command ([`751363a`](https://github.com/UCSD-E4E/e4e-data-management/commit/751363a888875952b7903b265855a055f2e4a0c3))
+* Merge branch &#39;34-remove-dataset-after-pushing-to-server&#39; into 37-zip-command ([`3a9b85d`](https://github.com/UCSD-E4E/e4e-data-management/commit/3a9b85dededb8742d641d0383af9a2bc03c75188))
 
-* Merge branch &#39;main&#39; into 37-zip-command ([`6bb26e7`](https://github.com/UCSD-E4E/e4e-data-management/commit/6bb26e7463fb440bb7a130236f0706258b529453))
+* Merge branch &#39;main&#39; into 37-zip-command ([`e6a278d`](https://github.com/UCSD-E4E/e4e-data-management/commit/e6a278dad6c828765e1dae42b0330efba37d2585))
 
-* wip: Creates zip file ([`705346f`](https://github.com/UCSD-E4E/e4e-data-management/commit/705346f284b00954536212dc57f184aaf0915068))
+* wip: Creates zip file ([`e6fcd44`](https://github.com/UCSD-E4E/e4e-data-management/commit/e6fcd444641e0578ab1c1cf3d94244454b77932a))
 
 * Merge pull request #47 from UCSD-E4E/42-implement-e4edm-validate
 
-42 implement e4edm validate ([`e5b4340`](https://github.com/UCSD-E4E/e4e-data-management/commit/e5b43401462353d02a0928cd0c5111ba5ab609ff))
+42 implement e4edm validate ([`be17c5f`](https://github.com/UCSD-E4E/e4e-data-management/commit/be17c5ff5856f426e93070de30bfce25fa36279e))
 
-* Merge branch &#39;main&#39; into 42-implement-e4edm-validate ([`b114488`](https://github.com/UCSD-E4E/e4e-data-management/commit/b1144886ed295299613a75bd4d6c0130533f7e88))
+* Merge branch &#39;main&#39; into 42-implement-e4edm-validate ([`c2d84e5`](https://github.com/UCSD-E4E/e4e-data-management/commit/c2d84e55a3ca78067ba47edbe2a76feb8f7852de))
 
 * Merge pull request #83 from UCSD-E4E/60-chore-datamangercli-vs-datamanagercli
 
-chore: Fixes naming ([`95533b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/95533b56a7068b682d63bb3e89d38daa0603d668))
+chore: Fixes naming ([`d9ec1ad`](https://github.com/UCSD-E4E/e4e-data-management/commit/d9ec1add43008ca78b45f636982961905577e000))
 
-* Merge branch &#39;main&#39; into 60-chore-datamangercli-vs-datamanagercli ([`1500fca`](https://github.com/UCSD-E4E/e4e-data-management/commit/1500fca5d06f3eeeca290539b11ea0417464c3da))
+* Merge branch &#39;main&#39; into 60-chore-datamangercli-vs-datamanagercli ([`a3f7234`](https://github.com/UCSD-E4E/e4e-data-management/commit/a3f72345d01efefce05560c4c9aaa0420c599d29))
 
-* Merge branch &#39;main&#39; into 60-chore-datamangercli-vs-datamanagercli ([`6aa2b72`](https://github.com/UCSD-E4E/e4e-data-management/commit/6aa2b72bdfb17d68635f7fa2f3f6ad522bc377db))
+* Merge branch &#39;main&#39; into 60-chore-datamangercli-vs-datamanagercli ([`eb6b329`](https://github.com/UCSD-E4E/e4e-data-management/commit/eb6b329850f32d0336ba3fdb6c91d2677e67f41a))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 42-implement-e4edm-validate ([`836df5a`](https://github.com/UCSD-E4E/e4e-data-management/commit/836df5adbe135b0f28ed4f5cabed4e25a972618c))
+* Merge remote-tracking branch &#39;origin/main&#39; into 42-implement-e4edm-validate ([`5cb4f3c`](https://github.com/UCSD-E4E/e4e-data-management/commit/5cb4f3ca6437324800d59293b1f367f3a183a7cc))
 
 ## v0.1.5 (2025-01-11)
 
 ### Ci
 
-* ci: Tests for prune behavior ([`31173a1`](https://github.com/UCSD-E4E/e4e-data-management/commit/31173a1ad25897de965548767d7cbbf42fb85f36))
+* ci: Tests for prune behavior ([`d461c57`](https://github.com/UCSD-E4E/e4e-data-management/commit/d461c574868ccf0a2b0f9cc50dd765f2c6f854e8))
 
-* ci: Fixes failing tests ([`3810a02`](https://github.com/UCSD-E4E/e4e-data-management/commit/3810a029971cf5e146765d57fed36eb9bed5d12a))
+* ci: Fixes failing tests ([`77fee0d`](https://github.com/UCSD-E4E/e4e-data-management/commit/77fee0d6c99cbee9c2c3d3a8ca1d03284647afb7))
 
 ### Documentation
 
-* docs: Documents fixture ([`a98cfea`](https://github.com/UCSD-E4E/e4e-data-management/commit/a98cfead653cc847af04ae90ee23371062e91347))
+* docs: Documents fixture ([`edb3b97`](https://github.com/UCSD-E4E/e4e-data-management/commit/edb3b97e127468c7a53d27b3dbba2b09b76073ac))
 
 ### Fix
 
-* fix: Adds exception logging to main invocation ([`9f0aa7f`](https://github.com/UCSD-E4E/e4e-data-management/commit/9f0aa7f21ccc75bc7e031bc7443ac148ada70d98))
+* fix: Adds exception logging to main invocation ([`ad75df3`](https://github.com/UCSD-E4E/e4e-data-management/commit/ad75df32089ad859cf938c980666392a094221a6))
 
 ### Style
 
-* style: Fixes long line ([`0d795f7`](https://github.com/UCSD-E4E/e4e-data-management/commit/0d795f73b470b4824cbe9cac06dd52eb879ba1a3))
+* style: Fixes long line ([`fcb6058`](https://github.com/UCSD-E4E/e4e-data-management/commit/fcb6058a81c6db64b19b49650a545ab052fd1ab6))
 
 ### Unknown
 
 * Merge pull request #57 from UCSD-E4E/44-add-exception-and-traceback-to-logs
 
-fix: Adds exception logging to main invocation ([`cb9c732`](https://github.com/UCSD-E4E/e4e-data-management/commit/cb9c732cd6e8426513615b36aad287493e21ebbc))
+fix: Adds exception logging to main invocation ([`f3d3675`](https://github.com/UCSD-E4E/e4e-data-management/commit/f3d367537a0e29ecca89e80725e11671aae8088f))
 
-* Merge branch &#39;main&#39; into 44-add-exception-and-traceback-to-logs ([`de9e0d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/de9e0d5bbacd41a9ef8fcd7cce0e8ba5cd3f942c))
+* Merge branch &#39;main&#39; into 44-add-exception-and-traceback-to-logs ([`589f02c`](https://github.com/UCSD-E4E/e4e-data-management/commit/589f02c60a83ba4d4a945612e66217cd01b9279e))
 
 * Merge pull request #91 from UCSD-E4E/34-remove-dataset-after-pushing-to-server
 
-34 remove dataset after pushing to server ([`8a811be`](https://github.com/UCSD-E4E/e4e-data-management/commit/8a811bec27556f1dfba5044f3875cbecdc9b38e4))
+34 remove dataset after pushing to server ([`88b8515`](https://github.com/UCSD-E4E/e4e-data-management/commit/88b85159f6d5da2af433484ce5e12da04b0bb4bb))
 
-* Merge branch &#39;main&#39; into 42-implement-e4edm-validate ([`e09c335`](https://github.com/UCSD-E4E/e4e-data-management/commit/e09c3353ae6ce15f3161dcd644ba17d13bc7ff03))
+* Merge branch &#39;main&#39; into 42-implement-e4edm-validate ([`6492ffc`](https://github.com/UCSD-E4E/e4e-data-management/commit/6492ffc1ec67fb4007bc4ac230b644c2d709b0f6))
 
 ## v0.1.4 (2024-11-04)
 
 ### Fix
 
-* fix: Fixes readme extension heuristic ([`02b8f13`](https://github.com/UCSD-E4E/e4e-data-management/commit/02b8f13713b60f8110f1f5cbeef9e9ac31f03e70))
+* fix: Fixes readme extension heuristic ([`ca50532`](https://github.com/UCSD-E4E/e4e-data-management/commit/ca505329f23f49c62b3d4259fcbe5fc10d8c62a3))
 
 ## v0.1.3 (2024-10-09)
 
 ### Unknown
 
-* Merge branch &#39;main&#39; of github.com:UCSD-E4E/e4e-data-management ([`fdde57a`](https://github.com/UCSD-E4E/e4e-data-management/commit/fdde57a3e7d7c1ddc8dc2ddf5f8112842dad9b8d))
+* Merge branch &#39;main&#39; of github.com:UCSD-E4E/e4e-data-management ([`1a608cc`](https://github.com/UCSD-E4E/e4e-data-management/commit/1a608cc289d4a387b65edc93c44fd7bcbdcd2a10))
 
 ## v0.1.2 (2024-10-09)
 
 ### Fix
 
-* fix: updates list datasets to display push flag ([`14d867c`](https://github.com/UCSD-E4E/e4e-data-management/commit/14d867c54e6f3ec98b338c580a8a72cb0c4c688a))
+* fix: updates list datasets to display push flag ([`d01ea63`](https://github.com/UCSD-E4E/e4e-data-management/commit/d01ea6322bfeea0bbf1be9f5347f8077dad265a8))
 
-* fix: Fixes push not setting flag ([`1d534c5`](https://github.com/UCSD-E4E/e4e-data-management/commit/1d534c518a7e6537077ae1d72ab51d00820e9cb3))
+* fix: Fixes push not setting flag ([`6d794b4`](https://github.com/UCSD-E4E/e4e-data-management/commit/6d794b4ae063a8adc862e51a4782ac86d6a9a488))
 
-* fix: Fixes prune fail on deleted datasets ([`54007ec`](https://github.com/UCSD-E4E/e4e-data-management/commit/54007ec25aa5fdd7e21473bff5520c025fbf80dd))
+* fix: Fixes prune fail on deleted datasets ([`7c88541`](https://github.com/UCSD-E4E/e4e-data-management/commit/7c88541efd4e750d453852a62c9fe8dea3690b9c))
 
 ## v0.1.1 (2024-10-08)
 
 ### Documentation
 
-* docs: Updates README ([`836f742`](https://github.com/UCSD-E4E/e4e-data-management/commit/836f742570e75dffd1194c15371ffba552e238c6))
+* docs: Updates README ([`c0404ce`](https://github.com/UCSD-E4E/e4e-data-management/commit/c0404cec990c9ea5ca2b924dd5dca08040f74297))
 
 ### Fix
 
-* fix: Updates prune to actually remove old data ([`0156781`](https://github.com/UCSD-E4E/e4e-data-management/commit/0156781a632747b4fb3bdd70d944007c23b36cdd))
+* fix: Updates prune to actually remove old data ([`b09cea7`](https://github.com/UCSD-E4E/e4e-data-management/commit/b09cea7ebdf03642c7f9a6043807bd313b94d577))
 
 ### Style
 
-* style: Fixes style ([`5e0917e`](https://github.com/UCSD-E4E/e4e-data-management/commit/5e0917e71af43712ad9a36297f4d380faaa0a951))
+* style: Fixes style ([`fb500bd`](https://github.com/UCSD-E4E/e4e-data-management/commit/fb500bdcf8bbd9c569d950e0e3e53c8eda13e3eb))
 
 ## v0.1.0 (2024-09-23)
 
 ### Ci
 
-* ci: Fixes validation on macos ([`935ad65`](https://github.com/UCSD-E4E/e4e-data-management/commit/935ad651da4298029a315a142f5fbf92a7624324))
+* ci: Fixes validation on macos ([`872de04`](https://github.com/UCSD-E4E/e4e-data-management/commit/872de04c0fd6bd82ea848d3b6153c4bd9eb07c9e))
 
-* ci: Switches to os ([`80f417b`](https://github.com/UCSD-E4E/e4e-data-management/commit/80f417b2c6165e06e49ca8a95437580c4e58e2e1))
+* ci: Switches to os ([`8d924d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/8d924d5db1f303be7a81c095ef3346702ed13f69))
 
-* ci: pytest only run under latest python ([`38c3def`](https://github.com/UCSD-E4E/e4e-data-management/commit/38c3defd65d96644b3ea55740e24a8247807112b))
+* ci: pytest only run under latest python ([`297789b`](https://github.com/UCSD-E4E/e4e-data-management/commit/297789bb032671c8bf80b4e56d4276a7da7e1c6e))
 
-* ci: Upgrades workflows ([`9177b63`](https://github.com/UCSD-E4E/e4e-data-management/commit/9177b63b80433c4ab5ff25590d212056c87c678b))
+* ci: Upgrades workflows ([`1fd4b89`](https://github.com/UCSD-E4E/e4e-data-management/commit/1fd4b89352c7c5fd47443d1fbd1686182ac33ad9))
 
 ### Feature
 
-* feat: Adds e4edm ls ([`d302d46`](https://github.com/UCSD-E4E/e4e-data-management/commit/d302d46701ae43a46db57cfe2731183884fe3eb0))
+* feat: Adds e4edm ls ([`8dbc1c3`](https://github.com/UCSD-E4E/e4e-data-management/commit/8dbc1c350d7b50589a238c782ce949fecff90a86))
 
 ### Fix
 
-* fix: Makes time comparison logic neater ([`bd54905`](https://github.com/UCSD-E4E/e4e-data-management/commit/bd549057fa3032bf58ad968ebeabac803ff7743c))
+* fix: Makes time comparison logic neater ([`efd3e07`](https://github.com/UCSD-E4E/e4e-data-management/commit/efd3e075226149dbaa5b52bf2aa91f7c4f296f08))
 
 ### Unknown
 
-* Merge branch &#39;workflow_upgrade&#39; ([`05e33eb`](https://github.com/UCSD-E4E/e4e-data-management/commit/05e33ebcc920f1c8091d630081a93060aadc996b))
+* Merge branch &#39;workflow_upgrade&#39; ([`69060d3`](https://github.com/UCSD-E4E/e4e-data-management/commit/69060d3cfa0cb3cfac26451cb62f0acc87ccd371))
 
 * Merge pull request #89 from UCSD-E4E/workflow_upgrade
 
-ci: Upgrades workflows ([`ae66cad`](https://github.com/UCSD-E4E/e4e-data-management/commit/ae66cad917928c50af9bf5748b52d1d05dead0b6))
+ci: Upgrades workflows ([`5a3b1f9`](https://github.com/UCSD-E4E/e4e-data-management/commit/5a3b1f94acc01f581e23e7186c4c55b34e052978))
 
 ## v0.0.1 (2024-08-22)
 
 ### Chore
 
-* chore: Removes old setup.py ([`f86d4b8`](https://github.com/UCSD-E4E/e4e-data-management/commit/f86d4b894acf2c992f9ebd1dbc01f999c9213645))
+* chore: Removes old setup.py ([`07fa655`](https://github.com/UCSD-E4E/e4e-data-management/commit/07fa655bdf18ed5e480a84d8e78f6d956ba8c897))
 
-* chore: Adds poetry support ([`20a43ba`](https://github.com/UCSD-E4E/e4e-data-management/commit/20a43ba6c4c56b092393ebb2026b6e3d05e05c92))
+* chore: Adds poetry support ([`d8141bd`](https://github.com/UCSD-E4E/e4e-data-management/commit/d8141bd68f6e6231c205f8ae6ae936fbfc7f7ad5))
 
 ### Ci
 
-* ci: Switches back to releaser token ([`865807a`](https://github.com/UCSD-E4E/e4e-data-management/commit/865807a27ce0e4ce6539ddba19208f97b7c12c6e))
+* ci: Switches back to releaser token ([`97c439e`](https://github.com/UCSD-E4E/e4e-data-management/commit/97c439ed89ec27f549121b36b8b32efaa68b58a4))
 
-* ci: Switches to deploy key ([`8e7cfb2`](https://github.com/UCSD-E4E/e4e-data-management/commit/8e7cfb20be53f97e1315599fcbcf8e0b518f13ab))
+* ci: Switches to deploy key ([`7f4bb72`](https://github.com/UCSD-E4E/e4e-data-management/commit/7f4bb729bd5077d9b323884f6c3ddec48e34e941))
 
-* ci: Adds -vv ([`8ba9f0c`](https://github.com/UCSD-E4E/e4e-data-management/commit/8ba9f0ca923594cb61b868f740529c663ace3552))
+* ci: Adds -vv ([`b8dd838`](https://github.com/UCSD-E4E/e4e-data-management/commit/b8dd838798531124c3763277537c1184f21c49a1))
 
-* ci: Fixes checkout ([`3aca4e1`](https://github.com/UCSD-E4E/e4e-data-management/commit/3aca4e1f8d3fa02649bc52c81e0f48b0f87ea157))
+* ci: Fixes checkout ([`4501cf9`](https://github.com/UCSD-E4E/e4e-data-management/commit/4501cf9750435555550ee2123efae5c98906f5e1))
 
-* ci: Fix persist-credentials ([`3829127`](https://github.com/UCSD-E4E/e4e-data-management/commit/38291270ca08420ccfe4da8fafd2af320d99b711))
+* ci: Fix persist-credentials ([`39fccf7`](https://github.com/UCSD-E4E/e4e-data-management/commit/39fccf783d83a3ca3d03de07f1b012ea62e52dfc))
 
-* ci: Fixes checkout token ([`9bc77b3`](https://github.com/UCSD-E4E/e4e-data-management/commit/9bc77b3f5465c18b93c749185156aff19734eff0))
+* ci: Fixes checkout token ([`3dff30c`](https://github.com/UCSD-E4E/e4e-data-management/commit/3dff30c7d405ccf616b36e33642e9fe86ec4835f))
 
-* ci: Fixes release token ([`b51fb6f`](https://github.com/UCSD-E4E/e4e-data-management/commit/b51fb6f23d78de1ca92c913a95fce5201de42afe))
+* ci: Fixes release token ([`e5b3181`](https://github.com/UCSD-E4E/e4e-data-management/commit/e5b3181ec58407f5c01a64076432abce1cb41402))
 
-* ci: Fixes tests ([`bff04d7`](https://github.com/UCSD-E4E/e4e-data-management/commit/bff04d777a6b8d624f2c88b65e11dc2e6f069f3c))
+* ci: Fixes tests ([`2e19877`](https://github.com/UCSD-E4E/e4e-data-management/commit/2e198772bd6bbf2099912374e4120c7630bd8446))
 
-* ci: Updates python versions ([`5290caf`](https://github.com/UCSD-E4E/e4e-data-management/commit/5290caf529049384599f7fbf9e802dba91a9f6d8))
+* ci: Updates python versions ([`a549d33`](https://github.com/UCSD-E4E/e4e-data-management/commit/a549d3330ae742a327093e2abe43b74f05ee1f59))
 
 ### Fix
 
-* fix: Raises error when commiting non-regular file ([`6fcab0d`](https://github.com/UCSD-E4E/e4e-data-management/commit/6fcab0d74e5495c75ba08b0567696a1139e1e0eb))
+* fix: Raises error when commiting non-regular file ([`d26ad44`](https://github.com/UCSD-E4E/e4e-data-management/commit/d26ad4454c6378dd8f3a1839c284dbc993bbe3b2))
 
 ### Unknown
 
 * Merge pull request #88 from UCSD-E4E/poetry
 
-chore: Adds poetry support ([`2ffea0a`](https://github.com/UCSD-E4E/e4e-data-management/commit/2ffea0aa8d01f60f429afdd0cff9ce862a36866a))
+chore: Adds poetry support ([`62f0ae3`](https://github.com/UCSD-E4E/e4e-data-management/commit/62f0ae320810ccaf275c7e5aa899e99029ba80f4))
 
 * Merge pull request #86 from UCSD-E4E/56-activate-save-state
 
-Added self.save() call to dataset activation ([`cb5168d`](https://github.com/UCSD-E4E/e4e-data-management/commit/cb5168d1823302bbd2d5181fdc044a3980b49e9e))
+Added self.save() call to dataset activation ([`9afcd74`](https://github.com/UCSD-E4E/e4e-data-management/commit/9afcd7410ec9cacc77e297c8da295bdd0125bf09))
 
-* added save ([`f9fddfb`](https://github.com/UCSD-E4E/e4e-data-management/commit/f9fddfb44911be81afab8ed8697f0d5d91cc7c15))
+* added save ([`9f12db8`](https://github.com/UCSD-E4E/e4e-data-management/commit/9f12db8e22a34a0ea76fbb10bd6990e70dbc2909))
 
-* Update version ([`7e0e9fb`](https://github.com/UCSD-E4E/e4e-data-management/commit/7e0e9fb88a7e097389e0ef9b532e83725c002879))
+* Update version ([`bd4c237`](https://github.com/UCSD-E4E/e4e-data-management/commit/bd4c2371c35002ae7b9ea1cf059969336c800d25))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 42-implement-e4edm-validate ([`23a95b9`](https://github.com/UCSD-E4E/e4e-data-management/commit/23a95b96eeb332a6365ead70e4f3451aefe50de4))
+* Merge remote-tracking branch &#39;origin/main&#39; into 42-implement-e4edm-validate ([`cfb4275`](https://github.com/UCSD-E4E/e4e-data-management/commit/cfb42756ec8317ce87ce759fb914fa2992fd0c22))
 
 * Merge pull request #46 from UCSD-E4E/43-include-full-date-in-dataset
 
-43 include full date in dataset ([`e034866`](https://github.com/UCSD-E4E/e4e-data-management/commit/e03486620bfa968b6d5604ea677a2aa6858e6d3c))
+43 include full date in dataset ([`33e1998`](https://github.com/UCSD-E4E/e4e-data-management/commit/33e199837b9c1ccc6796b70e5ba04cde57d27740))
 
-* Fixed linting - line too long ([`094b5ef`](https://github.com/UCSD-E4E/e4e-data-management/commit/094b5ef57f36a037141b49496418932324f9adc6))
+* Fixed linting - line too long ([`6a38881`](https://github.com/UCSD-E4E/e4e-data-management/commit/6a38881b0196ca34152c77e4ea63836c3965c8f1))
 
-* Updated version ([`0e52c6f`](https://github.com/UCSD-E4E/e4e-data-management/commit/0e52c6f0cb5bd211f2136d032e33a5c43352a6f4))
+* Updated version ([`e1ae05d`](https://github.com/UCSD-E4E/e4e-data-management/commit/e1ae05da59eccc2673ba0f0896933390b7b8704b))
 
-* Updated logic ([`9e26d1e`](https://github.com/UCSD-E4E/e4e-data-management/commit/9e26d1ec11d9b2eb6cb1da5b26e8f1ad3362def0))
+* Updated logic ([`a5f1c7f`](https://github.com/UCSD-E4E/e4e-data-management/commit/a5f1c7f3b4c61499e5c839337cacf9c6b2e4c964))
 
-* Updated documentation ([`a30e841`](https://github.com/UCSD-E4E/e4e-data-management/commit/a30e841608cf68e9db20a65044ab2ce7c5400a53))
+* Updated documentation ([`131ac51`](https://github.com/UCSD-E4E/e4e-data-management/commit/131ac51b3dc9f7d0140f52ee29bac84a7ccf2c55))
 
-* Updated Tests ([`b0663e6`](https://github.com/UCSD-E4E/e4e-data-management/commit/b0663e6a544a85c1ef885424f5e4bb231875b640))
+* Updated Tests ([`a408047`](https://github.com/UCSD-E4E/e4e-data-management/commit/a40804726e98e4b28d803cf2a26e3c0d82e8ca0a))
 
-* Added remaining logic ([`3223992`](https://github.com/UCSD-E4E/e4e-data-management/commit/32239925c01f1ad06714528d2f741170911df7b9))
+* Added remaining logic ([`131a461`](https://github.com/UCSD-E4E/e4e-data-management/commit/131a461926d265b46f8536ce39acfa4ecd3a795d))
 
-* Adding command changes ([`bc12b34`](https://github.com/UCSD-E4E/e4e-data-management/commit/bc12b34fa0a5803087f6d033e7c5c9d572dcff48))
+* Adding command changes ([`c9e8619`](https://github.com/UCSD-E4E/e4e-data-management/commit/c9e86190f2b55d49affb86377813a3db68ef4012))
 
 * Merge pull request #36 from UCSD-E4E/34-remove-dataset-after-pushing-to-server
 
-34 remove dataset after pushing to server ([`aad84c9`](https://github.com/UCSD-E4E/e4e-data-management/commit/aad84c96ebc1129ed9a4300d783b6c1ff021b02a))
+34 remove dataset after pushing to server ([`69fadf7`](https://github.com/UCSD-E4E/e4e-data-management/commit/69fadf7d1f0f9c6b87b6470c8d30c921aa0a3e1e))
 
-* Merge branch &#39;main&#39; into 34-remove-dataset-after-pushing-to-server ([`e629380`](https://github.com/UCSD-E4E/e4e-data-management/commit/e629380625581beee77b5418abc12d17a7f344ff))
+* Merge branch &#39;main&#39; into 34-remove-dataset-after-pushing-to-server ([`11a303a`](https://github.com/UCSD-E4E/e4e-data-management/commit/11a303a1e0f36f5f6cd7e94f20d5d29314353ca9))
 
 * Merge pull request #32 from UCSD-E4E/31-logging
 
-Added invocation logging ([`ef20001`](https://github.com/UCSD-E4E/e4e-data-management/commit/ef20001f08fda5c2629cadc9fe25b7313995d5c1))
+Added invocation logging ([`33e4f07`](https://github.com/UCSD-E4E/e4e-data-management/commit/33e4f07b66df81283eadc0e5918cfc5f2f9818ad))
 
-* Fixed pylint ([`762c032`](https://github.com/UCSD-E4E/e4e-data-management/commit/762c032ca1d8e08a3c14c2fa9e4472870cf3b4e3))
+* Fixed pylint ([`e3cce1d`](https://github.com/UCSD-E4E/e4e-data-management/commit/e3cce1d6d5d75cc2a514321a071e013feab419b7))
 
-* Added stage and commit log messages ([`3653bb3`](https://github.com/UCSD-E4E/e4e-data-management/commit/3653bb3ebe5989177079f7fdff63a31322312ed5))
+* Added stage and commit log messages ([`de5276a`](https://github.com/UCSD-E4E/e4e-data-management/commit/de5276a13eb97ff9a164da8d345d302290c68358))
 
-* Adding version ([`1125cb1`](https://github.com/UCSD-E4E/e4e-data-management/commit/1125cb108a83ee1e91b71d6ac6161a73db0a61d4))
+* Adding version ([`17c5aa6`](https://github.com/UCSD-E4E/e4e-data-management/commit/17c5aa61ce3223608b312230fc0e15d9b2a81168))
 
-* Added saving and upgrading log statements ([`fd21e1b`](https://github.com/UCSD-E4E/e4e-data-management/commit/fd21e1b21feb76b72e68110431d0e36fbbfc7bba))
+* Added saving and upgrading log statements ([`f8f7d5c`](https://github.com/UCSD-E4E/e4e-data-management/commit/f8f7d5c711e66b13175ba809b63622837f8edfe7))
 
-* Added invocation logging ([`65bfb41`](https://github.com/UCSD-E4E/e4e-data-management/commit/65bfb418241736b4788b98796b62bf5a81f6f0c4))
+* Added invocation logging ([`72e0f8e`](https://github.com/UCSD-E4E/e4e-data-management/commit/72e0f8e0e5ab0979135fbbe0f3bfee7acec0287c))
 
-* Organized imports ([`3483a89`](https://github.com/UCSD-E4E/e4e-data-management/commit/3483a890c304afdb349e551ec2ef8b226c91629f))
+* Organized imports ([`89eacd2`](https://github.com/UCSD-E4E/e4e-data-management/commit/89eacd2003cb78cea106beec88c8afa67fdc5dbf))
 
-* Added push/prune logic ([`4893bf2`](https://github.com/UCSD-E4E/e4e-data-management/commit/4893bf20021767b570329b3a5c15b78a0d294c7b))
+* Added push/prune logic ([`872f390`](https://github.com/UCSD-E4E/e4e-data-management/commit/872f390ec0183f071f1dd38bb8d1845323cc1d4c))
 
-* Added readme ([`86ee436`](https://github.com/UCSD-E4E/e4e-data-management/commit/86ee436bb938bcf549009544bce7f7715da0dbf7))
+* Added readme ([`6ebc40a`](https://github.com/UCSD-E4E/e4e-data-management/commit/6ebc40a6c62a8a0927d7d83d8b8a75a362d864b8))
 
-* Added push and prune logic ([`f2702d2`](https://github.com/UCSD-E4E/e4e-data-management/commit/f2702d2b54b4c53fc851259de671eb808b9ef589))
+* Added push and prune logic ([`c216d12`](https://github.com/UCSD-E4E/e4e-data-management/commit/c216d127de04ccc3b5b7ae1677dfe5775299f17e))
 
-* Added pushed flag ([`b290bfa`](https://github.com/UCSD-E4E/e4e-data-management/commit/b290bfac9d29f241d3286c1f59f0fb407379ab66))
+* Added pushed flag ([`3dc8d24`](https://github.com/UCSD-E4E/e4e-data-management/commit/3dc8d2429ca22559a11feccfff01bef163de38bb))
 
-* Added test ([`6b863ac`](https://github.com/UCSD-E4E/e4e-data-management/commit/6b863ac17abc55d3e9730baab7cef43ae9eb241c))
+* Added test ([`78279ee`](https://github.com/UCSD-E4E/e4e-data-management/commit/78279ee2ef65e795d6059877ca59931e37bb9933))
 
 * Merge pull request #30 from UCSD-E4E/26-add-timezone-aware-timestamps
 
-26 add timezone aware timestamps ([`4417116`](https://github.com/UCSD-E4E/e4e-data-management/commit/44171161a0c674b8d1f5ae1c2c62cebd99dd89f2))
+26 add timezone aware timestamps ([`132420a`](https://github.com/UCSD-E4E/e4e-data-management/commit/132420a957855dd1e6c4e5408dd39147798b219e))
 
-* Added pragma justification ([`ca9904c`](https://github.com/UCSD-E4E/e4e-data-management/commit/ca9904cd80fa021b5bf509c99270de01c4f469a9))
+* Added pragma justification ([`6ca6d75`](https://github.com/UCSD-E4E/e4e-data-management/commit/6ca6d75821fcaeefdfb2a73e4dbd1d21fd57f146))
 
-* Merge branch &#39;main&#39; into 26-add-timezone-aware-timestamps ([`437244a`](https://github.com/UCSD-E4E/e4e-data-management/commit/437244a8d0adc9282e2a54a57165d560117d5a02))
+* Merge branch &#39;main&#39; into 26-add-timezone-aware-timestamps ([`fc6b0cd`](https://github.com/UCSD-E4E/e4e-data-management/commit/fc6b0cd42b85e8ba668e1344a42f5697fa1ba707))
 
 * Merge pull request #29 from UCSD-E4E/25-as-a-user-i-would-like-e4edm-push-to-include-the-dataset-directory-so-that-i-do-not-lose-the-dataset-context
 
-25 as a user i would like e4edm push to include the dataset directory so that i do not lose the dataset context ([`f6242c1`](https://github.com/UCSD-E4E/e4e-data-management/commit/f6242c1c572355753416c836019c17cc014d3bf4))
+25 as a user i would like e4edm push to include the dataset directory so that i do not lose the dataset context ([`b678578`](https://github.com/UCSD-E4E/e4e-data-management/commit/b678578122f7d9056a64c9e8754cde02ad275f8c))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 25-as-a-user-i-would-like-e4edm-push-to-include-the-dataset-directory-so-that-i-do-not-lose-the-dataset-context ([`b782ef6`](https://github.com/UCSD-E4E/e4e-data-management/commit/b782ef682cd4c3bc7855891c5e538bb298324a40))
+* Merge remote-tracking branch &#39;origin/main&#39; into 25-as-a-user-i-would-like-e4edm-push-to-include-the-dataset-directory-so-that-i-do-not-lose-the-dataset-context ([`b4b7a3c`](https://github.com/UCSD-E4E/e4e-data-management/commit/b4b7a3c4bfb8a08d27042866dc1150d53252eb40))
 
 * Merge pull request #24 from UCSD-E4E/23-e4edm-results-in-error-thrown
 
-23 e4edm results in error thrown ([`0b6cc28`](https://github.com/UCSD-E4E/e4e-data-management/commit/0b6cc28f189dddf8953314408a4a78691cf9a3b0))
+23 e4edm results in error thrown ([`3319f95`](https://github.com/UCSD-E4E/e4e-data-management/commit/3319f95f37b9b9f7a5722f9fad090699238ccc12))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 23-e4edm-results-in-error-thrown ([`f55af76`](https://github.com/UCSD-E4E/e4e-data-management/commit/f55af768a5a9f2a2011ce1a722742776cee8bc5a))
+* Merge remote-tracking branch &#39;origin/main&#39; into 23-e4edm-results-in-error-thrown ([`e6702ec`](https://github.com/UCSD-E4E/e4e-data-management/commit/e6702ecfc79f02b15e37d8ce3e6184e0cfadfa75))
 
 * Merge pull request #28 from UCSD-E4E/22-readme-does-not-appear-in-staging-list-when-added-with-readme-flag
 
-22 readme does not appear in staging list when added with readme flag ([`ffb5b19`](https://github.com/UCSD-E4E/e4e-data-management/commit/ffb5b19c4034f93da8856e79aec4c6c844f61a0d))
+22 readme does not appear in staging list when added with readme flag ([`b4a8de8`](https://github.com/UCSD-E4E/e4e-data-management/commit/b4a8de84609ac9fcefd59ddff60171231b5ccca7))
 
-* Resolving and escaping paths ([`72f20e7`](https://github.com/UCSD-E4E/e4e-data-management/commit/72f20e727d475f3fc9954215b1c02251ff056920))
+* Resolving and escaping paths ([`a30354d`](https://github.com/UCSD-E4E/e4e-data-management/commit/a30354ddc2a7df6a2fc0862b0436558170629874))
 
-* Added sort ([`04aab3b`](https://github.com/UCSD-E4E/e4e-data-management/commit/04aab3b96d16bf3eacf623d57b4a94a871873ea1))
+* Added sort ([`4c366ed`](https://github.com/UCSD-E4E/e4e-data-management/commit/4c366ed0339383cc3acbc20795049d2010dbe6bb))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 22-readme-does-not-appear-in-staging-list-when-added-with-readme-flag ([`4bfd0f0`](https://github.com/UCSD-E4E/e4e-data-management/commit/4bfd0f01f1756ac3644c0646f40d037f64c578b8))
+* Merge remote-tracking branch &#39;origin/main&#39; into 22-readme-does-not-appear-in-staging-list-when-added-with-readme-flag ([`876cfd2`](https://github.com/UCSD-E4E/e4e-data-management/commit/876cfd21ee80587323ac92d8ae99935e7f54a7a2))
 
-* Added appropriate output logic ([`e84a103`](https://github.com/UCSD-E4E/e4e-data-management/commit/e84a10385aa190052004efff7999c886ddbcf678))
+* Added appropriate output logic ([`d52e040`](https://github.com/UCSD-E4E/e4e-data-management/commit/d52e0405b87c947a5dec7fecff9fa5fee33fa2fc))
 
-* Added readme test ([`d57b87c`](https://github.com/UCSD-E4E/e4e-data-management/commit/d57b87c1cf8ed57125c668426de8b8d04c5726c2))
+* Added readme test ([`10dbc08`](https://github.com/UCSD-E4E/e4e-data-management/commit/10dbc083bc2310bd55c039043c6c8ead979ef927))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 23-e4edm-results-in-error-thrown ([`09e585f`](https://github.com/UCSD-E4E/e4e-data-management/commit/09e585fb4423f4123c6db4249fefb0b3af7350ef))
+* Merge remote-tracking branch &#39;origin/main&#39; into 23-e4edm-results-in-error-thrown ([`71e8a05`](https://github.com/UCSD-E4E/e4e-data-management/commit/71e8a051973d709d71689b2c5fa29c9b157afc1b))
 
-* Update build version ([`8e2ed55`](https://github.com/UCSD-E4E/e4e-data-management/commit/8e2ed55add9f9bc3a8f0a940a476c57c81bb32c9))
+* Update build version ([`36e5596`](https://github.com/UCSD-E4E/e4e-data-management/commit/36e5596f544c28c4b9eb9d1efe5c49bc9e9f2a38))
 
-* Updated parser for version and default action ([`9a7971d`](https://github.com/UCSD-E4E/e4e-data-management/commit/9a7971d98cc34cb1581e751bed3ba3466e2fc413))
+* Updated parser for version and default action ([`5c221ab`](https://github.com/UCSD-E4E/e4e-data-management/commit/5c221abea6989d2157a253b0e77f83bef991bba6))
 
-* Added test ([`2cd1d7b`](https://github.com/UCSD-E4E/e4e-data-management/commit/2cd1d7b8c54e06d4bfcb886e9ee44cc369c6dca9))
+* Added test ([`bd83e1c`](https://github.com/UCSD-E4E/e4e-data-management/commit/bd83e1ca1edb52b5addcddbd529fa480d2e7e1ff))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 25-as-a-user-i-would-like-e4edm-push-to-include-the-dataset-directory-so-that-i-do-not-lose-the-dataset-context ([`2f5b1a5`](https://github.com/UCSD-E4E/e4e-data-management/commit/2f5b1a5cc4d465f66272f851cf5ffc5fa6f81e1a))
+* Merge remote-tracking branch &#39;origin/main&#39; into 25-as-a-user-i-would-like-e4edm-push-to-include-the-dataset-directory-so-that-i-do-not-lose-the-dataset-context ([`cd756cc`](https://github.com/UCSD-E4E/e4e-data-management/commit/cd756cce6417936c7c24c0cbe4441bdd5126dc05))
 
-* Added push directory logic ([`9410319`](https://github.com/UCSD-E4E/e4e-data-management/commit/94103194d93c5662b3ec38f3939f3d1fe5f5535c))
+* Added push directory logic ([`881b624`](https://github.com/UCSD-E4E/e4e-data-management/commit/881b624e980375e6543b940e7b404c0b5dae49df))
 
-* Adding check for directory name existence ([`f87ae10`](https://github.com/UCSD-E4E/e4e-data-management/commit/f87ae10b5014638e4bb2ed175a3e2d712f0291b5))
+* Adding check for directory name existence ([`d76d53c`](https://github.com/UCSD-E4E/e4e-data-management/commit/d76d53cad9540cefd4853bc965debaf62b586554))
 
-* Added destination kwarg ([`4c2db75`](https://github.com/UCSD-E4E/e4e-data-management/commit/4c2db75ae358019d7b9b16249e980e7fe25fe58e))
+* Added destination kwarg ([`97154a6`](https://github.com/UCSD-E4E/e4e-data-management/commit/97154a60b18d1fe4d106374e12fb67f39201dac2))
 
-* Merge remote-tracking branch &#39;origin/main&#39; into 26-add-timezone-aware-timestamps ([`088e594`](https://github.com/UCSD-E4E/e4e-data-management/commit/088e594d069be26c800d810af1e3ee607e2f0145))
+* Merge remote-tracking branch &#39;origin/main&#39; into 26-add-timezone-aware-timestamps ([`c3e2919`](https://github.com/UCSD-E4E/e4e-data-management/commit/c3e29199e70bbeb9af42077ae8890eabbd3c62aa))
 
 * Merge pull request #27 from UCSD-E4E/21-staging-files-does-not-work-with-absolute-path
 
-21 staging files does not work with absolute path ([`d5ee9f3`](https://github.com/UCSD-E4E/e4e-data-management/commit/d5ee9f354c72c256d2217242d5dfe20b44311c47))
+21 staging files does not work with absolute path ([`fbb6b3e`](https://github.com/UCSD-E4E/e4e-data-management/commit/fbb6b3e5867d4d304e2db4851cbbdd8e8b2d2b84))
 
-* Fixed trailing whitespace ([`3557b7b`](https://github.com/UCSD-E4E/e4e-data-management/commit/3557b7bcedd4b3d10700667be10575e078d6ecf1))
+* Fixed trailing whitespace ([`bf3be43`](https://github.com/UCSD-E4E/e4e-data-management/commit/bf3be43ae49023a26d224a47a7184389201fc1d0))
 
-* Updated status output ([`42fed86`](https://github.com/UCSD-E4E/e4e-data-management/commit/42fed868ca969293de87586d0fcb11dfe088c392))
+* Updated status output ([`24ced5b`](https://github.com/UCSD-E4E/e4e-data-management/commit/24ced5bee8dbff362796823cb07e9980655022d6))
 
-* Updated version ([`d4c37a8`](https://github.com/UCSD-E4E/e4e-data-management/commit/d4c37a84b7e213b6b9e2d5f727602d3ab2858c37))
+* Updated version ([`05a5024`](https://github.com/UCSD-E4E/e4e-data-management/commit/05a50244b36b15f51700ed8194b4bddd71a74dc0))
 
-* Corrected staging and commit behavior ([`37cc06b`](https://github.com/UCSD-E4E/e4e-data-management/commit/37cc06be158f61cc82885f51d9d97318447d8d19))
+* Corrected staging and commit behavior ([`fd70b1d`](https://github.com/UCSD-E4E/e4e-data-management/commit/fd70b1df8784638e3dc38690db13edcae107fb5c))
 
-* Added test function ([`489ae9e`](https://github.com/UCSD-E4E/e4e-data-management/commit/489ae9eb60ada1f12e2037c98c21a49457de59d4))
+* Added test function ([`d31ba78`](https://github.com/UCSD-E4E/e4e-data-management/commit/d31ba788af8750443478797e6f42a14af773918a))
 
-* Fixed filter behavior ([`b9ff886`](https://github.com/UCSD-E4E/e4e-data-management/commit/b9ff8863a7608bf4d28de3bc9c7ce039914d0612))
+* Fixed filter behavior ([`b4e2c35`](https://github.com/UCSD-E4E/e4e-data-management/commit/b4e2c35477a9083643017d0b15d939cc60ae8a0c))
 
-* Changed start time to local system based ([`37de486`](https://github.com/UCSD-E4E/e4e-data-management/commit/37de486a2b5cf46095b32f49c28f1d6506fd0eed))
+* Changed start time to local system based ([`36086df`](https://github.com/UCSD-E4E/e4e-data-management/commit/36086df6e25f8fbd62e33724eac6d4af8d26bb2d))
 
-* Added timezone awareness ([`77e0aab`](https://github.com/UCSD-E4E/e4e-data-management/commit/77e0aab850566e5ead9cb8387bd0faf8d493b244))
+* Added timezone awareness ([`7ec26a0`](https://github.com/UCSD-E4E/e4e-data-management/commit/7ec26a001803067e3758caa2f4030f4d13fc11e9))
 
-* Added timezone aware test for e4edm add ([`0edb332`](https://github.com/UCSD-E4E/e4e-data-management/commit/0edb332670266342b500f79ccbadb24aa73f4873))
+* Added timezone aware test for e4edm add ([`1fe90d8`](https://github.com/UCSD-E4E/e4e-data-management/commit/1fe90d89923445c2ad9970aa43000284a382dce1))
 
 * Merge pull request #19 from UCSD-E4E/getting_started
 
-Updated tutorial ([`412d223`](https://github.com/UCSD-E4E/e4e-data-management/commit/412d2238b9afc97fe6fede6f49fe7fd9173d2a3a))
+Updated tutorial ([`219d3ab`](https://github.com/UCSD-E4E/e4e-data-management/commit/219d3ab6584c8c1a10ce2643f78ff70fb1b4695a))
 
-* Updated tutorial ([`dc1db1f`](https://github.com/UCSD-E4E/e4e-data-management/commit/dc1db1fe253cd2254bd82c38e68f12f9c4df5902))
+* Updated tutorial ([`a0475cd`](https://github.com/UCSD-E4E/e4e-data-management/commit/a0475cdfd422afc7bf6a774558111093261a2946))
 
 * Merge pull request #17 from UCSD-E4E/in-app-versioning
 
-Added facility to get version at runtime ([`96a4585`](https://github.com/UCSD-E4E/e4e-data-management/commit/96a4585760873c2666741781701a3527d227a506))
+Added facility to get version at runtime ([`d6682a1`](https://github.com/UCSD-E4E/e4e-data-management/commit/d6682a1adabaf164de231a1aee863e0824efa0a5))
 
-* Fixed command handling ([`b3eadc8`](https://github.com/UCSD-E4E/e4e-data-management/commit/b3eadc8961bdd12d18c2be923fc76b21c11a8c13))
+* Fixed command handling ([`17f5f8b`](https://github.com/UCSD-E4E/e4e-data-management/commit/17f5f8b50f06866b372ed0c2c97226267fbb187a))
 
-* Updated version ([`50144b6`](https://github.com/UCSD-E4E/e4e-data-management/commit/50144b61acf47c5268448bc0a155ff4344a0ac41))
+* Updated version ([`84ab634`](https://github.com/UCSD-E4E/e4e-data-management/commit/84ab634606b25f93520751ae721a046e5fd9a977))
 
-* Added facility to get version at runtime ([`225ccae`](https://github.com/UCSD-E4E/e4e-data-management/commit/225ccae61a5653678c69f404dbee476de1b837e9))
+* Added facility to get version at runtime ([`1dcb260`](https://github.com/UCSD-E4E/e4e-data-management/commit/1dcb260fa53c5108b13b6804d5e556a0fe348264))
 
 * Merge pull request #16 from UCSD-E4E/8-init_mission-help
 
-Updates init_mission help text ([`e45fd9d`](https://github.com/UCSD-E4E/e4e-data-management/commit/e45fd9d91a7f98c5bbb92f1037ce79f3b85ccc51))
+Updates init_mission help text ([`577ce67`](https://github.com/UCSD-E4E/e4e-data-management/commit/577ce670d6f1ed293c8248d873564ee161e650ff))
 
-* Updates init_mission help text ([`11ca74d`](https://github.com/UCSD-E4E/e4e-data-management/commit/11ca74dceff404e9c55855fb20da4f5e9e76bcf1))
+* Updates init_mission help text ([`612f10b`](https://github.com/UCSD-E4E/e4e-data-management/commit/612f10b1a956dfe373dfa5dc2195570b33fcabd4))
 
 * Merge pull request #15 from UCSD-E4E/init_dataset_default_dir
 
-init_dataset default directory ([`31279b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/31279b5fb99b6c088871d13b69e470e9c0be5b14))
+init_dataset default directory ([`6d850ee`](https://github.com/UCSD-E4E/e4e-data-management/commit/6d850ee2086cdc6293194883a577372c88b93641))
 
-* Update build version ([`49f3141`](https://github.com/UCSD-E4E/e4e-data-management/commit/49f31419a707f6d14794da9d349120d84ca60851))
+* Update build version ([`1ddd5d7`](https://github.com/UCSD-E4E/e4e-data-management/commit/1ddd5d7661ced817b8549425b42e15c6077af886))
 
-* Refactored cli to OOP, added config ([`7dc6477`](https://github.com/UCSD-E4E/e4e-data-management/commit/7dc647743b79c2669092b69734fa632548fdc050))
+* Refactored cli to OOP, added config ([`72c8f53`](https://github.com/UCSD-E4E/e4e-data-management/commit/72c8f53e6470969a8d107728c53eadbb15a0b4a1))
 
-* Added tests for cli ([`9dbf3e6`](https://github.com/UCSD-E4E/e4e-data-management/commit/9dbf3e68538ff58af1c89ead42fdcda5d94c78a6))
+* Added tests for cli ([`722933b`](https://github.com/UCSD-E4E/e4e-data-management/commit/722933b23fa5af6ed9490c5d6579cc396ec9ba33))
 
-* Added dataset dir value ([`1f2ec04`](https://github.com/UCSD-E4E/e4e-data-management/commit/1f2ec0453dd7fc2059dcb727cbcb48df7d2e6c94))
+* Added dataset dir value ([`33a4b36`](https://github.com/UCSD-E4E/e4e-data-management/commit/33a4b3659d0811608d8311d2ea32c534108a5007))
 
-* Updated test to use mocks ([`3e37ce2`](https://github.com/UCSD-E4E/e4e-data-management/commit/3e37ce2ebbe80b61185236f53e4d85d302dca191))
+* Updated test to use mocks ([`4bdff07`](https://github.com/UCSD-E4E/e4e-data-management/commit/4bdff07e9a0b3d09a6897c22ae0c7abaaca74579))
 
 * Merge pull request #14 from UCSD-E4E/init_dataset_today
 
-Added `today` to `init_dataset` command ([`3426262`](https://github.com/UCSD-E4E/e4e-data-management/commit/34262628feb5d5c03955fcc4e1209c19b9bf7d4c))
+Added `today` to `init_dataset` command ([`90fc5b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/90fc5b59c49c7f8745e911e7488572f373ce0ede))
 
-* Updated version ([`96448b5`](https://github.com/UCSD-E4E/e4e-data-management/commit/96448b56c9b77320f9ef7438bba94759d123581b))
+* Updated version ([`87f9df6`](https://github.com/UCSD-E4E/e4e-data-management/commit/87f9df667da6a9ecd2cec2b83f8af6251cf06efa))
 
-* Fixed test ([`5c8e152`](https://github.com/UCSD-E4E/e4e-data-management/commit/5c8e15218d1568887b20d48fbc807178a624e24a))
+* Fixed test ([`8a05446`](https://github.com/UCSD-E4E/e4e-data-management/commit/8a0544655d2cb2e304c88f9dd618c313e7723b64))
 
-* Added date parser ([`e9a3d62`](https://github.com/UCSD-E4E/e4e-data-management/commit/e9a3d622d51b9ffe933498807ace4da58ba30529))
+* Added date parser ([`104388a`](https://github.com/UCSD-E4E/e4e-data-management/commit/104388a4e85016ca601464e62be7d71f2e659483))
 
-* Added test ([`2e3e7d9`](https://github.com/UCSD-E4E/e4e-data-management/commit/2e3e7d955ef7181453c0949e57053c990c589cd3))
+* Added test ([`49117c0`](https://github.com/UCSD-E4E/e4e-data-management/commit/49117c0c1f13232b98a717cd46799a7aaf5c5500))
 
-* Updated version ([`5b20f1c`](https://github.com/UCSD-E4E/e4e-data-management/commit/5b20f1c3cf56e4f65538d07d0ef9f08eeda8e278))
+* Updated version ([`a741907`](https://github.com/UCSD-E4E/e4e-data-management/commit/a741907dd836e55645120d3a33a3f4699963f80d))
 
 * Merge pull request #13 from UCSD-E4E/cli_output_fix
 
-Cli output fix ([`8caea3b`](https://github.com/UCSD-E4E/e4e-data-management/commit/8caea3b59499b36cd3e42efe34802701f12bd4d1))
+Cli output fix ([`0532c19`](https://github.com/UCSD-E4E/e4e-data-management/commit/0532c197008be534358707216e836fd272b46952))
 
-* Merge branch &#39;main&#39; into cli_output_fix ([`29bb577`](https://github.com/UCSD-E4E/e4e-data-management/commit/29bb577310f673f6c69708d5789923ebf19b6511))
+* Merge branch &#39;main&#39; into cli_output_fix ([`c223d37`](https://github.com/UCSD-E4E/e4e-data-management/commit/c223d37b1f013698cb63a4f90389499938e28eb0))
 
-* Updated version ([`e0ae20e`](https://github.com/UCSD-E4E/e4e-data-management/commit/e0ae20e4d919610f296e5cf586ae51f18ba3810d))
+* Updated version ([`b227d29`](https://github.com/UCSD-E4E/e4e-data-management/commit/b227d29e8e3321d6bf8c8904e604d8e2797d5d1d))
 
 * Merge pull request #12 from UCSD-E4E/add_date_range
 
-Add date range, activate ([`95f7185`](https://github.com/UCSD-E4E/e4e-data-management/commit/95f71852cf794f038512b52bc8a4bbc20af56575))
+Add date range, activate ([`49de6e8`](https://github.com/UCSD-E4E/e4e-data-management/commit/49de6e8b1bd81dc8da1bd926fdbc05b9e3d38ed6))
 
-* Merge branch &#39;main&#39; into add_date_range ([`cfef164`](https://github.com/UCSD-E4E/e4e-data-management/commit/cfef164bbe7064e4949b52d33305968ac54b294c))
+* Merge branch &#39;main&#39; into add_date_range ([`3bb8608`](https://github.com/UCSD-E4E/e4e-data-management/commit/3bb8608cd0dc65b086a98815243609937f86f485))
 
-* Updated version ([`6f026b0`](https://github.com/UCSD-E4E/e4e-data-management/commit/6f026b097cd6d82cc65d7d4bf1f8bf03a39cf9e7))
+* Updated version ([`41dedb1`](https://github.com/UCSD-E4E/e4e-data-management/commit/41dedb151cb20d940ffc93f95a5d1ebb0460f8ed))
 
 * Merge pull request #10 from UCSD-E4E/no_active_fix
 
-Enables run with no active dataset ([`a53423c`](https://github.com/UCSD-E4E/e4e-data-management/commit/a53423c33f9758d1dc18568e88c75c2549c4cb81))
+Enables run with no active dataset ([`710c3ee`](https://github.com/UCSD-E4E/e4e-data-management/commit/710c3ee60f58a031765a73feaa7146f70b3b0b06))
 
-* Fixed test ([`59518ef`](https://github.com/UCSD-E4E/e4e-data-management/commit/59518ef135a1e0efdf947c063f5ca8bc406b1196))
+* Fixed test ([`a049d37`](https://github.com/UCSD-E4E/e4e-data-management/commit/a049d3757f451d4b209e6eff91e18b51d2696c3c))
 
-* Merge branch &#39;main&#39; into no_active_fix ([`0cc548c`](https://github.com/UCSD-E4E/e4e-data-management/commit/0cc548c4108216a09434d78a59f3f17fa511aaa5))
+* Merge branch &#39;main&#39; into no_active_fix ([`df42e2b`](https://github.com/UCSD-E4E/e4e-data-management/commit/df42e2b0ef22dbe1c009b6a83d46d612ef0b3d4c))
 
-* Update __init__.py ([`bae7300`](https://github.com/UCSD-E4E/e4e-data-management/commit/bae7300291c82bb4aee91f40626e175d04737c00))
+* Update __init__.py ([`e9d7b22`](https://github.com/UCSD-E4E/e4e-data-management/commit/e9d7b22bbc6c1433bb6bf65e89d7b97c10ee9d4d))
 
 * Merge pull request #11 from UCSD-E4E/config_versioning
 
-Added versioning ([`219f9cf`](https://github.com/UCSD-E4E/e4e-data-management/commit/219f9cf3bb910360725b762c2e32bbbc3b865474))
+Added versioning ([`4839c54`](https://github.com/UCSD-E4E/e4e-data-management/commit/4839c54c537e58c57e8bb31a27503b6332993a92))
 
-* Added versioning ([`fd2db3a`](https://github.com/UCSD-E4E/e4e-data-management/commit/fd2db3a119b0b3a3b10406db4001f8a33225ebaa))
+* Added versioning ([`3fcf47f`](https://github.com/UCSD-E4E/e4e-data-management/commit/3fcf47f649b147ba25d82f70b88af0d10caaae08))
 
-* Added test to validate exit on help in empty config ([`cc93e7f`](https://github.com/UCSD-E4E/e4e-data-management/commit/cc93e7f632c9a8c7381a2538504f822b5432c298))
+* Added test to validate exit on help in empty config ([`507f57d`](https://github.com/UCSD-E4E/e4e-data-management/commit/507f57d00bf51b5699d2605880feb9775fd61419))
 
-* Fixes init mission for no active dataset ([`e222d56`](https://github.com/UCSD-E4E/e4e-data-management/commit/e222d562e8dc2ea72e6601f97d0360f199cd0fed))
+* Fixes init mission for no active dataset ([`df19ad5`](https://github.com/UCSD-E4E/e4e-data-management/commit/df19ad551e9b6c1d120246d42e701f0cb2bff219))
 
-* Updated project name ([`954ce40`](https://github.com/UCSD-E4E/e4e-data-management/commit/954ce404230a23b4dab8ebd0ab78c9ef0f70162c))
+* Updated project name ([`ea8d608`](https://github.com/UCSD-E4E/e4e-data-management/commit/ea8d608aba16cb0db985a5213569471dda2ce5df))
 
-* Removed repeat code ([`7e9c08c`](https://github.com/UCSD-E4E/e4e-data-management/commit/7e9c08c6b66f1fb1a73bb31e49db6176e8376c30))
+* Removed repeat code ([`e3f00c5`](https://github.com/UCSD-E4E/e4e-data-management/commit/e3f00c52c41ca2111538e607fd71b58d346a2f0e))
 
-* Added activate command ([`e79d9cf`](https://github.com/UCSD-E4E/e4e-data-management/commit/e79d9cf49556da8542bc82f55fce3cc26b699733))
+* Added activate command ([`6d35afa`](https://github.com/UCSD-E4E/e4e-data-management/commit/6d35afa848c1807c409a78b723f8f1090c51e8c8))
 
-* Added bracketing datetime ([`fe61e9c`](https://github.com/UCSD-E4E/e4e-data-management/commit/fe61e9cfbd2706999d0840b13fedeed1b197f013))
+* Added bracketing datetime ([`910d8a9`](https://github.com/UCSD-E4E/e4e-data-management/commit/910d8a9c89b0acdf7bbb0bccf794586b71193add))
 
-* Fixed typing ([`e346cac`](https://github.com/UCSD-E4E/e4e-data-management/commit/e346cacbcbecbeda5479948f8091ac0d0f5f5c7e))
+* Fixed typing ([`e087112`](https://github.com/UCSD-E4E/e4e-data-management/commit/e087112319f10f81f072ba6c2b62731fc556c414))
 
-* Removing sort ([`c3342e4`](https://github.com/UCSD-E4E/e4e-data-management/commit/c3342e450643021b7a84fe30d2e5a40c76f1c5a2))
+* Removing sort ([`209db95`](https://github.com/UCSD-E4E/e4e-data-management/commit/209db9595cf55c85dc982f403acae1f0aeb402bc))
 
-* Adding separate timed file ([`aa7036c`](https://github.com/UCSD-E4E/e4e-data-management/commit/aa7036ce774ffb128266d3bd43ed7067a3e83980))
+* Adding separate timed file ([`3337f50`](https://github.com/UCSD-E4E/e4e-data-management/commit/3337f507e81db8bfda30a900f7e78a5db109943e))
 
-* Added sorting for test ([`946626a`](https://github.com/UCSD-E4E/e4e-data-management/commit/946626a3ecc3ccecffd5a4b03f4d98c60fd89cbe))
+* Added sorting for test ([`5c6ddb7`](https://github.com/UCSD-E4E/e4e-data-management/commit/5c6ddb74f64c2e896cfcbc8b4c5e3595c32a4642))
 
-* Added number of staged files ([`752b68c`](https://github.com/UCSD-E4E/e4e-data-management/commit/752b68c9f45989a6569f70f942a4f7d07cd34d46))
+* Added number of staged files ([`5a9b821`](https://github.com/UCSD-E4E/e4e-data-management/commit/5a9b8218ca62f8aae328098e4c14fd6ad641b82b))
 
-* Added date filter test ([`6c2dae4`](https://github.com/UCSD-E4E/e4e-data-management/commit/6c2dae4c35f546583a47f95a239820206211f361))
+* Added date filter test ([`2d9687d`](https://github.com/UCSD-E4E/e4e-data-management/commit/2d9687df827a78873490b307daf1370fe3c56730))
 
-* Added start/stop filtering on add ([`eb0168a`](https://github.com/UCSD-E4E/e4e-data-management/commit/eb0168aed479a447fc34988b6166fd3b8546dd00))
+* Added start/stop filtering on add ([`f66c9ad`](https://github.com/UCSD-E4E/e4e-data-management/commit/f66c9ad700f1c6d61d510aa5a3bff703ca14f83c))
 
-* Fixed the status command output ([`ed7125b`](https://github.com/UCSD-E4E/e4e-data-management/commit/ed7125b516bc0db1d3f4df7f2841ed6030fe73bd))
+* Fixed the status command output ([`613b7af`](https://github.com/UCSD-E4E/e4e-data-management/commit/613b7af688c7e156770ad429009a8c7735d05fe8))
 
-* Clearing the active mission on new dataset ([`bf7e7a3`](https://github.com/UCSD-E4E/e4e-data-management/commit/bf7e7a3f6ada85957a40933e362a5f358e8fe20d))
+* Clearing the active mission on new dataset ([`3f03716`](https://github.com/UCSD-E4E/e4e-data-management/commit/3f037163947f32e96b07cd1d1535745967a27785))
 
 * Merge pull request #3 from UCSD-E4E/readme_commit
 
-Readme Functionality ([`e1fd36b`](https://github.com/UCSD-E4E/e4e-data-management/commit/e1fd36b4d3ebbcd2d205867e83657e76c810ae3e))
+Readme Functionality ([`a94be4e`](https://github.com/UCSD-E4E/e4e-data-management/commit/a94be4e6791ef177cd6b4ed1247fc58d65dbf510))
 
-* Remove odt, fixed dataset staging for push ([`63b2dca`](https://github.com/UCSD-E4E/e4e-data-management/commit/63b2dca6ca5c6c7222cedaacdcb30a18099b8b14))
+* Remove odt, fixed dataset staging for push ([`88efa94`](https://github.com/UCSD-E4E/e4e-data-management/commit/88efa94d6496b8d37f62056e30bf4f29cfe1549f))
 
-* Adding odt file to readme accept list ([`a9e9a21`](https://github.com/UCSD-E4E/e4e-data-management/commit/a9e9a215367a359aac9550fbef7d7ae2b73cb7e7))
+* Adding odt file to readme accept list ([`01f13d0`](https://github.com/UCSD-E4E/e4e-data-management/commit/01f13d0fecd83334ade69f00855355a329c5f9c9))
 
-* making readme in DataManager.commit not kwarg ([`8fa4d8e`](https://github.com/UCSD-E4E/e4e-data-management/commit/8fa4d8e2f3b472e0b06cf546ef84a30fb015a822))
+* making readme in DataManager.commit not kwarg ([`42ad050`](https://github.com/UCSD-E4E/e4e-data-management/commit/42ad050eb8fce14249a1d913940c2a6bdfb6cf6e))
 
-* Removed trailing whitespace ([`0646030`](https://github.com/UCSD-E4E/e4e-data-management/commit/064603027e84f9abb5482c58b1fc78181f632c7f))
+* Removed trailing whitespace ([`42c1497`](https://github.com/UCSD-E4E/e4e-data-management/commit/42c1497f8e9b877b35e653be61ca6ac27d18ff10))
 
-* Added regex for readme acceptance on *nix ([`98c770f`](https://github.com/UCSD-E4E/e4e-data-management/commit/98c770f9dda097463754a075fe31408d2fb9526b))
+* Added regex for readme acceptance on *nix ([`20fe29d`](https://github.com/UCSD-E4E/e4e-data-management/commit/20fe29d0df008b5e7d3727dab48c7e2ac33f351b))
 
-* Fixed push logic ([`1a69927`](https://github.com/UCSD-E4E/e4e-data-management/commit/1a6992756e96e9e28cfb88fe6c706cdac45fd525))
+* Fixed push logic ([`d11922b`](https://github.com/UCSD-E4E/e4e-data-management/commit/d11922bb5936b1530f7f2309c0d21d7c18c83bdd))
 
-* Fixed push readme acceptance ([`aab709c`](https://github.com/UCSD-E4E/e4e-data-management/commit/aab709ca2f7d14c42db89435ad710cd580b67081))
+* Fixed push readme acceptance ([`b80d7c5`](https://github.com/UCSD-E4E/e4e-data-management/commit/b80d7c550edcb1716807e16c4a9a10298f3c27be))
 
-* Adding readme add and commit ([`23baa62`](https://github.com/UCSD-E4E/e4e-data-management/commit/23baa6283c0c8792ecb05ad2331e4bf683e44286))
+* Adding readme add and commit ([`9d89d0a`](https://github.com/UCSD-E4E/e4e-data-management/commit/9d89d0a0c33a4b3b59afa8413c2b32790c65aecf))
 
 * Merge pull request #2 from UCSD-E4E/cli
 
-Cli ([`a8c4616`](https://github.com/UCSD-E4E/e4e-data-management/commit/a8c46166b2078e5436fc511cacc9fca4b71ec81b))
+Cli ([`fa3009b`](https://github.com/UCSD-E4E/e4e-data-management/commit/fa3009b93cc4241a20f8275f02209a3b222a42a4))
 
 * Merge branch &#39;main&#39;
 
 Conflicts:
-	e4e_data_management/cli.py ([`390dd45`](https://github.com/UCSD-E4E/e4e-data-management/commit/390dd456e3599d31ea08cec2e06fd9b4fbcebdae))
+	e4e_data_management/cli.py ([`bb7e845`](https://github.com/UCSD-E4E/e4e-data-management/commit/bb7e845df22457df795d7929eba2f6dced3acf3f))
 
-* Update version ([`dd85c14`](https://github.com/UCSD-E4E/e4e-data-management/commit/dd85c140e31662793191e02e9f3e5f510a8f53bc))
+* Update version ([`d65cbe3`](https://github.com/UCSD-E4E/e4e-data-management/commit/d65cbe317bcd32d7fc75ac6bfdc1b4837c683bf2))
 
 * Merge pull request #1 from UCSD-E4E/fix_staging
 
-Fixed staging ([`8256960`](https://github.com/UCSD-E4E/e4e-data-management/commit/82569605a0a09d86c3b4b60a3e1922a52c3cfb41))
+Fixed staging ([`9df29e5`](https://github.com/UCSD-E4E/e4e-data-management/commit/9df29e55c330aa19896ee2efafae4d4d048d8caf))
 
-* Fixed staging ([`bc1da0e`](https://github.com/UCSD-E4E/e4e-data-management/commit/bc1da0e831fef61e18cdb05062bcca795112f8e4))
+* Fixed staging ([`35b56a0`](https://github.com/UCSD-E4E/e4e-data-management/commit/35b56a021a3a3cda878523f21eb90ab71f268c8b))
 
-* Fixed default notes, added status, list ([`59f2ab1`](https://github.com/UCSD-E4E/e4e-data-management/commit/59f2ab15e6cc9cceb42a764e40b14e7759f95533))
+* Fixed default notes, added status, list ([`94613f3`](https://github.com/UCSD-E4E/e4e-data-management/commit/94613f3339d500147c18076f7320ed126f12b403))
 
-* Switched to subparsers ([`9cb65a9`](https://github.com/UCSD-E4E/e4e-data-management/commit/9cb65a9d990c30271e118206967f00300fedadd2))
+* Switched to subparsers ([`22c8538`](https://github.com/UCSD-E4E/e4e-data-management/commit/22c853842ef46a5eb22b9cbcdc332b58293f436a))
 
-* Simplifying tests ([`b7cd0c8`](https://github.com/UCSD-E4E/e4e-data-management/commit/b7cd0c8890aedb716a1b4f75d3d0d90c856c8da5))
+* Simplifying tests ([`c583e70`](https://github.com/UCSD-E4E/e4e-data-management/commit/c583e700fa4a054365eb771b20040425b7b3ee66))
 
-* Removing replicated code ([`1b85670`](https://github.com/UCSD-E4E/e4e-data-management/commit/1b85670d4c58c2fee65a17cea600e168d25d4c87))
+* Removing replicated code ([`3b737e4`](https://github.com/UCSD-E4E/e4e-data-management/commit/3b737e437fc5a56b696d6c835e4cfef94f458787))
 
-* Combined mock_single_mission and single_mission ([`77d438c`](https://github.com/UCSD-E4E/e4e-data-management/commit/77d438ca3ce734394a90830c3bc76d9e519cb5bf))
+* Combined mock_single_mission and single_mission ([`c8f3052`](https://github.com/UCSD-E4E/e4e-data-management/commit/c8f305220fb9c1ac9b763fc156c4c52263fcea8b))
 
-* Fixed type hinting ([`477bad9`](https://github.com/UCSD-E4E/e4e-data-management/commit/477bad90f9a4feb655d67698325bfc957c1dc8cf))
+* Fixed type hinting ([`08d02b8`](https://github.com/UCSD-E4E/e4e-data-management/commit/08d02b85805dde381b5f49a54636b4eca26e644c))
 
-* Fixed mission data ([`b641958`](https://github.com/UCSD-E4E/e4e-data-management/commit/b6419582b29bebf60e3c00fc8ebe688c9b8cf2fe))
+* Fixed mission data ([`8f46bdd`](https://github.com/UCSD-E4E/e4e-data-management/commit/8f46bdd16285a692b31fad6ab9daab49abe530f3))
 
-* PEP8 ([`f4907c5`](https://github.com/UCSD-E4E/e4e-data-management/commit/f4907c548c9977d05e21eea42fb7c0898b1fa4ca))
+* PEP8 ([`98f1c54`](https://github.com/UCSD-E4E/e4e-data-management/commit/98f1c54aa7761f42449ecadbde5abbe95b528a40))
 
-* Merging test_app and test_mock_app ([`a1d8a13`](https://github.com/UCSD-E4E/e4e-data-management/commit/a1d8a13477f15692a9b9ebf40a835ff98b9eb4c6))
+* Merging test_app and test_mock_app ([`8c9bfb6`](https://github.com/UCSD-E4E/e4e-data-management/commit/8c9bfb67404bc3dae261ab7dc7abb89b0d9fb8bb))
 
-* Updated version ([`a68ba29`](https://github.com/UCSD-E4E/e4e-data-management/commit/a68ba296cbffca4e0fa0b2baa0316ade6e10ecf2))
+* Updated version ([`539eaed`](https://github.com/UCSD-E4E/e4e-data-management/commit/539eaedf5d46d4875f8ff9eaee5ac583dcf6f3d8))
 
-* Added push and duplicate ([`d495c22`](https://github.com/UCSD-E4E/e4e-data-management/commit/d495c22eba584714e35cff3d041772fd57a3eeb5))
+* Added push and duplicate ([`fcf695f`](https://github.com/UCSD-E4E/e4e-data-management/commit/fcf695f553c0b791dd36f1e45a6d71bb57d3f796))
 
-* Updating readme ([`8de6ae9`](https://github.com/UCSD-E4E/e4e-data-management/commit/8de6ae9b5f2e9082ecc1af94678a2ba8a9011f1a))
+* Updating readme ([`8d0f4d2`](https://github.com/UCSD-E4E/e4e-data-management/commit/8d0f4d2832d74d86198075f80f4745c2ae1ac00a))
 
-* Removing old data_generator.ipynb ([`7dd4f1d`](https://github.com/UCSD-E4E/e4e-data-management/commit/7dd4f1db08d43794f423edfdce1fa4e7fbd97b3a))
+* Removing old data_generator.ipynb ([`1702925`](https://github.com/UCSD-E4E/e4e-data-management/commit/1702925f9f2afe24fe5ff8c1fa7ec74b767b736f))
 
-* Enabled branch coverage ([`a4adfd4`](https://github.com/UCSD-E4E/e4e-data-management/commit/a4adfd4df5c2f955615f3cfb04d3989bbddffd00))
+* Enabled branch coverage ([`14bdd5f`](https://github.com/UCSD-E4E/e4e-data-management/commit/14bdd5f1d0301732ddd97176b1f66c0316f6af49))
 
-* Added bdist_wheel workflow ([`c26c896`](https://github.com/UCSD-E4E/e4e-data-management/commit/c26c89636d7db877b614a0e7cafc67628f761330))
+* Added bdist_wheel workflow ([`dd08bf5`](https://github.com/UCSD-E4E/e4e-data-management/commit/dd08bf524589e6b7f3294a6b652f5ce6a89d9c4b))
 
-* Updated pylint notes ([`146e151`](https://github.com/UCSD-E4E/e4e-data-management/commit/146e151b84cf5adad794557a416109ad3d8f2804))
+* Updated pylint notes ([`b7e0a78`](https://github.com/UCSD-E4E/e4e-data-management/commit/b7e0a78c89b53fdbdf790d782c244820ed70ba15))
 
-* Added commit cli ([`afc257a`](https://github.com/UCSD-E4E/e4e-data-management/commit/afc257aa4e4bd0427f92eacbac10ef4994b70ddf))
+* Added commit cli ([`514325d`](https://github.com/UCSD-E4E/e4e-data-management/commit/514325d4cd01b4a4bc95d0985f7b8ffd00bd0441))
 
-* Pruning imports ([`24c3630`](https://github.com/UCSD-E4E/e4e-data-management/commit/24c3630daa2011f1f2d059e5a44a838f17f8fc8f))
+* Pruning imports ([`cd488d5`](https://github.com/UCSD-E4E/e4e-data-management/commit/cd488d57ae0aa4b1142cfe6a7fee7e7f43ed19ec))
 
-* Updated data generation ([`ad7dfaf`](https://github.com/UCSD-E4E/e4e-data-management/commit/ad7dfaf6417dd3c70e78b6cc347844804fe9ddb2))
+* Updated data generation ([`7f1ce27`](https://github.com/UCSD-E4E/e4e-data-management/commit/7f1ce270c3dcfcbe93aaa32479be1dbfc353e9c6))
 
-* Added add_files test ([`76ce179`](https://github.com/UCSD-E4E/e4e-data-management/commit/76ce179673bcb0bf5bb66b0c1be5defe4e936ce5))
+* Added add_files test ([`25722c4`](https://github.com/UCSD-E4E/e4e-data-management/commit/25722c47a5e7ec1f9058c2a3bd1871ff93916c81))
 
-* Updated imports ([`57183a2`](https://github.com/UCSD-E4E/e4e-data-management/commit/57183a26106d0142874b71ca1b71838442605125))
+* Updated imports ([`733a87d`](https://github.com/UCSD-E4E/e4e-data-management/commit/733a87d4f6c466b27137d9b4e7926d6a93cd6b0c))
 
-* Updated to use fixture ([`79a892a`](https://github.com/UCSD-E4E/e4e-data-management/commit/79a892a8036732de6a0e3a55d3ebf79d73b03eef))
+* Updated to use fixture ([`af13f5f`](https://github.com/UCSD-E4E/e4e-data-management/commit/af13f5f54a301d63ef5ddb8f22c54235c17800ac))
 
-* Added CLI tests ([`c0d0551`](https://github.com/UCSD-E4E/e4e-data-management/commit/c0d05510165d4fcdb0caf081bb2234cfcbff379b))
+* Added CLI tests ([`40cbf48`](https://github.com/UCSD-E4E/e4e-data-management/commit/40cbf48ae7b5f6cce39af04f5dda74398a5e723f))
 
-* Fixed naming ([`f457c60`](https://github.com/UCSD-E4E/e4e-data-management/commit/f457c6000b8d823090973612347fed018117e2a9))
+* Fixed naming ([`0f4576a`](https://github.com/UCSD-E4E/e4e-data-management/commit/0f4576ae62bc7c46c86c2456be16ab50a5946eb1))
 
-* Updated usage ([`2c59a20`](https://github.com/UCSD-E4E/e4e-data-management/commit/2c59a20320af6ed7639f46c623c1e073d8cca592))
+* Updated usage ([`6ccb453`](https://github.com/UCSD-E4E/e4e-data-management/commit/6ccb4531fb83e23944fc7dffcd7ddb57b535d589))
 
-* Fixed load error handling ([`ad20d47`](https://github.com/UCSD-E4E/e4e-data-management/commit/ad20d47f59b9121150e3a81794372e166900bd82))
+* Fixed load error handling ([`ed05af2`](https://github.com/UCSD-E4E/e4e-data-management/commit/ed05af2e85628149ff9782354d140e3c352e77dd))
 
-* Fixed load ([`d765a64`](https://github.com/UCSD-E4E/e4e-data-management/commit/d765a64884b72a2d38a98679c3c8d48fcd7ce64f))
+* Fixed load ([`946ade0`](https://github.com/UCSD-E4E/e4e-data-management/commit/946ade0a270c1016762c9129f610d7a116faabf7))
 
-* Implemented commit ([`1d72615`](https://github.com/UCSD-E4E/e4e-data-management/commit/1d726150fb9cdb75fabc66e6eac99daf136b1082))
+* Implemented commit ([`3f31848`](https://github.com/UCSD-E4E/e4e-data-management/commit/3f3184875cb734b4b77fba4b3ffef02431a538ef))
 
-* Removed old modules ([`8f88d71`](https://github.com/UCSD-E4E/e4e-data-management/commit/8f88d717e7d2aac4627e9efb93fd3d18af312c6c))
+* Removed old modules ([`3466be0`](https://github.com/UCSD-E4E/e4e-data-management/commit/3466be06399602b0ca902fd2c3101ff9667cfab3))
 
-* Fixed final newline ([`6793ef8`](https://github.com/UCSD-E4E/e4e-data-management/commit/6793ef849ad0b4dd1a0ac9d3e380d094d762e161))
+* Fixed final newline ([`58dbed6`](https://github.com/UCSD-E4E/e4e-data-management/commit/58dbed63892774c2e5657ed03486ecd53fa96e24))
 
-* Merged app config into app ([`49cb725`](https://github.com/UCSD-E4E/e4e-data-management/commit/49cb725cb14d1c7fe6b5fe0ca91d5cf99c114037))
+* Merged app config into app ([`42a722c`](https://github.com/UCSD-E4E/e4e-data-management/commit/42a722c3ef76f93a614e2b36d5218fd28a6adbe4))
 
-* Added initial staging logic ([`3aae88e`](https://github.com/UCSD-E4E/e4e-data-management/commit/3aae88e61d19a91669474796fbb6a5774b1522ff))
+* Added initial staging logic ([`f6c370b`](https://github.com/UCSD-E4E/e4e-data-management/commit/f6c370b2d796065edecaaf32241981706206bf48))
 
-* Checking that app state is updated ([`9409517`](https://github.com/UCSD-E4E/e4e-data-management/commit/940951746cf63466a21a7a4f3bc488b6b8d5f488))
+* Checking that app state is updated ([`3207d98`](https://github.com/UCSD-E4E/e4e-data-management/commit/3207d98e3899e956154c4c5a9a366194de01df7e))
 
-* Fixed state ([`2349bdd`](https://github.com/UCSD-E4E/e4e-data-management/commit/2349bdddffb257f51056e7d871a582f15b909076))
+* Fixed state ([`84277f4`](https://github.com/UCSD-E4E/e4e-data-management/commit/84277f4841e15939cfa84d124f3a9c2739017fc7))
 
-* Fixed config load error handling ([`15cf1f9`](https://github.com/UCSD-E4E/e4e-data-management/commit/15cf1f962b0718b1571f2dafe26e9cdf3bba11ed))
+* Fixed config load error handling ([`602f9a4`](https://github.com/UCSD-E4E/e4e-data-management/commit/602f9a4181e4c588b61da33a4b1a011be6a99c66))
 
-* Updated logic ([`51b2f3c`](https://github.com/UCSD-E4E/e4e-data-management/commit/51b2f3c65b1ef3358de50c653737b82ef5d88e62))
+* Updated logic ([`1a2543c`](https://github.com/UCSD-E4E/e4e-data-management/commit/1a2543c66de7adae28c13737d86a5f213ecee966))
 
-* Removed old executables ([`b499350`](https://github.com/UCSD-E4E/e4e-data-management/commit/b4993504ccfd7e4bdc396536458b9d35ea3956d9))
+* Removed old executables ([`74702b6`](https://github.com/UCSD-E4E/e4e-data-management/commit/74702b6b57d40012fe0708fb78a68348641c02a1))
 
-* Removing old files ([`e32e224`](https://github.com/UCSD-E4E/e4e-data-management/commit/e32e22480f8fadd940a07c88827e7c8321a26c4f))
+* Removing old files ([`88319b2`](https://github.com/UCSD-E4E/e4e-data-management/commit/88319b23e56da363a28c9e641b3e2addb6619423))
 
-* Fixed error state ([`a1d6702`](https://github.com/UCSD-E4E/e4e-data-management/commit/a1d67022629a00dbd4b857edc0784cc70f882c6f))
+* Fixed error state ([`b9b5737`](https://github.com/UCSD-E4E/e4e-data-management/commit/b9b5737315b8d3c6694dd8662f213c7ba975e00a))
 
-* Fixed error state ([`05605b1`](https://github.com/UCSD-E4E/e4e-data-management/commit/05605b1dc92f64c2952e533e88d0537aa3ed6b7c))
+* Fixed error state ([`4b593da`](https://github.com/UCSD-E4E/e4e-data-management/commit/4b593dac29c51d0756cb0fda3c14ad7e108e3abf))
 
-* Fixed error handling ([`94bd82f`](https://github.com/UCSD-E4E/e4e-data-management/commit/94bd82f20c2daef9af83b1e92ecd75fd983cf856))
+* Fixed error handling ([`8104f81`](https://github.com/UCSD-E4E/e4e-data-management/commit/8104f8162057c992257d92c30ebf8a0bbb05822a))
 
-* Fixed list output ([`a7f018f`](https://github.com/UCSD-E4E/e4e-data-management/commit/a7f018fefc305cf3c4b07f48c1132b90854f9738))
+* Fixed list output ([`8a1f91d`](https://github.com/UCSD-E4E/e4e-data-management/commit/8a1f91d77c1d3bd23e9571bc52cae43736ab06e5))
 
-* Fixed statefulness of config ([`72ad0c4`](https://github.com/UCSD-E4E/e4e-data-management/commit/72ad0c4f34c8cccb652b71b0ec4959bd178ce763))
+* Fixed statefulness of config ([`08d0f91`](https://github.com/UCSD-E4E/e4e-data-management/commit/08d0f91d0e705c75d559400d21e5410bca1ba2e0))
 
-* Fixed repeat init_dataset ([`7f0cbc1`](https://github.com/UCSD-E4E/e4e-data-management/commit/7f0cbc199bf2b4559242897f3f526bcb21099e25))
+* Fixed repeat init_dataset ([`316692c`](https://github.com/UCSD-E4E/e4e-data-management/commit/316692c3042c51b55f813fb77351359110f7c56c))
 
-* Added convenience commands ([`0829fcd`](https://github.com/UCSD-E4E/e4e-data-management/commit/0829fcda491288cbe3ab546f9655172a1caba339))
+* Added convenience commands ([`1c10bbd`](https://github.com/UCSD-E4E/e4e-data-management/commit/1c10bbdf6da8b6e7108e3a56fc5685aabd896347))
 
-* Adding initial folder structure design ([`e94a7e8`](https://github.com/UCSD-E4E/e4e-data-management/commit/e94a7e8db84b1351842c9130ace5e284fd6481ce))
+* Adding initial folder structure design ([`3cbf342`](https://github.com/UCSD-E4E/e4e-data-management/commit/3cbf342d53855f6aed31fd6184ef31e7d3c1375e))
 
-* Added init_dataset tests ([`63242fc`](https://github.com/UCSD-E4E/e4e-data-management/commit/63242fc72a8a7325bd40c388db1b16969c2fee80))
+* Added init_dataset tests ([`66aca89`](https://github.com/UCSD-E4E/e4e-data-management/commit/66aca89013092a7365dbec9308e9c13635065fe6))
 
-* Removed old interfaces, using status ([`8e3158f`](https://github.com/UCSD-E4E/e4e-data-management/commit/8e3158f991af88cbf1cd123d690725137200ee27))
+* Removed old interfaces, using status ([`763c234`](https://github.com/UCSD-E4E/e4e-data-management/commit/763c234d15b915656f23425037bc0e6b3c5b18f9))
 
-* Added app config bypass for testing ([`a9506a4`](https://github.com/UCSD-E4E/e4e-data-management/commit/a9506a418436d734ad6d30184c9373a0b64ae602))
+* Added app config bypass for testing ([`daa481e`](https://github.com/UCSD-E4E/e4e-data-management/commit/daa481e0574047a865e11e31632cea53c655d591))
 
-* Updated command line flags for init_dataset ([`39af7ee`](https://github.com/UCSD-E4E/e4e-data-management/commit/39af7eedf0c5042bc801a7b05f451a704870c779))
+* Updated command line flags for init_dataset ([`a4b17be`](https://github.com/UCSD-E4E/e4e-data-management/commit/a4b17bed86d6f3821c8db5ccb7f615ad2a52e391))
 
-* Removed read creation ([`53332c3`](https://github.com/UCSD-E4E/e4e-data-management/commit/53332c3dab314f7959bedd6e10802aa042a5bb42))
+* Removed read creation ([`5f57763`](https://github.com/UCSD-E4E/e4e-data-management/commit/5f57763078838faa48470fd29d918e5b4011a3bb))
 
-* Fixed windows test ([`de57bc2`](https://github.com/UCSD-E4E/e4e-data-management/commit/de57bc26a24a0c692260b9ae08b17aab782492c4))
+* Fixed windows test ([`51d94c7`](https://github.com/UCSD-E4E/e4e-data-management/commit/51d94c7de492b3584ed031c3874901353d4a3cc0))
 
-* Updated core logic ([`ad9020f`](https://github.com/UCSD-E4E/e4e-data-management/commit/ad9020f5b6346c79a431351c022fa022eb7a86a7))
+* Updated core logic ([`e31965b`](https://github.com/UCSD-E4E/e4e-data-management/commit/e31965b970f6fc27301529e556e418e86bcc7cce))
 
-* Using activate instead of select ([`9251598`](https://github.com/UCSD-E4E/e4e-data-management/commit/9251598cfc9ecd51fa0cf6ed50e50f96999f99ca))
+* Using activate instead of select ([`dd4a6bd`](https://github.com/UCSD-E4E/e4e-data-management/commit/dd4a6bd7fa9db65630de5b4ba344d688c98293a6))
 
-* Renamed core to cli ([`8def0c3`](https://github.com/UCSD-E4E/e4e-data-management/commit/8def0c370fae2b6dfe9f59a236f12474f2c1023d))
+* Renamed core to cli ([`1814a63`](https://github.com/UCSD-E4E/e4e-data-management/commit/1814a63446d2cc3473ec2e543a924db3bc64de49))
 
-* Made interface more git-like ([`62010ca`](https://github.com/UCSD-E4E/e4e-data-management/commit/62010ca9e40f380e55811b64c6872a79efc0edd3))
+* Made interface more git-like ([`e6d4648`](https://github.com/UCSD-E4E/e4e-data-management/commit/e6d4648f9fc6b41ea2043743de1fb5c62ad8da90))
 
-* Added e4edm interface ([`41688d6`](https://github.com/UCSD-E4E/e4e-data-management/commit/41688d6c0062aa7b744ef14dc34fe33e7ec55231))
+* Added e4edm interface ([`18de0bb`](https://github.com/UCSD-E4E/e4e-data-management/commit/18de0bbf812bb7be32d23d80d6b565d8c359e4e8))
 
-* Updated pylint ([`7343c18`](https://github.com/UCSD-E4E/e4e-data-management/commit/7343c1832afd354b36264004bbc7e5a12384ba7a))
+* Updated pylint ([`9fd6b78`](https://github.com/UCSD-E4E/e4e-data-management/commit/9fd6b78907868123ef21df0bf1093dcd057b8c30))
 
-* Added schema to install_requires ([`277e6a3`](https://github.com/UCSD-E4E/e4e-data-management/commit/277e6a3487ba02ea60270d6325ab6591f22934d5))
+* Added schema to install_requires ([`7d0330e`](https://github.com/UCSD-E4E/e4e-data-management/commit/7d0330ea49f992c5690a698e8817a39378dee7ca))
 
-* Added pytest ([`6844b6e`](https://github.com/UCSD-E4E/e4e-data-management/commit/6844b6e0261b5b2e04e5180e2266ee9fe2bfe0ae))
+* Added pytest ([`b2a6f71`](https://github.com/UCSD-E4E/e4e-data-management/commit/b2a6f71eb573eb46572144229c507a64d9bd7a6c))
 
-* Added commit tool structure ([`1ee1bba`](https://github.com/UCSD-E4E/e4e-data-management/commit/1ee1bbae9164485bb729ccb8a5d6adc4095ac0d9))
+* Added commit tool structure ([`b55e8fc`](https://github.com/UCSD-E4E/e4e-data-management/commit/b55e8fc45260655fa60aa209e67e56f643ab1acc))
 
-* Fixed to disallow creation of non-timezone aware metadatas ([`6118c52`](https://github.com/UCSD-E4E/e4e-data-management/commit/6118c526e34827b1c2f9753f03a096aea77f3b40))
+* Fixed to disallow creation of non-timezone aware metadatas ([`3fe96a0`](https://github.com/UCSD-E4E/e4e-data-management/commit/3fe96a00d9fc36229010f35847ad4a514b7ebe4e))
 
-* Added completed dataset fixtures ([`cdc5e40`](https://github.com/UCSD-E4E/e4e-data-management/commit/cdc5e4020454af9994bdbf86a8deb682e298d33f))
+* Added completed dataset fixtures ([`18c110a`](https://github.com/UCSD-E4E/e4e-data-management/commit/18c110a96075bfa1b8843da274fce2175f3bbf3c))
 
-* Added duplication structure ([`ef8cfe4`](https://github.com/UCSD-E4E/e4e-data-management/commit/ef8cfe4d8a15c35eb8dbde674d2694005201384c))
+* Added duplication structure ([`c7b14b7`](https://github.com/UCSD-E4E/e4e-data-management/commit/c7b14b733af92b57e9f158e59c472b394a698e9c))
 
-* Added validation and test generator ([`1d79552`](https://github.com/UCSD-E4E/e4e-data-management/commit/1d7955255b0690e37e19e80ede269ad5155c04b3))
+* Added validation and test generator ([`95b3ce3`](https://github.com/UCSD-E4E/e4e-data-management/commit/95b3ce3f98f8bc9e2bc895ea7875b5d4bb996974))
 
-* Added validators ([`7a03473`](https://github.com/UCSD-E4E/e4e-data-management/commit/7a03473494131674a9ad6ce0145de3a94c13bbe0))
+* Added validators ([`b954ba6`](https://github.com/UCSD-E4E/e4e-data-management/commit/b954ba6a5cd74c93457348d1dda72d10eca22bf1))
 
-* Added test dataset and generator ([`c60529a`](https://github.com/UCSD-E4E/e4e-data-management/commit/c60529a2302bbf589ba414dc6ce4f299b2470e17))
+* Added test dataset and generator ([`cec6ae7`](https://github.com/UCSD-E4E/e4e-data-management/commit/cec6ae71b238c27a81a500bf66b0bffeaef4f7c1))
 
-* Fixed naming ([`1194483`](https://github.com/UCSD-E4E/e4e-data-management/commit/1194483b566b3ce2612649e5de19fa9c204ded94))
+* Fixed naming ([`f380bf7`](https://github.com/UCSD-E4E/e4e-data-management/commit/f380bf71f836fa8c9540f10f7944933047be983a))
 
-* Added manifest logic ([`153cc14`](https://github.com/UCSD-E4E/e4e-data-management/commit/153cc14d0dacd0fbccfcf16f69b43779b5190db4))
+* Added manifest logic ([`d729026`](https://github.com/UCSD-E4E/e4e-data-management/commit/d72902601351a1078231be0fb2e59c5753fb7de7))
 
-* Removed unused jupyter notebook ([`3fce8c2`](https://github.com/UCSD-E4E/e4e-data-management/commit/3fce8c2e2071ff204a9f746da3f91e0ce4122322))
+* Removed unused jupyter notebook ([`9059199`](https://github.com/UCSD-E4E/e4e-data-management/commit/9059199dcd6944e14532e5302ff361925f02dabe))
 
-* Updated README ([`3682652`](https://github.com/UCSD-E4E/e4e-data-management/commit/3682652dc52160f6c415b7a56d83cbec18b66215))
+* Updated README ([`5dae09b`](https://github.com/UCSD-E4E/e4e-data-management/commit/5dae09b61f13fe08b7f6f2e82801f727f02b9d48))
 
-* Initial changes ([`63964f4`](https://github.com/UCSD-E4E/e4e-data-management/commit/63964f451b435ed37029bf98430a4d900ab5efe2))
+* Initial changes ([`be60b28`](https://github.com/UCSD-E4E/e4e-data-management/commit/be60b281a42d3d5c9040ae341525e8f87e7560f8))
 
-* Initial commit ([`bc952ba`](https://github.com/UCSD-E4E/e4e-data-management/commit/bc952baf68fb296701a408178f529995be83d262))
+* Initial commit ([`5ae3eb2`](https://github.com/UCSD-E4E/e4e-data-management/commit/5ae3eb296e5eea5f096abe58e02937627928bb8e))
