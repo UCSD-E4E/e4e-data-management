@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.5.1 (2026-04-01)
+
+### Fix
+
+* fix: better error handling ([`b9269bd`](https://github.com/UCSD-E4E/e4e-data-management/commit/b9269bd8545ef3d1de8a60ad5cabeb36baf68a03))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of github.com:UCSD-E4E/e4e-data-management ([`56e884d`](https://github.com/UCSD-E4E/e4e-data-management/commit/56e884d8ccb4d86b94792bbff6622b4bf841934c))
+
 ## v0.5.0 (2026-04-01)
 
 ### Chore
@@ -21,6 +31,8 @@ Co-Authored-By: Claude Sonnet 4.6 &lt;noreply@anthropic.com&gt; ([`0dd5256`](htt
 * feat: initial UI system ([`b2ad629`](https://github.com/UCSD-E4E/e4e-data-management/commit/b2ad62963de1c31bf2e39b0b307de7d9f59b66ab))
 
 ### Fix
+
+* fix: fetch tags as part of release ([`2c37374`](https://github.com/UCSD-E4E/e4e-data-management/commit/2c37374bdd2459b00875d047d6b7bf970f27e76a))
 
 * fix: codeql python ([`98ede65`](https://github.com/UCSD-E4E/e4e-data-management/commit/98ede65e3fccf85cf51fdb3a35c3a7cb465aadfb))
 
