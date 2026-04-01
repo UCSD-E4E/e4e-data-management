@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.5.2 (2026-04-01)
+
+### Fix
+
+* fix: pylint issues ([`6223a6d`](https://github.com/UCSD-E4E/e4e-data-management/commit/6223a6dcdaa77dab12e6fb397c2b1de337870289))
+
 ## v0.5.1 (2026-04-01)
 
 ### Fix
