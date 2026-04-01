@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.5.3 (2026-04-01)
+
+### Fix
+
+* fix: better logging ([`deab0e9`](https://github.com/UCSD-E4E/e4e-data-management/commit/deab0e9262cb334f8f98cf456d1e415f809648f7))
+
 ## v0.5.2 (2026-04-01)
 
 ### Fix
