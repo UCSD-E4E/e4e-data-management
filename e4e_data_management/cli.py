@@ -397,7 +397,14 @@ class DataManagerCLI:
                         last_t[0] = now
                         progress.update(val_task, completed=counts[1])
 
-            self.app.push_with_progress(path, on_push_progress)
+            try:
+                self.app.push_with_progress(path, on_push_progress)
+            except RuntimeError as exc:
+                if 'os error 2' in str(exc):
+                    raise RuntimeError(
+                        f'Path not found: {path.resolve()}'
+                    ) from exc
+                raise
 
     def __configure_push_parser(self, parser: argparse.ArgumentParser):
         parser.add_argument('path', type=Path)
