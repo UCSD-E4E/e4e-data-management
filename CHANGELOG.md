@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.6.0 (2026-04-18)
+
+### Feature
+
+* feat: add progress bar for cli ([`4b77d01`](https://github.com/UCSD-E4E/e4e-data-management/commit/4b77d013cca0a2c65113af5379883e158f16b52d))
+
+### Unknown
+
+* additional error reporting ([`af80c93`](https://github.com/UCSD-E4E/e4e-data-management/commit/af80c935e30fb0cec71f7ac3edadc5d203e03cae))
+
 ## v0.5.4 (2026-04-01)
 
 ### Fix
