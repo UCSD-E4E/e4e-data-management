@@ -218,6 +218,22 @@ impl PyDataset {
     fn validate_failures(&self) -> PyResult<Vec<String>> {
         Ok(dataset::validate_dataset_failures(&self.inner.root)?)
     }
+
+    fn validate_failures_with_progress(
+        &self,
+        py: Python<'_>,
+        callback: Py<PyAny>,
+    ) -> PyResult<Vec<String>> {
+        let root = self.inner.root.clone();
+        py.detach(move || {
+            dataset::validate_dataset_failures_with_progress(&root, |current, total| {
+                Python::attach(|py| {
+                    let _ = callback.call1(py, (current, total));
+                });
+            })
+        })
+        .map_err(PyErr::from)
+    }
 }
 
 // ─────────────────────────────────────────────────────────────

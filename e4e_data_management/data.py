@@ -101,6 +101,10 @@ class Dataset:
     def validate_failures(self) -> list:
         return self._inner.validate_failures()
 
+    def validate_failures_with_progress(self, callback) -> list:
+        """Same as validate_failures, but invokes callback(current, total) as files are checked."""
+        return self._inner.validate_failures_with_progress(callback)
+
     @property
     def manifest(self) -> Manifest:
         return self._manifest

@@ -109,23 +109,32 @@ class DataManagerCLI:
         parser.set_defaults(func=self.__external_validate)
 
     def __external_validate(self, root_dir: Optional[Path]):
-        if root_dir is None:
-            with Progress(
-                SpinnerColumn(),
-                TextColumn('[bold blue]{task.description}'),
-                BarColumn(),
-                MofNCompleteColumn(),
-                TimeRemainingColumn(),
-            ) as progress:
-                task = progress.add_task('Validating\u2026', total=None)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn('[bold blue]{task.description}'),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeRemainingColumn(),
+            speed_estimate_period=600,
+        ) as progress:
+            task = progress.add_task('Validating\u2026', total=None)
+            # Parallel callbacks arrive in bursts with identical timestamps, which
+            # prevents Rich from computing a rate.  Render at most 10 times per
+            # second so samples are spaced in time.
+            last_t = [time.monotonic()]
+            interval = 0.1
 
-                def on_validate_progress(current: int, total: int) -> None:
+            def on_validate_progress(current: int, total: int) -> None:
+                now = time.monotonic()
+                if now - last_t[0] >= interval or current == total:
+                    last_t[0] = now
                     progress.update(task, completed=current, total=total)
 
+            if root_dir is None:
                 failures = self.app.validate_failures_with_progress(on_validate_progress)
-        else:
-            dataset = Dataset.load(path=root_dir)
-            failures = dataset.validate_failures()
+            else:
+                dataset = Dataset.load(path=root_dir)
+                failures = dataset.validate_failures_with_progress(on_validate_progress)
 
         if failures:
             print('Dataset validation failed:')
