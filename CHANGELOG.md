@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.6.1 (2026-04-19)
+
+### Fix
+
+* fix: build abi3 wheel to decouple from manylinux python3 version
+
+The manylinux2014 container&#39;s default python3 is 3.8, which fails
+requires-python=&#34;&gt;=3.11&#34;, causing maturin to report no interpreters
+found. Enabling pyo3 abi3-py311 produces a single cp311-abi3 wheel
+that works on Python 3.11+, independent of the container&#39;s python3.
+
+Co-Authored-By: Claude Opus 4.7 (1M context) &lt;noreply@anthropic.com&gt; ([`e7bb903`](https://github.com/UCSD-E4E/e4e-data-management/commit/e7bb9030b3be3e87270ec41dd052d8fbb51c2901))
+
 ## v0.6.0 (2026-04-18)
 
 ### Feature
